@@ -20,6 +20,7 @@ target/release/recorder benchmark --suite v3-smoke --output-dir target/v3-smoke-
 録画は非圧縮・非 Chunk です。復旧時は元ファイルと journal を読み、CRC と commit membership で確認できる範囲を報告します。同期証拠のない可読データは未確定です。プロセスのメモリにしか残らなかったイベントや、送信側の連番・観測情報が提供されない事前欠損には、独立した照合元が必要です。復旧コピーは非圧縮 Chunk/Index 付きです。ライブローテーション、実 Adapter、製品 SDK とハードウェアの試験は未実施です。
 
 - [V3 検証結果、未達、実機対応状況](docs/v3-report.md)
+- [Deadline-aware BufferLease の比較試験](docs/deadline-aware-bufferlease.md)
 - [アーキテクチャ](docs/architecture.md) と [不変条件](docs/invariants.md)
 - [復旧操作](docs/recovery.md) と [同期境界](docs/storage-durability.md)
 - [性能測定方法](docs/performance-methodology.md) と [リファクタリング結果](docs/refactor-report.md)
