@@ -5,7 +5,7 @@ use std::process::{Command, Output};
 use serde_json::Value;
 use tempfile::TempDir;
 
-fn fixture(mode: &str, writer: &str, faults: &str) -> (TempDir, Output) {
+fn setup(mode: &str, writer: &str, faults: &str) -> TempDir {
     let dir = tempfile::tempdir().unwrap();
     let config = format!(
         r#"
@@ -41,20 +41,28 @@ return_delay_us = 300
 "#
     );
     fs::write(dir.path().join("config.toml"), config).unwrap();
-    let result = command(dir.path())
-        .args([
-            "record",
-            "--config",
-            "config.toml",
-            "--output",
-            "run.mcap",
-            "--duration-sec",
-            "0.16",
-            "--allow-unverified",
-        ])
-        .output()
-        .unwrap();
-    (dir, result)
+    dir
+}
+
+fn record(path: &Path, seconds: &str) -> Command {
+    let mut runner = command(path);
+    runner.args([
+        "record",
+        "--config",
+        "config.toml",
+        "--output",
+        "run.mcap",
+        "--duration-sec",
+        seconds,
+        "--allow-unverified",
+    ]);
+    runner
+}
+
+fn fixture(mode: &str, writer: &str, faults: &str) -> (TempDir, Output) {
+    let dir = setup(mode, writer, faults);
+    let output = record(dir.path(), "0.16").output().unwrap();
+    (dir, output)
 }
 
 fn command(path: &Path) -> Command {
@@ -160,4 +168,80 @@ fn failed_message_cannot_be_committed_on_eio_or_enospc() {
         assert_eq!(report["sources"][0]["committed"], 4);
         assert_eq!(recover(dir.path())["committed_with_evidence"], 4);
     }
+}
+
+#[test]
+fn overlap_kill_recovers_only_the_evidenced_prefix() {
+    use std::process::Stdio;
+    use std::time::{Duration, Instant};
+
+    let dir = setup("overlap", "sync", "durability_sync_delay_ms = 80");
+    let mut child = record(dir.path(), "4")
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+        .unwrap();
+    let stop = Instant::now() + Duration::from_secs(3);
+    let path = dir.path();
+    let mut observed = false;
+    while Instant::now() < stop {
+        let journal = fs::read_to_string(path.join("run-commits.jsonl")).unwrap_or_default();
+        if journal.contains(r#""type":"frames""#)
+            && fs::metadata(path.join("run.mcap")).is_ok_and(|data| data.len() > 6 * 8192)
+        {
+            observed = true;
+            break;
+        }
+        if child.try_wait().unwrap().is_some() {
+            break;
+        }
+        std::thread::sleep(Duration::from_millis(2));
+    }
+    let _ = child.kill();
+    child.wait().unwrap();
+    assert!(observed);
+    let result = recover(path);
+    assert!(result["committed_with_evidence"].as_u64().unwrap() >= 4);
+    assert!(result["recovered_but_unconfirmed"].as_u64().unwrap() >= 1);
+}
+
+#[test]
+fn overlap_rejects_zero_or_impossible_limits_before_recording() {
+    for (valid, invalid) in [
+        ("event_queue_capacity = 1", "event_queue_capacity = 0"),
+        ("max_pending_groups = 2", "max_pending_groups = 0"),
+        ("max_pending_bytes = 66000", "max_pending_bytes = 8192"),
+    ] {
+        let dir = setup("overlap", "sync", "");
+        let path = dir.path().join("config.toml");
+        let cfg = fs::read_to_string(&path).unwrap().replace(valid, invalid);
+        fs::write(path, cfg).unwrap();
+        assert!(
+            !record(dir.path(), "0.16")
+                .output()
+                .unwrap()
+                .status
+                .success()
+        );
+        assert!(!dir.path().join("run.mcap").exists());
+    }
+}
+
+#[test]
+fn recovery_does_not_trust_a_readable_journal_after_reported_rollback_failure() {
+    let (dir, output) = fixture("overlap", "sync", "");
+    assert!(output.status.success(), "{output:?}");
+    let mut report = read(dir.path(), "run-summary.json");
+    report["durability"]["journal"]["rollback_failed"] = true.into();
+    fs::write(
+        dir.path().join("run-summary.json"),
+        serde_json::to_vec(&report).unwrap(),
+    )
+    .unwrap();
+    let recovered = recover(dir.path());
+    assert_eq!(recovered["committed_with_evidence"], 0);
+    assert_eq!(
+        recovered["recovered_but_unconfirmed"],
+        recovered["readable_messages"]
+    );
 }

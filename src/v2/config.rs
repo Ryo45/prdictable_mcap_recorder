@@ -15,7 +15,7 @@ pub const MIB: u64 = 1024 * 1024;
 #[serde(deny_unknown_fields)]
 pub struct Settings {
     pub record: Record,
-    #[serde(default, skip_serializing_if = "Durability::is_default")]
+    #[serde(default, skip_serializing)]
     pub durability: Durability,
     #[serde(default)]
     pub storage_profile: StorageProfile,
@@ -63,10 +63,6 @@ impl Default for Durability {
 }
 
 impl Durability {
-    fn is_default(&self) -> bool {
-        *self == Self::default()
-    }
-
     pub fn sealed_limit(&self) -> usize {
         self.max_pending_groups.min(self.event_queue_capacity)
     }

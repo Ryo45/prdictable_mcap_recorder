@@ -23,7 +23,7 @@ Writer→Coordinator の通知は `Submitted`、`completed(request, frame, succe
 
 ## 設定と上限
 
-旧 `[record]` の `commit_bytes`、`commit_messages`、`commit_interval_ms` を引き続き読める。新欄に値がある場合は項目ごとに都度上書きし、Plan／Verifier 向けのサマリーに有効値を保存する。モード未指定では Barrier。例の閾値は実運用の推奨変更ではなく、比較時の値。
+旧 `[record]` の `commit_bytes`、`commit_messages`、`commit_interval_ms` を引き続き読める。新欄に値がある場合は項目ごとに都度上書きし、Plan／Verifier 向けの `settings.record` に有効値を保存する。新しいポリシーはサマリー直下の `durability_policy` に保存するため、従来の PC 上の Verifier でも新しい録画を検査できる。モード未指定では Barrier。例の閾値は実運用の推奨変更ではなく、比較時の値。
 
 ```toml
 [durability]
@@ -42,12 +42,12 @@ event_queue_capacity = 2
 
 ## 失敗と終了
 
-元 I/O の失敗を含む範囲は Seal できない。同期・Journal に失敗したグループより後ろを確定しない。Journal の追記や同期に失敗した場合は未確定追記を破棄し、直前の同期済みファイル長へ切り戻して同期する。切り戻しも失敗した場合は `rollback_failed` とエラーを報告する。その場合、Journal の読める末尾を運用上の永続化証拠として扱えない。元の io_uring 輸送障害で I/O が止まったと確認できない場合の Lease 保持は Backend の従来処理を維持する。
+元 I/O の失敗を含む範囲は Seal できない。同期・Journal に失敗したグループより後ろを確定しない。Journal の追記や同期に失敗した場合は未確定追記を破棄し、直前の同期済みファイル長へ切り戻して同期する。切り戻しも失敗した場合は `rollback_failed` とエラーを報告する。その場合、Recovery は終了サマリーのこのフラグを確認した場合に、読める Journal が残っていても確定件数をゼロとして扱う。失敗の報告前にプロセスも停止した場合、フラグが媒体に残る保証はない。元の io_uring 輸送障害で I/O が止まったと確認できない場合の Lease 保持は Backend の従来処理を維持する。
 
 終了では Queue と全 I/O を drain し、Layout が Footer を書いてから最終 Seal。Coordinator の全グループ回収後に Writer が終了し、その後 Monitor が残りの Loss Ledger を同期する。`finalized` は Footer 書込み成功、`final_sync` は最終データ同期成功、`commit_log_synced` と `loss_log_synced` はそれぞれの sidecar の成功。正常終了では全部を独立に確認する。電源断後の媒体上の永続性や実機DMAは今回の試験対象外。
 
 ## テスト
 
-Rust の既存回帰に加え、順逆の完了・重複完了・穴のある境界、注入した同期中の Mock Async Completion と Lease 返却、保留上限待ち、Short Write、EIO、ENOSPC、同期失敗、Journal 失敗の切り戻し、同期ワーカー停止を検査した。小容量の正常ケースでは Recovery も照合。SIGKILL の既存テストは既定 Barrier を検査する。実際の io_uring と物理電源断は未検証。
+Rust の既存回帰に加え、順逆の完了・重複完了・穴のある境界、注入した同期中の Mock Async Completion と Lease 返却、保留上限待ち、Short Write、EIO、ENOSPC、同期失敗、Journal 失敗の切り戻し、同期ワーカー停止を検査した。小容量の正常ケースでは Recovery も照合。SIGKILL は既定 Barrier と Overlap の両方を検査した。実際の io_uring と物理電源断は未検証。
 
 [性能評価](durability-performance.md)

@@ -410,10 +410,19 @@ pub fn run(args: Args) -> Result<()> {
         "unusable recording: {scan_error:?}"
     );
     let mut committed = 0;
-    let journal_error = read_bounded(&super::record::commit_path(&input)?)
-        .and_then(|journal| scan.verify_journal(&bytes, &journal, &mut committed))
-        .err()
-        .map(|error| format!("{error:#}"));
+    let summary = crate::report::Outputs::new(&input)?.summary;
+    let rollback_failed = read_bounded(&summary)
+        .ok()
+        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok())
+        .is_some_and(|report| report["durability"]["journal"]["rollback_failed"] == true);
+    let journal_error = if rollback_failed {
+        Some("journal rollback failed; commit evidence is uncertain".into())
+    } else {
+        read_bounded(&super::record::commit_path(&input)?)
+            .and_then(|journal| scan.verify_journal(&bytes, &journal, &mut committed))
+            .err()
+            .map(|error| format!("{error:#}"))
+    };
     let duplicates = scan.duplicate_identical + scan.duplicate_conflicting;
     if duplicates > 0 {
         committed = 0;

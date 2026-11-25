@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import tomllib
 
 from bench_bounded_ssd import device_for, sample
 from bench_writer_ablation import invoke, preset
@@ -15,7 +16,7 @@ MIB = 1 << 20
 CAP = 6 * (1 << 30)
 
 
-def run_trial(out, binary, label, trial, rate, disk, sensor):
+def run_trial(out, binary, before_binary, label, trial, rate, disk, sensor):
     case = out / f"{rate}-{trial}-{label}"
     case.mkdir()
     high = rate == "fast"
@@ -41,6 +42,13 @@ def run_trial(out, binary, label, trial, rate, disk, sensor):
     verify = case / "verify.json"
     if invoke([str(binary), "verify", "--input", str(data), "--report", str(report)], verify):
         raise RuntimeError(f"verifier failed for {case}")
+    legacy_verified = None
+    if binary != before_binary:
+        legacy_report = case / "verify-before.json"
+        legacy_verified = invoke([str(before_binary), "verify", "--input", str(data),
+                                  "--report", str(report)], legacy_report) == 0
+        if not legacy_verified:
+            raise RuntimeError(f"original binary could not verify {case}")
     recovery_verified = None
     if data.stat().st_size <= 128 * MIB:
         recovery = case / "recover.json"
@@ -57,18 +65,24 @@ def run_trial(out, binary, label, trial, rate, disk, sensor):
     durability = result.get("durability", {})
     # Pool return_latency is configured release→eligibility, hold is acquire→eligibility.
     return dict(mode=label, rate=rate, trial=trial, command=args,
+                config=tomllib.loads(cfg),
                 input_Bps=result["generated_bytes_per_sec"],
                 durable_Bps=result["committed_payload_bytes_per_sec"],
+                data_sync_only_Bps=payload * 1e9 / result["last_sync_elapsed_ns"],
                 session_cpu_s_per_gib=result["process"]["cpu_time_ns"] / 1e9 * (1 << 30) / payload,
                 writer_cpu_s_per_gib=writer_cpu / 1e9 * (1 << 30) / payload if writer_cpu else None,
                 committed_frames=checked["committed_and_verified"], verified=checked["ok"],
-                recovery_verified=recovery_verified,
+                recovery_verified=recovery_verified, legacy_verified=legacy_verified,
                 loss=sum(s["before_accept_loss"]+s["after_accept_loss"] for s in sources),
                 unknown=checked["unknown"], corrupt=checked["corrupt_frames"],
                 copy_bytes=result["copy_bytes"], queue_peak=result["queue_peak"],
                 inflight_peak=result["writing_peak_in_flight"],
                 deadlines=sum(d["pool"]["deadline_exceeded"] for d in result["devices"]),
                 ack_delay=[d["pool"]["return_latency_ns"] for d in result["devices"]],
+                acquire_to_ack=[d["pool"]["hold_ns"] for d in result["devices"]],
+                lease_drop_ns=result["writer"].get("lease_drop_ns"),
+                finalized=result["finalized"], journal_synced=result["commit_log_synced"],
+                loss_synced=result["loss_log_synced"],
                 data_sync=result["timings_ns"]["sync"], durability=durability,
                 max_uncertain_bytes=durability.get("max_uncertain_bytes"),
                 barrier_ns=durability.get("barrier_ns"),
@@ -114,7 +128,7 @@ def main():
             rotation = (trial - 1 + (rate == "fast")) % len(order)
             for label in order[rotation:] + order[:rotation]:
                 print(f"{rate} {trial} {label}", flush=True)
-                rows.append(run_trial(out, before if label == "before" else recorder,
+                rows.append(run_trial(out, before if label == "before" else recorder, before,
                                       label, trial, rate, disk, sensor))
     (out / "results.json").write_text(json.dumps(dict(environment=env, rows=rows), indent=2) + "\n")
     with (out / "results.csv").open("x", newline="") as stream:

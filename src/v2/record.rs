@@ -403,6 +403,7 @@ fn run(
         "sidecar_coverage_uncertain": journal_failures > 0 || !monitor_report.loss_synced || !writer_report.durability.journal_synced,
         "errors":errors,
     });
+    metrics["durability_policy"] = serde_json::to_value(&settings.durability)?;
     if settings
         .sources
         .iter()
