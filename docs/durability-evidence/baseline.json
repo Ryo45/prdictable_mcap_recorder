@@ -1,0 +1,1091 @@
+{
+  "environment": {
+    "affinity": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "free_bytes": 107820216320,
+    "output_cap": 6442450944,
+    "nvme": "KIOXIA-EXCERIA PLUS G3 SSD",
+    "firmware": "ELFA01.2",
+    "mount": "TARGET                                                SOURCE                                                                FSTYPE OPTIONS\n/home/ryo/development/ros2_tools/predictable_recorder /dev/nvme1n1p2[/home/ryo/development/ros2_tools/predictable_recorder] ext4   rw,nosuid,nodev,relatime\n",
+    "before_sha256": "4781537bbb324f5a5ead185450963d2c27c56d8fccc0220ba4b4a227ba9df4ea",
+    "recorder_sha256": "46cffb0374080ca5f8d69163ee7b1515886fe04be7f6975521633a21815013a3"
+  },
+  "rows": [
+    {
+      "mode": "before",
+      "rate": "paced",
+      "trial": 1,
+      "command": [
+        "/tmp/recorder-durability-before/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/paced-1-before/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/paced-1-before/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "input_Bps": 1048258610.5873499,
+      "durable_Bps": 1024730292.6785805,
+      "session_cpu_s_per_gib": 0.6858220600888889,
+      "writer_cpu_s_per_gib": null,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 12,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "data_sync": {
+        "count": 12,
+        "max": 12469851,
+        "mean": 6450299.666666667,
+        "min": 2144068,
+        "p50": 6291455,
+        "p95": 12469851,
+        "p99": 12469851,
+        "p99_9": 12469851
+      },
+      "durability": {},
+      "max_uncertain_bytes": null,
+      "barrier_ns": null,
+      "pending_peak": null,
+      "backpressure_ns": null,
+      "overlap_ns": null,
+      "journal_sync_ns": null,
+      "ssd_before": {
+        "time_ns": 7554368472450813,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2118506329088,
+        "disk_io_busy_ms": 40775496
+      },
+      "ssd_after": {
+        "time_ns": 7554368838546448,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2118695920640,
+        "disk_io_busy_ms": 40775580
+      },
+      "disk_written_bytes": 189591552
+    },
+    {
+      "mode": "barrier",
+      "rate": "paced",
+      "trial": 1,
+      "command": [
+        "/tmp/recorder-durability-worktree/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/paced-1-barrier/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/paced-1-barrier/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "input_Bps": 1048528262.8382558,
+      "durable_Bps": 1016204922.0563031,
+      "session_cpu_s_per_gib": 0.7308572785777778,
+      "writer_cpu_s_per_gib": null,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 12,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "data_sync": {
+        "count": 12,
+        "max": 11300995,
+        "mean": 6419062.75,
+        "min": 2115561,
+        "p50": 6291455,
+        "p95": 11300995,
+        "p99": 11300995,
+        "p99_9": 11300995
+      },
+      "durability": {
+        "barrier_ns": 85974135,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "journal": {
+          "failures": 0,
+          "flush_ns": 33054,
+          "rollback_failed": false,
+          "sync_ns": 8853471,
+          "write_ns": 15700
+        },
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "sync_failures": 0
+      },
+      "max_uncertain_bytes": null,
+      "barrier_ns": 85974135,
+      "pending_peak": null,
+      "backpressure_ns": null,
+      "overlap_ns": null,
+      "journal_sync_ns": 8853471,
+      "ssd_before": {
+        "time_ns": 7554368873054473,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2118695920640,
+        "disk_io_busy_ms": 40775580
+      },
+      "ssd_after": {
+        "time_ns": 7554369239621613,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2118885258240,
+        "disk_io_busy_ms": 40775666
+      },
+      "disk_written_bytes": 189337600
+    },
+    {
+      "mode": "barrier",
+      "rate": "paced",
+      "trial": 2,
+      "command": [
+        "/tmp/recorder-durability-worktree/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/paced-2-barrier/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/paced-2-barrier/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "input_Bps": 1048260630.789227,
+      "durable_Bps": 1015906916.8811221,
+      "session_cpu_s_per_gib": 0.6674000952888889,
+      "writer_cpu_s_per_gib": null,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 12,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "data_sync": {
+        "count": 12,
+        "max": 11389807,
+        "mean": 6398886.083333333,
+        "min": 2155113,
+        "p50": 6291455,
+        "p95": 11389807,
+        "p99": 11389807,
+        "p99_9": 11389807
+      },
+      "durability": {
+        "barrier_ns": 85755008,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "journal": {
+          "failures": 0,
+          "flush_ns": 33516,
+          "rollback_failed": false,
+          "sync_ns": 8882819,
+          "write_ns": 14382
+        },
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "sync_failures": 0
+      },
+      "max_uncertain_bytes": null,
+      "barrier_ns": 85755008,
+      "pending_peak": null,
+      "backpressure_ns": null,
+      "overlap_ns": null,
+      "journal_sync_ns": 8882819,
+      "ssd_before": {
+        "time_ns": 7554369274326199,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2118885258240,
+        "disk_io_busy_ms": 40775666
+      },
+      "ssd_after": {
+        "time_ns": 7554369640878460,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2119074599936,
+        "disk_io_busy_ms": 40775751
+      },
+      "disk_written_bytes": 189341696
+    },
+    {
+      "mode": "before",
+      "rate": "paced",
+      "trial": 2,
+      "command": [
+        "/tmp/recorder-durability-before/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/paced-2-before/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/paced-2-before/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "input_Bps": 1048257842.097614,
+      "durable_Bps": 1024267097.428591,
+      "session_cpu_s_per_gib": 0.6944599153777777,
+      "writer_cpu_s_per_gib": null,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 8,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "data_sync": {
+        "count": 12,
+        "max": 7216947,
+        "mean": 5904136.666666667,
+        "min": 2170028,
+        "p50": 6291455,
+        "p95": 7216947,
+        "p99": 7216947,
+        "p99_9": 7216947
+      },
+      "durability": {},
+      "max_uncertain_bytes": null,
+      "barrier_ns": null,
+      "pending_peak": null,
+      "backpressure_ns": null,
+      "overlap_ns": null,
+      "journal_sync_ns": null,
+      "ssd_before": {
+        "time_ns": 7554369675294304,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2119074599936,
+        "disk_io_busy_ms": 40775751
+      },
+      "ssd_after": {
+        "time_ns": 7554370041848677,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2119263937536,
+        "disk_io_busy_ms": 40775827
+      },
+      "disk_written_bytes": 189337600
+    },
+    {
+      "mode": "before",
+      "rate": "paced",
+      "trial": 3,
+      "command": [
+        "/tmp/recorder-durability-before/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/paced-3-before/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/paced-3-before/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "input_Bps": 1048259390.7220223,
+      "durable_Bps": 1025892714.1730778,
+      "session_cpu_s_per_gib": 0.6779935288888889,
+      "writer_cpu_s_per_gib": null,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 13,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "data_sync": {
+        "count": 12,
+        "max": 12878608,
+        "mean": 6341215.666666667,
+        "min": 2177867,
+        "p50": 6291455,
+        "p95": 12878608,
+        "p99": 12878608,
+        "p99_9": 12878608
+      },
+      "durability": {},
+      "max_uncertain_bytes": null,
+      "barrier_ns": null,
+      "pending_peak": null,
+      "backpressure_ns": null,
+      "overlap_ns": null,
+      "journal_sync_ns": null,
+      "ssd_before": {
+        "time_ns": 7554370076447662,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2119263937536,
+        "disk_io_busy_ms": 40775827
+      },
+      "ssd_after": {
+        "time_ns": 7554370443018170,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2119454360576,
+        "disk_io_busy_ms": 40775913
+      },
+      "disk_written_bytes": 190423040
+    },
+    {
+      "mode": "barrier",
+      "rate": "paced",
+      "trial": 3,
+      "command": [
+        "/tmp/recorder-durability-worktree/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/paced-3-barrier/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/paced-3-barrier/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "input_Bps": 1048258744.4909798,
+      "durable_Bps": 1016850605.7014856,
+      "session_cpu_s_per_gib": 0.6634879488,
+      "writer_cpu_s_per_gib": null,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 13,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "data_sync": {
+        "count": 12,
+        "max": 12256728,
+        "mean": 6391587.833333333,
+        "min": 2252434,
+        "p50": 6029311,
+        "p95": 12256728,
+        "p99": 12256728,
+        "p99_9": 12256728
+      },
+      "durability": {
+        "barrier_ns": 85644066,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "journal": {
+          "failures": 0,
+          "flush_ns": 29983,
+          "rollback_failed": false,
+          "sync_ns": 8861895,
+          "write_ns": 13888
+        },
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "sync_failures": 0
+      },
+      "max_uncertain_bytes": null,
+      "barrier_ns": 85644066,
+      "pending_peak": null,
+      "backpressure_ns": null,
+      "overlap_ns": null,
+      "journal_sync_ns": 8861895,
+      "ssd_before": {
+        "time_ns": 7554370477612443,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2119454360576,
+        "disk_io_busy_ms": 40775913
+      },
+      "ssd_after": {
+        "time_ns": 7554370844193173,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2119643698176,
+        "disk_io_busy_ms": 40776001
+      },
+      "disk_written_bytes": 189337600
+    },
+    {
+      "mode": "barrier",
+      "rate": "fast",
+      "trial": 1,
+      "command": [
+        "/tmp/recorder-durability-worktree/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/fast-1-barrier/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/fast-1-barrier/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "input_Bps": 2084237088.9193158,
+      "durable_Bps": 1512130539.7938488,
+      "session_cpu_s_per_gib": 0.684406286301676,
+      "writer_cpu_s_per_gib": null,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 51,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "data_sync": {
+        "count": 12,
+        "max": 11366532,
+        "mean": 6167418.833333333,
+        "min": 1826643,
+        "p50": 6029311,
+        "p95": 11366532,
+        "p99": 11366532,
+        "p99_9": 11366532
+      },
+      "durability": {
+        "barrier_ns": 83046563,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "journal": {
+          "failures": 0,
+          "flush_ns": 37076,
+          "rollback_failed": false,
+          "sync_ns": 8930782,
+          "write_ns": 19761
+        },
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "sync_failures": 0
+      },
+      "max_uncertain_bytes": null,
+      "barrier_ns": 83046563,
+      "pending_peak": null,
+      "backpressure_ns": null,
+      "overlap_ns": null,
+      "journal_sync_ns": 8930782,
+      "ssd_before": {
+        "time_ns": 7554370878731160,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2119643698176,
+        "disk_io_busy_ms": 40776001
+      },
+      "ssd_after": {
+        "time_ns": 7554371195381767,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2119832048640,
+        "disk_io_busy_ms": 40776079
+      },
+      "disk_written_bytes": 188350464
+    },
+    {
+      "mode": "before",
+      "rate": "fast",
+      "trial": 1,
+      "command": [
+        "/tmp/recorder-durability-before/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/fast-1-before/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/fast-1-before/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "input_Bps": 2084239889.3656166,
+      "durable_Bps": 1611503118.3012373,
+      "session_cpu_s_per_gib": 0.6824878823687152,
+      "writer_cpu_s_per_gib": null,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 35,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "data_sync": {
+        "count": 12,
+        "max": 11341745,
+        "mean": 6188554.333333333,
+        "min": 1841829,
+        "p50": 6291455,
+        "p95": 11341745,
+        "p99": 11341745,
+        "p99_9": 11341745
+      },
+      "durability": {},
+      "max_uncertain_bytes": null,
+      "barrier_ns": null,
+      "pending_peak": null,
+      "backpressure_ns": null,
+      "overlap_ns": null,
+      "journal_sync_ns": null,
+      "ssd_before": {
+        "time_ns": 7554371230120248,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2119832048640,
+        "disk_io_busy_ms": 40776079
+      },
+      "ssd_after": {
+        "time_ns": 7554371547202379,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2120020341760,
+        "disk_io_busy_ms": 40776157
+      },
+      "disk_written_bytes": 188293120
+    },
+    {
+      "mode": "before",
+      "rate": "fast",
+      "trial": 2,
+      "command": [
+        "/tmp/recorder-durability-before/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/fast-2-before/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/fast-2-before/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "input_Bps": 2084210797.49293,
+      "durable_Bps": 1639157380.565865,
+      "session_cpu_s_per_gib": 0.7316598074636871,
+      "writer_cpu_s_per_gib": null,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 33,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "data_sync": {
+        "count": 12,
+        "max": 11209104,
+        "mean": 6107490.583333333,
+        "min": 1822291,
+        "p50": 6029311,
+        "p95": 11209104,
+        "p99": 11209104,
+        "p99_9": 11209104
+      },
+      "durability": {},
+      "max_uncertain_bytes": null,
+      "barrier_ns": null,
+      "pending_peak": null,
+      "backpressure_ns": null,
+      "overlap_ns": null,
+      "journal_sync_ns": null,
+      "ssd_before": {
+        "time_ns": 7554371581966770,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2120020341760,
+        "disk_io_busy_ms": 40776157
+      },
+      "ssd_after": {
+        "time_ns": 7554371898944198,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2120208634880,
+        "disk_io_busy_ms": 40776235
+      },
+      "disk_written_bytes": 188293120
+    },
+    {
+      "mode": "barrier",
+      "rate": "fast",
+      "trial": 2,
+      "command": [
+        "/tmp/recorder-durability-worktree/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/fast-2-barrier/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/fast-2-barrier/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "input_Bps": 2084212602.6928995,
+      "durable_Bps": 1547047225.9240181,
+      "session_cpu_s_per_gib": 0.711054656357542,
+      "writer_cpu_s_per_gib": null,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 47,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "data_sync": {
+        "count": 12,
+        "max": 6663260,
+        "mean": 5801864.083333333,
+        "min": 1839039,
+        "p50": 6291455,
+        "p95": 6663260,
+        "p99": 6663260,
+        "p99_9": 6663260
+      },
+      "durability": {
+        "barrier_ns": 78583254,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "journal": {
+          "failures": 0,
+          "flush_ns": 34107,
+          "rollback_failed": false,
+          "sync_ns": 8852236,
+          "write_ns": 20757
+        },
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "sync_failures": 0
+      },
+      "max_uncertain_bytes": null,
+      "barrier_ns": 78583254,
+      "pending_peak": null,
+      "backpressure_ns": null,
+      "overlap_ns": null,
+      "journal_sync_ns": 8852236,
+      "ssd_before": {
+        "time_ns": 7554371933721312,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2120208823296,
+        "disk_io_busy_ms": 40776236
+      },
+      "ssd_after": {
+        "time_ns": 7554372250353746,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2120397227008,
+        "disk_io_busy_ms": 40776307
+      },
+      "disk_written_bytes": 188403712
+    },
+    {
+      "mode": "barrier",
+      "rate": "fast",
+      "trial": 3,
+      "command": [
+        "/tmp/recorder-durability-worktree/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/fast-3-barrier/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/fast-3-barrier/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "input_Bps": 2084233964.463317,
+      "durable_Bps": 1475441608.559124,
+      "session_cpu_s_per_gib": 0.7225007224134078,
+      "writer_cpu_s_per_gib": null,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 54,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "data_sync": {
+        "count": 12,
+        "max": 11725193,
+        "mean": 6187002.75,
+        "min": 1847674,
+        "p50": 6029311,
+        "p95": 11725193,
+        "p99": 11725193,
+        "p99_9": 11725193
+      },
+      "durability": {
+        "barrier_ns": 83371208,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "journal": {
+          "failures": 0,
+          "flush_ns": 36720,
+          "rollback_failed": false,
+          "sync_ns": 9018006,
+          "write_ns": 20537
+        },
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "sync_failures": 0
+      },
+      "max_uncertain_bytes": null,
+      "barrier_ns": 83371208,
+      "pending_peak": null,
+      "backpressure_ns": null,
+      "overlap_ns": null,
+      "journal_sync_ns": 9018006,
+      "ssd_before": {
+        "time_ns": 7554372285102828,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2120397227008,
+        "disk_io_busy_ms": 40776307
+      },
+      "ssd_after": {
+        "time_ns": 7554372602030137,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2120585520128,
+        "disk_io_busy_ms": 40776387
+      },
+      "disk_written_bytes": 188293120
+    },
+    {
+      "mode": "before",
+      "rate": "fast",
+      "trial": 3,
+      "command": [
+        "/tmp/recorder-durability-before/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/fast-3-before/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/durability-step2/fast-3-before/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "input_Bps": 2084215889.0906162,
+      "durable_Bps": 1593738213.2894776,
+      "session_cpu_s_per_gib": 0.7032475773854748,
+      "writer_cpu_s_per_gib": null,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 46,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "data_sync": {
+        "count": 12,
+        "max": 11513283,
+        "mean": 6298865.333333333,
+        "min": 1774750,
+        "p50": 6291455,
+        "p95": 11513283,
+        "p99": 11513283,
+        "p99_9": 11513283
+      },
+      "durability": {},
+      "max_uncertain_bytes": null,
+      "barrier_ns": null,
+      "pending_peak": null,
+      "backpressure_ns": null,
+      "overlap_ns": null,
+      "journal_sync_ns": null,
+      "ssd_before": {
+        "time_ns": 7554372637521027,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2120585520128,
+        "disk_io_busy_ms": 40776387
+      },
+      "ssd_after": {
+        "time_ns": 7554372954503011,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2120773862400,
+        "disk_io_busy_ms": 40776466
+      },
+      "disk_written_bytes": 188342272
+    }
+  ]
+}
