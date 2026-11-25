@@ -1,0 +1,120 @@
+[record]
+policy = "deadline-aware"
+writer = "sync"
+queue_capacity = 256
+memory_budget_bytes = 67108864
+in_flight = 6
+max_borrowed_in_flight = 3
+commit_interval_ms = 100
+commit_bytes = 262144
+commit_messages = 32
+metrics_interval_ms = 10
+
+[storage_profile]
+sustained_bytes_per_sec = 16000000
+max_stall_ms = 65
+max_io_us = 15000
+max_sync_ms = 100
+
+[copy_profile]
+assumed_min_bytes_per_sec = 1000000000
+return_margin_us = 700
+scheduling_margin_us = 1500
+max_capture_delay_us = 3500
+
+[[sources]]
+kind = "synthetic"
+id = "synthetic"
+model = "owned"
+frame_bytes = 64
+fps = 40
+dma_buffers = 24
+phase_us = 1000
+
+[[sources]]
+kind = "mock_ros2"
+id = "ros_vector"
+model = "owned"
+frame_bytes = 192
+fps = 40
+dma_buffers = 24
+phase_us = 2300
+
+[[sources]]
+kind = "mock_ros2"
+id = "ros_scalar"
+model = "owned"
+frame_bytes = 20
+fps = 40
+dma_buffers = 24
+phase_us = 3600
+
+[[sources]]
+kind = "mock_udp"
+id = "udp"
+model = "owned"
+frame_bytes = 192
+fps = 40
+dma_buffers = 24
+phase_us = 4900
+drop_every = 11
+
+[[sources]]
+kind = "mock_socketcan"
+id = "can"
+model = "owned"
+frame_bytes = 32
+fps = 40
+dma_buffers = 24
+phase_us = 6200
+
+[[sources]]
+kind = "mock_v4l2"
+id = "v4l2"
+model = "fixed-deadline"
+frame_bytes = 4096
+fps = 40
+dma_buffers = 24
+phase_us = 7500
+capture_reserve = 2
+fence_delay_us = 250
+return_delay_us = 250
+max_hold_ms = 120
+
+[[sources]]
+kind = "mock_proframe"
+id = "proframe"
+model = "pool"
+frame_bytes = 4096
+fps = 40
+dma_buffers = 24
+phase_us = 8800
+capture_reserve = 2
+fence_delay_us = 250
+return_delay_us = 250
+
+[[sources]]
+kind = "mock_drive"
+id = "drive"
+model = "pool"
+frame_bytes = 8192
+fps = 40
+dma_buffers = 24
+phase_us = 10100
+capture_reserve = 2
+fence_delay_us = 250
+return_delay_us = 250
+reserve_buffers = 4
+replacement = "pre-registered-pool"
+
+[[spill]]
+frame_bytes = 2048
+buffers = 40
+
+[[spill]]
+frame_bytes = 4096
+buffers = 40
+
+[[spill]]
+frame_bytes = 8192
+buffers = 64

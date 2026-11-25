@@ -1,0 +1,80 @@
+[record]
+policy = "deadline-aware"
+writer = "sync"
+queue_capacity = 256
+memory_budget_bytes = 67108864
+in_flight = 6
+max_borrowed_in_flight = 3
+commit_interval_ms = 160
+commit_bytes = 262144
+commit_messages = 128
+metrics_interval_ms = 10
+
+[storage_profile]
+sustained_bytes_per_sec = 16000000
+max_stall_ms = 65
+max_io_us = 15000
+max_sync_ms = 100
+
+[copy_profile]
+assumed_min_bytes_per_sec = 1000000000
+return_margin_us = 700
+scheduling_margin_us = 1500
+max_capture_delay_us = 3500
+
+[[sources]]
+id = "fixed"
+model = "fixed-deadline"
+frame_bytes = 4096
+fps = 100
+dma_buffers = 12
+capture_reserve = 2
+max_hold_ms = 60
+return_delay_us = 250
+phase_us = 1000
+jitter_us = 100
+
+[[sources]]
+id = "pool"
+model = "pool"
+frame_bytes = 8192
+fps = 80
+burst = 2
+dma_buffers = 12
+capture_reserve = 2
+reserve_buffers = 6
+replacement = "pre-registered-pool"
+phase_us = 3000
+jitter_us = 50
+
+[[sources]]
+id = "replaceable"
+model = "replaceable"
+frame_bytes = 2048
+fps = 60
+burst = 2
+dma_buffers = 12
+capture_reserve = 2
+reserve_buffers = 6
+phase_us = 5000
+
+[[sources]]
+id = "telemetry"
+model = "owned"
+frame_bytes = 192
+fps = 250
+dma_buffers = 64
+phase_us = 2000
+jitter_us = 100
+
+[[spill]]
+frame_bytes = 2048
+buffers = 40
+
+[[spill]]
+frame_bytes = 4096
+buffers = 40
+
+[[spill]]
+frame_bytes = 8192
+buffers = 64

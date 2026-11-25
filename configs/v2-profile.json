@@ -1,0 +1,14 @@
+{
+  "storage_profile": {
+    "sustained_bytes_per_sec": 16000000,
+    "max_stall_ms": 65,
+    "max_io_us": 15000,
+    "max_sync_ms": 100
+  },
+  "copy_profile": {
+    "assumed_min_bytes_per_sec": 1000000000,
+    "return_margin_us": 700,
+    "scheduling_margin_us": 1500,
+    "max_capture_delay_us": 3500
+  }
+}
