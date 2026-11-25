@@ -1,0 +1,1048 @@
+{
+  "manifest": {
+    "disk": "nvme1n1",
+    "sensor": "/sys/class/hwmon/hwmon3/temp1_input",
+    "free_bytes": 150578339840,
+    "byte_limit": 8589934592,
+    "time_limit_s": 20,
+    "temperature_limit_c": 65,
+    "mount": "TARGET                                                SOURCE                                                                FSTYPE OPTIONS\n/home/ryo/development/ros2_tools/predictable_recorder /dev/nvme1n1p2[/home/ryo/development/ros2_tools/predictable_recorder] ext4   rw,nosuid,nodev,relatime\n",
+    "model": "KIOXIA-EXCERIA PLUS G3 SSD",
+    "firmware": "ELFA01.2"
+  },
+  "status": "byte_limit",
+  "samples": [
+    {
+      "committed_bytes": 0,
+      "time_ns": 7549566008965774,
+      "temperature_c": 24.85,
+      "disk_written_bytes": 2074300376064,
+      "disk_io_busy_ms": 40727791
+    },
+    {
+      "committed_bytes": 67108864,
+      "sync_ns": 27908143,
+      "time_ns": 7549566071868773,
+      "temperature_c": 24.85,
+      "disk_written_bytes": 2074367747072,
+      "disk_io_busy_ms": 40727816
+    },
+    {
+      "committed_bytes": 134217728,
+      "sync_ns": 21220448,
+      "time_ns": 7549566123798201,
+      "temperature_c": 24.85,
+      "disk_written_bytes": 2074434880512,
+      "disk_io_busy_ms": 40727837
+    },
+    {
+      "committed_bytes": 201326592,
+      "sync_ns": 21354414,
+      "time_ns": 7549566168267895,
+      "temperature_c": 24.85,
+      "disk_written_bytes": 2074502009856,
+      "disk_io_busy_ms": 40727857
+    },
+    {
+      "committed_bytes": 268435456,
+      "sync_ns": 21889774,
+      "time_ns": 7549566213450752,
+      "temperature_c": 24.85,
+      "disk_written_bytes": 2074569143296,
+      "disk_io_busy_ms": 40727877
+    },
+    {
+      "committed_bytes": 335544320,
+      "sync_ns": 26347250,
+      "time_ns": 7549566277123545,
+      "temperature_c": 24.85,
+      "disk_written_bytes": 2074636284928,
+      "disk_io_busy_ms": 40727901
+    },
+    {
+      "committed_bytes": 402653184,
+      "sync_ns": 22094313,
+      "time_ns": 7549566330561818,
+      "temperature_c": 24.85,
+      "disk_written_bytes": 2074703426560,
+      "disk_io_busy_ms": 40727921
+    },
+    {
+      "committed_bytes": 469762048,
+      "sync_ns": 20885887,
+      "time_ns": 7549566378335057,
+      "temperature_c": 24.85,
+      "disk_written_bytes": 2074770572288,
+      "disk_io_busy_ms": 40727946
+    },
+    {
+      "committed_bytes": 536870912,
+      "sync_ns": 26257031,
+      "time_ns": 7549566426370908,
+      "temperature_c": 24.85,
+      "disk_written_bytes": 2074837705728,
+      "disk_io_busy_ms": 40727971
+    },
+    {
+      "committed_bytes": 603979776,
+      "sync_ns": 21019874,
+      "time_ns": 7549566475745738,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2074904843264,
+      "disk_io_busy_ms": 40727991
+    },
+    {
+      "committed_bytes": 671088640,
+      "sync_ns": 20684187,
+      "time_ns": 7549566531697820,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2074971976704,
+      "disk_io_busy_ms": 40728010
+    },
+    {
+      "committed_bytes": 738197504,
+      "sync_ns": 21576927,
+      "time_ns": 7549566583856875,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075039114240,
+      "disk_io_busy_ms": 40728029
+    },
+    {
+      "committed_bytes": 805306368,
+      "sync_ns": 28672586,
+      "time_ns": 7549566635066092,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075106247680,
+      "disk_io_busy_ms": 40728051
+    },
+    {
+      "committed_bytes": 872415232,
+      "sync_ns": 21091521,
+      "time_ns": 7549566680861115,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075173385216,
+      "disk_io_busy_ms": 40728071
+    },
+    {
+      "committed_bytes": 939524096,
+      "sync_ns": 21142852,
+      "time_ns": 7549566725403671,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075240518656,
+      "disk_io_busy_ms": 40728091
+    },
+    {
+      "committed_bytes": 1006632960,
+      "sync_ns": 26801808,
+      "time_ns": 7549566786593118,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075307656192,
+      "disk_io_busy_ms": 40728117
+    },
+    {
+      "committed_bytes": 1073741824,
+      "sync_ns": 21304066,
+      "time_ns": 7549566836514035,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075374789632,
+      "disk_io_busy_ms": 40728138
+    },
+    {
+      "committed_bytes": 1140850688,
+      "sync_ns": 21598186,
+      "time_ns": 7549566885821392,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075444974592,
+      "disk_io_busy_ms": 40728166
+    },
+    {
+      "committed_bytes": 1207959552,
+      "sync_ns": 20637800,
+      "time_ns": 7549566937922894,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075512108032,
+      "disk_io_busy_ms": 40728185
+    },
+    {
+      "committed_bytes": 1275068416,
+      "sync_ns": 14471671,
+      "time_ns": 7549566977248344,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075579372544,
+      "disk_io_busy_ms": 40728209
+    },
+    {
+      "committed_bytes": 1342177280,
+      "sync_ns": 21792259,
+      "time_ns": 7549567024386644,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075646505984,
+      "disk_io_busy_ms": 40728232
+    },
+    {
+      "committed_bytes": 1409286144,
+      "sync_ns": 12849445,
+      "time_ns": 7549567066961535,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075713668096,
+      "disk_io_busy_ms": 40728254
+    },
+    {
+      "committed_bytes": 1476395008,
+      "sync_ns": 26376538,
+      "time_ns": 7549567127382697,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075780801536,
+      "disk_io_busy_ms": 40728277
+    },
+    {
+      "committed_bytes": 1543503872,
+      "sync_ns": 13708841,
+      "time_ns": 7549567174585562,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075847971840,
+      "disk_io_busy_ms": 40728310
+    },
+    {
+      "committed_bytes": 1610612736,
+      "sync_ns": 19790922,
+      "time_ns": 7549567219474521,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075915105280,
+      "disk_io_busy_ms": 40728351
+    },
+    {
+      "committed_bytes": 1677721600,
+      "sync_ns": 20706290,
+      "time_ns": 7549567257628611,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2075982238720,
+      "disk_io_busy_ms": 40728377
+    },
+    {
+      "committed_bytes": 1744830464,
+      "sync_ns": 25859146,
+      "time_ns": 7549567301145041,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076049396736,
+      "disk_io_busy_ms": 40728404
+    },
+    {
+      "committed_bytes": 1811939328,
+      "sync_ns": 20715291,
+      "time_ns": 7549567340803296,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076116530176,
+      "disk_io_busy_ms": 40728426
+    },
+    {
+      "committed_bytes": 1879048192,
+      "sync_ns": 19561227,
+      "time_ns": 7549567379388263,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076183680000,
+      "disk_io_busy_ms": 40728450
+    },
+    {
+      "committed_bytes": 1946157056,
+      "sync_ns": 26521535,
+      "time_ns": 7549567425461646,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076250813440,
+      "disk_io_busy_ms": 40728475
+    },
+    {
+      "committed_bytes": 2013265920,
+      "sync_ns": 20074482,
+      "time_ns": 7549567460434356,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076317963264,
+      "disk_io_busy_ms": 40728500
+    },
+    {
+      "committed_bytes": 2080374784,
+      "sync_ns": 20701885,
+      "time_ns": 7549567495960670,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076385108992,
+      "disk_io_busy_ms": 40728523
+    },
+    {
+      "committed_bytes": 2147483648,
+      "sync_ns": 20804462,
+      "time_ns": 7549567541513536,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076452242432,
+      "disk_io_busy_ms": 40728543
+    },
+    {
+      "committed_bytes": 2214592512,
+      "sync_ns": 26022869,
+      "time_ns": 7549567587252111,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076519375872,
+      "disk_io_busy_ms": 40728568
+    },
+    {
+      "committed_bytes": 2281701376,
+      "sync_ns": 20861166,
+      "time_ns": 7549567622893741,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076586517504,
+      "disk_io_busy_ms": 40728587
+    },
+    {
+      "committed_bytes": 2348810240,
+      "sync_ns": 20769780,
+      "time_ns": 7549567659358567,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076653650944,
+      "disk_io_busy_ms": 40728606
+    },
+    {
+      "committed_bytes": 2415919104,
+      "sync_ns": 26025497,
+      "time_ns": 7549567707918736,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076720788480,
+      "disk_io_busy_ms": 40728631
+    },
+    {
+      "committed_bytes": 2483027968,
+      "sync_ns": 21306577,
+      "time_ns": 7549567748697662,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076787921920,
+      "disk_io_busy_ms": 40728654
+    },
+    {
+      "committed_bytes": 2550136832,
+      "sync_ns": 21592996,
+      "time_ns": 7549567791046705,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076855059456,
+      "disk_io_busy_ms": 40728673
+    },
+    {
+      "committed_bytes": 2617245696,
+      "sync_ns": 27800370,
+      "time_ns": 7549567837158891,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076922192896,
+      "disk_io_busy_ms": 40728700
+    },
+    {
+      "committed_bytes": 2684354560,
+      "sync_ns": 24267274,
+      "time_ns": 7549567877733587,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2076989330432,
+      "disk_io_busy_ms": 40728722
+    },
+    {
+      "committed_bytes": 2751463424,
+      "sync_ns": 21470966,
+      "time_ns": 7549567919800930,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2077056463872,
+      "disk_io_busy_ms": 40728751
+    },
+    {
+      "committed_bytes": 2818572288,
+      "sync_ns": 21181959,
+      "time_ns": 7549567954505769,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2077123601408,
+      "disk_io_busy_ms": 40728772
+    },
+    {
+      "committed_bytes": 2885681152,
+      "sync_ns": 26530441,
+      "time_ns": 7549567999642082,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2077190734848,
+      "disk_io_busy_ms": 40728798
+    },
+    {
+      "committed_bytes": 2952790016,
+      "sync_ns": 21258377,
+      "time_ns": 7549568037500420,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2077257872384,
+      "disk_io_busy_ms": 40728818
+    },
+    {
+      "committed_bytes": 3019898880,
+      "sync_ns": 20818043,
+      "time_ns": 7549568076020091,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2077325005824,
+      "disk_io_busy_ms": 40728837
+    },
+    {
+      "committed_bytes": 3087007744,
+      "sync_ns": 26278805,
+      "time_ns": 7549568120282719,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2077392143360,
+      "disk_io_busy_ms": 40728863
+    },
+    {
+      "committed_bytes": 3154116608,
+      "sync_ns": 22238767,
+      "time_ns": 7549568158805480,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2077459276800,
+      "disk_io_busy_ms": 40728885
+    },
+    {
+      "committed_bytes": 3221225472,
+      "sync_ns": 21146355,
+      "time_ns": 7549568198091749,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2077526627328,
+      "disk_io_busy_ms": 40728913
+    },
+    {
+      "committed_bytes": 3288334336,
+      "sync_ns": 20983916,
+      "time_ns": 7549568234084607,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2077593760768,
+      "disk_io_busy_ms": 40728936
+    },
+    {
+      "committed_bytes": 3355443200,
+      "sync_ns": 26588552,
+      "time_ns": 7549568274512905,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2077660898304,
+      "disk_io_busy_ms": 40728961
+    },
+    {
+      "committed_bytes": 3422552064,
+      "sync_ns": 21203937,
+      "time_ns": 7549568309890126,
+      "temperature_c": 25.85,
+      "disk_written_bytes": 2077728031744,
+      "disk_io_busy_ms": 40728982
+    },
+    {
+      "committed_bytes": 3489660928,
+      "sync_ns": 21333076,
+      "time_ns": 7549568349453823,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2077795169280,
+      "disk_io_busy_ms": 40729003
+    },
+    {
+      "committed_bytes": 3556769792,
+      "sync_ns": 27413671,
+      "time_ns": 7549568391709211,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2077862302720,
+      "disk_io_busy_ms": 40729030
+    },
+    {
+      "committed_bytes": 3623878656,
+      "sync_ns": 22631625,
+      "time_ns": 7549568431439677,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2077929440256,
+      "disk_io_busy_ms": 40729051
+    },
+    {
+      "committed_bytes": 3690987520,
+      "sync_ns": 21070484,
+      "time_ns": 7549568469392649,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2077996573696,
+      "disk_io_busy_ms": 40729075
+    },
+    {
+      "committed_bytes": 3758096384,
+      "sync_ns": 21269035,
+      "time_ns": 7549568506335165,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078063711232,
+      "disk_io_busy_ms": 40729095
+    },
+    {
+      "committed_bytes": 3825205248,
+      "sync_ns": 26115665,
+      "time_ns": 7549568547279294,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078130844672,
+      "disk_io_busy_ms": 40729117
+    },
+    {
+      "committed_bytes": 3892314112,
+      "sync_ns": 20739364,
+      "time_ns": 7549568581708453,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078197982208,
+      "disk_io_busy_ms": 40729136
+    },
+    {
+      "committed_bytes": 3959422976,
+      "sync_ns": 20651988,
+      "time_ns": 7549568619308728,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078265115648,
+      "disk_io_busy_ms": 40729155
+    },
+    {
+      "committed_bytes": 4026531840,
+      "sync_ns": 26494433,
+      "time_ns": 7549568662760953,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078332253184,
+      "disk_io_busy_ms": 40729180
+    },
+    {
+      "committed_bytes": 4093640704,
+      "sync_ns": 21052676,
+      "time_ns": 7549568700715844,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078399386624,
+      "disk_io_busy_ms": 40729200
+    },
+    {
+      "committed_bytes": 4160749568,
+      "sync_ns": 21186688,
+      "time_ns": 7549568738946162,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078466524160,
+      "disk_io_busy_ms": 40729220
+    },
+    {
+      "committed_bytes": 4227858432,
+      "sync_ns": 20798231,
+      "time_ns": 7549568774470318,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078533657600,
+      "disk_io_busy_ms": 40729240
+    },
+    {
+      "committed_bytes": 4294967296,
+      "sync_ns": 26776623,
+      "time_ns": 7549568814988302,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078600795136,
+      "disk_io_busy_ms": 40729265
+    },
+    {
+      "committed_bytes": 4362076160,
+      "sync_ns": 21565982,
+      "time_ns": 7549568852423393,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078667932672,
+      "disk_io_busy_ms": 40729297
+    },
+    {
+      "committed_bytes": 4429185024,
+      "sync_ns": 20854676,
+      "time_ns": 7549568888264480,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078735066112,
+      "disk_io_busy_ms": 40729317
+    },
+    {
+      "committed_bytes": 4496293888,
+      "sync_ns": 27585406,
+      "time_ns": 7549568931869853,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078802203648,
+      "disk_io_busy_ms": 40729345
+    },
+    {
+      "committed_bytes": 4563402752,
+      "sync_ns": 21102451,
+      "time_ns": 7549568969510235,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078869337088,
+      "disk_io_busy_ms": 40729364
+    },
+    {
+      "committed_bytes": 4630511616,
+      "sync_ns": 21241361,
+      "time_ns": 7549569007399546,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2078936474624,
+      "disk_io_busy_ms": 40729385
+    },
+    {
+      "committed_bytes": 4697620480,
+      "sync_ns": 21113962,
+      "time_ns": 7549569044158881,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079003612160,
+      "disk_io_busy_ms": 40729404
+    },
+    {
+      "committed_bytes": 4764729344,
+      "sync_ns": 26439133,
+      "time_ns": 7549569085946094,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079070749696,
+      "disk_io_busy_ms": 40729430
+    },
+    {
+      "committed_bytes": 4831838208,
+      "sync_ns": 20831762,
+      "time_ns": 7549569125855669,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079137883136,
+      "disk_io_busy_ms": 40729450
+    },
+    {
+      "committed_bytes": 4898947072,
+      "sync_ns": 20864084,
+      "time_ns": 7549569164554213,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079205020672,
+      "disk_io_busy_ms": 40729470
+    },
+    {
+      "committed_bytes": 4966055936,
+      "sync_ns": 26019685,
+      "time_ns": 7549569205257504,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079272154112,
+      "disk_io_busy_ms": 40729495
+    },
+    {
+      "committed_bytes": 5033164800,
+      "sync_ns": 21134507,
+      "time_ns": 7549569243493350,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079339291648,
+      "disk_io_busy_ms": 40729516
+    },
+    {
+      "committed_bytes": 5100273664,
+      "sync_ns": 21049589,
+      "time_ns": 7549569282832708,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079406425088,
+      "disk_io_busy_ms": 40729536
+    },
+    {
+      "committed_bytes": 5167382528,
+      "sync_ns": 21421733,
+      "time_ns": 7549569322597330,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079473562624,
+      "disk_io_busy_ms": 40729557
+    },
+    {
+      "committed_bytes": 5234491392,
+      "sync_ns": 29481720,
+      "time_ns": 7549569369756670,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079540700160,
+      "disk_io_busy_ms": 40729597
+    },
+    {
+      "committed_bytes": 5301600256,
+      "sync_ns": 21149795,
+      "time_ns": 7549569407557108,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079607837696,
+      "disk_io_busy_ms": 40729622
+    },
+    {
+      "committed_bytes": 5368709120,
+      "sync_ns": 20977523,
+      "time_ns": 7549569445196361,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079674971136,
+      "disk_io_busy_ms": 40729643
+    },
+    {
+      "committed_bytes": 5435817984,
+      "sync_ns": 27972199,
+      "time_ns": 7549569492324063,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079742112768,
+      "disk_io_busy_ms": 40729671
+    },
+    {
+      "committed_bytes": 5502926848,
+      "sync_ns": 20565231,
+      "time_ns": 7549569528714091,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079809246208,
+      "disk_io_busy_ms": 40729691
+    },
+    {
+      "committed_bytes": 5570035712,
+      "sync_ns": 21016942,
+      "time_ns": 7549569565259966,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079876383744,
+      "disk_io_busy_ms": 40729710
+    },
+    {
+      "committed_bytes": 5637144576,
+      "sync_ns": 20608013,
+      "time_ns": 7549569604224171,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2079943525376,
+      "disk_io_busy_ms": 40729730
+    },
+    {
+      "committed_bytes": 5704253440,
+      "sync_ns": 26212286,
+      "time_ns": 7549569647399996,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080010658816,
+      "disk_io_busy_ms": 40729756
+    },
+    {
+      "committed_bytes": 5771362304,
+      "sync_ns": 20603722,
+      "time_ns": 7549569684999694,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080077792256,
+      "disk_io_busy_ms": 40729775
+    },
+    {
+      "committed_bytes": 5838471168,
+      "sync_ns": 20691284,
+      "time_ns": 7549569722688008,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080144925696,
+      "disk_io_busy_ms": 40729795
+    },
+    {
+      "committed_bytes": 5905580032,
+      "sync_ns": 25850190,
+      "time_ns": 7549569762269137,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080212059136,
+      "disk_io_busy_ms": 40729821
+    },
+    {
+      "committed_bytes": 5972688896,
+      "sync_ns": 20651320,
+      "time_ns": 7549569797276724,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080279192576,
+      "disk_io_busy_ms": 40729840
+    },
+    {
+      "committed_bytes": 6039797760,
+      "sync_ns": 20675603,
+      "time_ns": 7549569834040645,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080346330112,
+      "disk_io_busy_ms": 40729858
+    },
+    {
+      "committed_bytes": 6106906624,
+      "sync_ns": 26311802,
+      "time_ns": 7549569875203625,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080413463552,
+      "disk_io_busy_ms": 40729884
+    },
+    {
+      "committed_bytes": 6174015488,
+      "sync_ns": 20571594,
+      "time_ns": 7549569910698782,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080480601088,
+      "disk_io_busy_ms": 40729903
+    },
+    {
+      "committed_bytes": 6241124352,
+      "sync_ns": 21646703,
+      "time_ns": 7549569944985613,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080547734528,
+      "disk_io_busy_ms": 40729922
+    },
+    {
+      "committed_bytes": 6308233216,
+      "sync_ns": 21232028,
+      "time_ns": 7549569982175998,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080614872064,
+      "disk_io_busy_ms": 40729941
+    },
+    {
+      "committed_bytes": 6375342080,
+      "sync_ns": 27372292,
+      "time_ns": 7549570024719025,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080682005504,
+      "disk_io_busy_ms": 40729967
+    },
+    {
+      "committed_bytes": 6442450944,
+      "sync_ns": 21428645,
+      "time_ns": 7549570061648914,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080749143040,
+      "disk_io_busy_ms": 40729984
+    },
+    {
+      "committed_bytes": 6509559808,
+      "sync_ns": 21235575,
+      "time_ns": 7549570099905441,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080816276480,
+      "disk_io_busy_ms": 40730005
+    },
+    {
+      "committed_bytes": 6576668672,
+      "sync_ns": 26658630,
+      "time_ns": 7549570144146628,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080883414016,
+      "disk_io_busy_ms": 40730030
+    },
+    {
+      "committed_bytes": 6643777536,
+      "sync_ns": 20982386,
+      "time_ns": 7549570182011773,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2080950547456,
+      "disk_io_busy_ms": 40730048
+    },
+    {
+      "committed_bytes": 6710886400,
+      "sync_ns": 21223992,
+      "time_ns": 7549570217747938,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081017684992,
+      "disk_io_busy_ms": 40730069
+    },
+    {
+      "committed_bytes": 6777995264,
+      "sync_ns": 20550461,
+      "time_ns": 7549570252008829,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081084818432,
+      "disk_io_busy_ms": 40730088
+    },
+    {
+      "committed_bytes": 6845104128,
+      "sync_ns": 26279001,
+      "time_ns": 7549570290905666,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081151955968,
+      "disk_io_busy_ms": 40730113
+    },
+    {
+      "committed_bytes": 6912212992,
+      "sync_ns": 21718302,
+      "time_ns": 7549570329589613,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081219089408,
+      "disk_io_busy_ms": 40730132
+    },
+    {
+      "committed_bytes": 6979321856,
+      "sync_ns": 21129406,
+      "time_ns": 7549570368069542,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081286226944,
+      "disk_io_busy_ms": 40730171
+    },
+    {
+      "committed_bytes": 7046430720,
+      "sync_ns": 27076291,
+      "time_ns": 7549570413219909,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081353364480,
+      "disk_io_busy_ms": 40730209
+    },
+    {
+      "committed_bytes": 7113539584,
+      "sync_ns": 20965024,
+      "time_ns": 7549570454855217,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081420502016,
+      "disk_io_busy_ms": 40730241
+    },
+    {
+      "committed_bytes": 7180648448,
+      "sync_ns": 21928325,
+      "time_ns": 7549570493085337,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081487639552,
+      "disk_io_busy_ms": 40730277
+    },
+    {
+      "committed_bytes": 7247757312,
+      "sync_ns": 20715898,
+      "time_ns": 7549570530748733,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081554781184,
+      "disk_io_busy_ms": 40730303
+    },
+    {
+      "committed_bytes": 7314866176,
+      "sync_ns": 28120078,
+      "time_ns": 7549570575143010,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081621914624,
+      "disk_io_busy_ms": 40730332
+    },
+    {
+      "committed_bytes": 7381975040,
+      "sync_ns": 21077464,
+      "time_ns": 7549570611392390,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081689052160,
+      "disk_io_busy_ms": 40730355
+    },
+    {
+      "committed_bytes": 7449083904,
+      "sync_ns": 20813824,
+      "time_ns": 7549570648925929,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081756185600,
+      "disk_io_busy_ms": 40730374
+    },
+    {
+      "committed_bytes": 7516192768,
+      "sync_ns": 26488924,
+      "time_ns": 7549570691728116,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081823323136,
+      "disk_io_busy_ms": 40730398
+    },
+    {
+      "committed_bytes": 7583301632,
+      "sync_ns": 20513647,
+      "time_ns": 7549570727591200,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081890460672,
+      "disk_io_busy_ms": 40730430
+    },
+    {
+      "committed_bytes": 7650410496,
+      "sync_ns": 20645273,
+      "time_ns": 7549570762551098,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2081957598208,
+      "disk_io_busy_ms": 40730450
+    },
+    {
+      "committed_bytes": 7717519360,
+      "sync_ns": 20642306,
+      "time_ns": 7549570798979258,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082024731648,
+      "disk_io_busy_ms": 40730469
+    },
+    {
+      "committed_bytes": 7784628224,
+      "sync_ns": 25968225,
+      "time_ns": 7549570850378636,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082091869184,
+      "disk_io_busy_ms": 40730495
+    },
+    {
+      "committed_bytes": 7851737088,
+      "sync_ns": 19528143,
+      "time_ns": 7549570886556235,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082159367168,
+      "disk_io_busy_ms": 40730515
+    },
+    {
+      "committed_bytes": 7918845952,
+      "sync_ns": 20987886,
+      "time_ns": 7549570922994875,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082226504704,
+      "disk_io_busy_ms": 40730533
+    },
+    {
+      "committed_bytes": 7985954816,
+      "sync_ns": 26543071,
+      "time_ns": 7549570963737364,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082293642240,
+      "disk_io_busy_ms": 40730557
+    },
+    {
+      "committed_bytes": 8053063680,
+      "sync_ns": 21616104,
+      "time_ns": 7549571003060215,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082360779776,
+      "disk_io_busy_ms": 40730576
+    },
+    {
+      "committed_bytes": 8120172544,
+      "sync_ns": 21188221,
+      "time_ns": 7549571041899966,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082427917312,
+      "disk_io_busy_ms": 40730597
+    },
+    {
+      "committed_bytes": 8187281408,
+      "sync_ns": 21006191,
+      "time_ns": 7549571076883175,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082495054848,
+      "disk_io_busy_ms": 40730618
+    },
+    {
+      "committed_bytes": 8254390272,
+      "sync_ns": 28316625,
+      "time_ns": 7549571119108995,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082562192384,
+      "disk_io_busy_ms": 40730644
+    },
+    {
+      "committed_bytes": 8321499136,
+      "sync_ns": 21172679,
+      "time_ns": 7549571154399009,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082629329920,
+      "disk_io_busy_ms": 40730664
+    },
+    {
+      "committed_bytes": 8388608000,
+      "sync_ns": 20684165,
+      "time_ns": 7549571191382886,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082696463360,
+      "disk_io_busy_ms": 40730685
+    },
+    {
+      "committed_bytes": 8455716864,
+      "sync_ns": 26606741,
+      "time_ns": 7549571234147842,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082763600896,
+      "disk_io_busy_ms": 40730710
+    },
+    {
+      "committed_bytes": 8522825728,
+      "sync_ns": 20832315,
+      "time_ns": 7549571268710434,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082830734336,
+      "disk_io_busy_ms": 40730730
+    },
+    {
+      "committed_bytes": 8589934592,
+      "sync_ns": 21165099,
+      "time_ns": 7549571307298117,
+      "temperature_c": 26.85,
+      "disk_written_bytes": 2082897871872,
+      "disk_io_busy_ms": 40730750
+    }
+  ],
+  "verification": "length+3 samples"
+}

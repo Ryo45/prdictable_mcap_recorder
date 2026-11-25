@@ -1,0 +1,21 @@
+{
+  "base_sha": "060f5b8a25a790560ab32abc5ffea3181967be0e",
+  "evidence": {
+    "crc.log": "352cc9c080d87059921f4ccb8e470eb827268a9da7d461da591f141f6a18aaa9",
+    "experiment.patch": "a4e7adfed758c05ecfce6bb667fc7f7bde50641e401adaf07a9a5d2aaaa50de4",
+    "extended.csv": "54e38a36d0210f6c6c03bb459675fed0a64313cde1c3a3a3e5f820c8d9f818d0",
+    "extended.json": "c9a8a49e58ee644b46776f61d49650cf782dc56e2104bf130a12d768abd012f6",
+    "faults.json": "8b77deadb5e55ef748f3f5b9c9844dd084e56b1e1de1ea452e91d4dabe45caad",
+    "matrix.csv": "5812ebb7740fc266c7d12a87fe44a8e630190675b44bce475f44f35944b2d6d8",
+    "matrix.json": "6b74ff8fef1bb85d6badfbe6e727621e67d99ce716007855241523acefefaff5"
+  },
+  "raw_roots": [
+    "target/writer-ablation/matrix-final",
+    "target/writer-ablation/extended",
+    "target/writer-ablation/faults-checked"
+  ],
+  "rust_checks": {
+    "clippy.log": "f13a466eb87d7c12e0dd8d7582842fc27e2df3f58a3c107a8164acb992cd5ba0",
+    "tests.log": "c56c778fa7a29c0183909ab175cb031d8741050087a7e75a8266b06d1de157e0"
+  }
+}

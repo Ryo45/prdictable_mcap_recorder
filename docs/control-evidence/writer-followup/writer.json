@@ -1,0 +1,765 @@
+{
+  "binary_sha256": "0fa9c0d98a236e054309aac3c003d359a7d8eb80a58ef46c6a9ca3a7220bb01c",
+  "trials": [
+    {
+      "case": "aligned-1-profile-trace",
+      "command": [
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/src/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/runs-final/aligned-1-profile-trace/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/runs-final/aligned-1-profile-trace/run.mcap",
+        "--duration-sec",
+        "0.35",
+        "--allow-unverified"
+      ],
+      "profile": {
+        "async_queue_wait_with_inflight": {
+          "count": 0,
+          "max_ns": 0,
+          "total_ns": 0
+        },
+        "completion_poll_call": {
+          "count": 382,
+          "max_ns": 113,
+          "total_ns": 23605
+        },
+        "data_sync_call": {
+          "count": 3,
+          "max_ns": 2219186,
+          "total_ns": 4765750
+        },
+        "io_submit_call": {
+          "count": 28,
+          "max_ns": 25976,
+          "total_ns": 253146
+        },
+        "message_layout": {
+          "count": 28,
+          "max_ns": 262,
+          "total_ns": 4136
+        },
+        "payload_and_header_crc": {
+          "count": 28,
+          "max_ns": 976,
+          "total_ns": 15127
+        },
+        "queue_claim_mutex_wait": {
+          "count": 351,
+          "max_ns": 197,
+          "total_ns": 22850
+        },
+        "sync_completion_delivery": {
+          "count": 28,
+          "max_ns": 715,
+          "total_ns": 13112
+        },
+        "writer_idle_queue_wait": {
+          "count": 323,
+          "max_ns": 1061339,
+          "total_ns": 336773401
+        },
+        "writer_queue_residence": {
+          "count": 28,
+          "max_ns": 85059166,
+          "total_ns": 485841081
+        }
+      },
+      "journal": {
+        "fdatasync": {
+          "count": 4,
+          "max_ns": 893494,
+          "total_ns": 2972622
+        },
+        "flush": {
+          "count": 4,
+          "max_ns": 23680,
+          "total_ns": 42282
+        }
+      },
+      "verifier": true,
+      "planned": 28,
+      "verified": 28,
+      "copy_bytes": 32768,
+      "queue_peak": 8,
+      "timings": {
+        "accepted_to_committed": {
+          "count": 28,
+          "max": 187237763,
+          "mean": 90950407.17857143,
+          "min": 1408865,
+          "p50": 88080383,
+          "p95": 187237763,
+          "p99": 187237763,
+          "p99_9": 187237763
+        },
+        "copy": {
+          "count": 8,
+          "max": 2061035,
+          "mean": 2059905.25,
+          "min": 2059116,
+          "p50": 2061035,
+          "p95": 2061035,
+          "p99": 2061035,
+          "p99_9": 2061035
+        },
+        "generation": {
+          "count": 28,
+          "max": 1260,
+          "mean": 552.9642857142857,
+          "min": 455,
+          "p50": 495,
+          "p95": 703,
+          "p99": 1260,
+          "p99_9": 1260
+        },
+        "queue_wait": {
+          "count": 28,
+          "max": 85057392,
+          "mean": 17349322.67857143,
+          "min": 12877,
+          "p50": 53247,
+          "p95": 85057392,
+          "p99": 85057392,
+          "p99_9": 85057392
+        },
+        "submit_to_complete": {
+          "count": 28,
+          "max": 45608,
+          "mean": 18778.428571428572,
+          "min": 12744,
+          "p50": 14847,
+          "p95": 34815,
+          "p99": 45608,
+          "p99_9": 45608
+        },
+        "sync": {
+          "count": 3,
+          "max": 2223672,
+          "mean": 1592137.0,
+          "min": 1189542,
+          "p50": 1376255,
+          "p95": 2223672,
+          "p99": 2223672,
+          "p99_9": 2223672
+        }
+      },
+      "process": {
+        "cpu_time_ns": 12430942,
+        "peak_rss_bytes": 5644288,
+        "rss_bytes": 5644288,
+        "wall_ns": 434954707
+      },
+      "durable_Bps": 326499.89318891696
+    },
+    {
+      "case": "mixed-2-profile-trace",
+      "command": [
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/src/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/runs-final/mixed-2-profile-trace/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/runs-final/mixed-2-profile-trace/run.mcap",
+        "--duration-sec",
+        "0.20",
+        "--allow-unverified"
+      ],
+      "profile": {
+        "async_queue_wait_with_inflight": {
+          "count": 0,
+          "max_ns": 0,
+          "total_ns": 0
+        },
+        "completion_poll_call": {
+          "count": 359,
+          "max_ns": 210,
+          "total_ns": 20397
+        },
+        "data_sync_call": {
+          "count": 5,
+          "max_ns": 4879108,
+          "total_ns": 18857460
+        },
+        "io_submit_call": {
+          "count": 76,
+          "max_ns": 2735734,
+          "total_ns": 14384232
+        },
+        "message_layout": {
+          "count": 76,
+          "max_ns": 438,
+          "total_ns": 9392
+        },
+        "payload_and_header_crc": {
+          "count": 76,
+          "max_ns": 112495,
+          "total_ns": 2463601
+        },
+        "queue_claim_mutex_wait": {
+          "count": 278,
+          "max_ns": 602,
+          "total_ns": 15226
+        },
+        "sync_completion_delivery": {
+          "count": 76,
+          "max_ns": 800,
+          "total_ns": 38228
+        },
+        "writer_idle_queue_wait": {
+          "count": 202,
+          "max_ns": 1059723,
+          "total_ns": 191105710
+        },
+        "writer_queue_residence": {
+          "count": 76,
+          "max_ns": 55449708,
+          "total_ns": 592413383
+        }
+      },
+      "journal": {
+        "fdatasync": {
+          "count": 6,
+          "max_ns": 833503,
+          "total_ns": 4488653
+        },
+        "flush": {
+          "count": 6,
+          "max_ns": 9823,
+          "total_ns": 30872
+        }
+      },
+      "verifier": true,
+      "planned": 90,
+      "verified": 76,
+      "copy_bytes": 6291456,
+      "queue_peak": 12,
+      "timings": {
+        "accepted_to_committed": {
+          "count": 76,
+          "max": 66075512,
+          "mean": 25030081.736842107,
+          "min": 3613857,
+          "p50": 22020095,
+          "p95": 66075512,
+          "p99": 66075512,
+          "p99_9": 66075512
+        },
+        "copy": {
+          "count": 12,
+          "max": 160136,
+          "mean": 74659.75,
+          "min": 36133,
+          "p50": 43007,
+          "p95": 160136,
+          "p99": 160136,
+          "p99_9": 160136
+        },
+        "generation": {
+          "count": 90,
+          "max": 130813,
+          "mean": 35002.322222222225,
+          "min": 7721,
+          "p50": 19455,
+          "p95": 122879,
+          "p99": 130813,
+          "p99_9": 130813
+        },
+        "queue_wait": {
+          "count": 76,
+          "max": 55447041,
+          "mean": 7792910.763157895,
+          "min": 5772,
+          "p50": 122879,
+          "p95": 54525951,
+          "p99": 55447041,
+          "p99_9": 55447041
+        },
+        "submit_to_complete": {
+          "count": 76,
+          "max": 2792692,
+          "mean": 230189.13157894736,
+          "min": 63646,
+          "p50": 139263,
+          "p95": 557055,
+          "p99": 2792692,
+          "p99_9": 2792692
+        },
+        "sync": {
+          "count": 5,
+          "max": 4881465,
+          "mean": 3774099.0,
+          "min": 2757196,
+          "p50": 3932159,
+          "p95": 4881465,
+          "p99": 4881465,
+          "p99_9": 4881465
+        }
+      },
+      "process": {
+        "cpu_time_ns": 51812709,
+        "peak_rss_bytes": 50577408,
+        "rss_bytes": 50577408,
+        "wall_ns": 301379237
+      },
+      "durable_Bps": 160256918.62492704
+    },
+    {
+      "case": "writer-3-plain",
+      "command": [
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/src/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/runs-final/writer-3-plain/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/runs-final/writer-3-plain/run.mcap",
+        "--duration-sec",
+        "0.27",
+        "--allow-unverified"
+      ],
+      "profile": null,
+      "journal": null,
+      "verifier": true,
+      "planned": 216,
+      "verified": 216,
+      "copy_bytes": 0,
+      "queue_peak": 9,
+      "timings": {
+        "accepted_to_committed": {
+          "count": 216,
+          "max": 30268127,
+          "mean": 16058056.435185185,
+          "min": 4674887,
+          "p50": 16252927,
+          "p95": 26214399,
+          "p99": 28311551,
+          "p99_9": 30268127
+        },
+        "copy": {
+          "count": 0
+        },
+        "generation": {
+          "count": 216,
+          "max": 154830,
+          "mean": 116769.53703703704,
+          "min": 105460,
+          "p50": 114687,
+          "p95": 147455,
+          "p99": 154830,
+          "p99_9": 154830
+        },
+        "queue_wait": {
+          "count": 216,
+          "max": 10296904,
+          "mean": 1178984.4537037036,
+          "min": 3583,
+          "p50": 5375,
+          "p95": 5505023,
+          "p99": 8388607,
+          "p99_9": 10296904
+        },
+        "submit_to_complete": {
+          "count": 216,
+          "max": 646957,
+          "mean": 277737.43055555556,
+          "min": 167831,
+          "p50": 278527,
+          "p95": 425983,
+          "p99": 589823,
+          "p99_9": 646957
+        },
+        "sync": {
+          "count": 14,
+          "max": 11236713,
+          "mean": 6437515.857142857,
+          "min": 3524943,
+          "p50": 6029311,
+          "p95": 11236713,
+          "p99": 11236713,
+          "p99_9": 11236713
+        }
+      },
+      "process": {
+        "cpu_time_ns": 140594734,
+        "peak_rss_bytes": 118865920,
+        "rss_bytes": 118865920,
+        "wall_ns": 396072492
+      },
+      "durable_Bps": 827848804.2633952
+    },
+    {
+      "case": "writer-4-profile",
+      "command": [
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/src/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/runs-final/writer-4-profile/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/runs-final/writer-4-profile/run.mcap",
+        "--duration-sec",
+        "0.27",
+        "--allow-unverified"
+      ],
+      "profile": {
+        "async_queue_wait_with_inflight": {
+          "count": 0,
+          "max_ns": 0,
+          "total_ns": 0
+        },
+        "completion_poll_call": {
+          "count": 658,
+          "max_ns": 232,
+          "total_ns": 16180
+        },
+        "data_sync_call": {
+          "count": 14,
+          "max_ns": 12066424,
+          "total_ns": 90545098
+        },
+        "io_submit_call": {
+          "count": 216,
+          "max_ns": 561595,
+          "total_ns": 35871688
+        },
+        "message_layout": {
+          "count": 216,
+          "max_ns": 337,
+          "total_ns": 10116
+        },
+        "payload_and_header_crc": {
+          "count": 216,
+          "max_ns": 161326,
+          "total_ns": 23603150
+        },
+        "queue_claim_mutex_wait": {
+          "count": 428,
+          "max_ns": 1298,
+          "total_ns": 14830
+        },
+        "sync_completion_delivery": {
+          "count": 216,
+          "max_ns": 847,
+          "total_ns": 37648
+        },
+        "writer_idle_queue_wait": {
+          "count": 212,
+          "max_ns": 1059439,
+          "total_ns": 202697094
+        },
+        "writer_queue_residence": {
+          "count": 216,
+          "max_ns": 11140755,
+          "total_ns": 265319112
+        }
+      },
+      "journal": {
+        "fdatasync": {
+          "count": 15,
+          "max_ns": 1083027,
+          "total_ns": 11713277
+        },
+        "flush": {
+          "count": 15,
+          "max_ns": 4911,
+          "total_ns": 34419
+        }
+      },
+      "verifier": true,
+      "planned": 216,
+      "verified": 216,
+      "copy_bytes": 0,
+      "queue_peak": 9,
+      "timings": {
+        "accepted_to_committed": {
+          "count": 216,
+          "max": 31115473,
+          "mean": 16092704.819444444,
+          "min": 4531586,
+          "p50": 16252927,
+          "p95": 26214399,
+          "p99": 29360127,
+          "p99_9": 31115473
+        },
+        "copy": {
+          "count": 0
+        },
+        "generation": {
+          "count": 216,
+          "max": 155636,
+          "mean": 116860.8425925926,
+          "min": 105637,
+          "p50": 110591,
+          "p95": 139263,
+          "p99": 155636,
+          "p99_9": 155636
+        },
+        "queue_wait": {
+          "count": 216,
+          "max": 11139612,
+          "mean": 1227342.7916666667,
+          "min": 3803,
+          "p50": 5631,
+          "p95": 5505023,
+          "p99": 9437183,
+          "p99_9": 11139612
+        },
+        "submit_to_complete": {
+          "count": 216,
+          "max": 725818,
+          "mean": 276959.64814814815,
+          "min": 173686,
+          "p50": 278527,
+          "p95": 393215,
+          "p99": 589823,
+          "p99_9": 725818
+        },
+        "sync": {
+          "count": 14,
+          "max": 12066632,
+          "mean": 6467643.0,
+          "min": 3401261,
+          "p50": 6291455,
+          "p95": 12066632,
+          "p99": 12066632,
+          "p99_9": 12066632
+        }
+      },
+      "process": {
+        "cpu_time_ns": 136797388,
+        "peak_rss_bytes": 118857728,
+        "rss_bytes": 118857728,
+        "wall_ns": 397401312
+      },
+      "durable_Bps": 828223886.8783665
+    },
+    {
+      "case": "writer-5-profile",
+      "command": [
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/src/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/runs-final/writer-5-profile/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/runs-final/writer-5-profile/run.mcap",
+        "--duration-sec",
+        "0.27",
+        "--allow-unverified"
+      ],
+      "profile": {
+        "async_queue_wait_with_inflight": {
+          "count": 0,
+          "max_ns": 0,
+          "total_ns": 0
+        },
+        "completion_poll_call": {
+          "count": 657,
+          "max_ns": 393,
+          "total_ns": 16039
+        },
+        "data_sync_call": {
+          "count": 14,
+          "max_ns": 11340110,
+          "total_ns": 88951991
+        },
+        "io_submit_call": {
+          "count": 216,
+          "max_ns": 2508497,
+          "total_ns": 39434749
+        },
+        "message_layout": {
+          "count": 216,
+          "max_ns": 380,
+          "total_ns": 10433
+        },
+        "payload_and_header_crc": {
+          "count": 216,
+          "max_ns": 176988,
+          "total_ns": 22817887
+        },
+        "queue_claim_mutex_wait": {
+          "count": 427,
+          "max_ns": 1200,
+          "total_ns": 13746
+        },
+        "sync_completion_delivery": {
+          "count": 216,
+          "max_ns": 975,
+          "total_ns": 38206
+        },
+        "writer_idle_queue_wait": {
+          "count": 211,
+          "max_ns": 1081326,
+          "total_ns": 201638388
+        },
+        "writer_queue_residence": {
+          "count": 216,
+          "max_ns": 10369566,
+          "total_ns": 248682991
+        }
+      },
+      "journal": {
+        "fdatasync": {
+          "count": 15,
+          "max_ns": 797732,
+          "total_ns": 11387141
+        },
+        "flush": {
+          "count": 15,
+          "max_ns": 10303,
+          "total_ns": 39113
+        }
+      },
+      "verifier": true,
+      "planned": 216,
+      "verified": 216,
+      "copy_bytes": 0,
+      "queue_peak": 9,
+      "timings": {
+        "accepted_to_committed": {
+          "count": 216,
+          "max": 30367705,
+          "mean": 15968431.819444444,
+          "min": 4594820,
+          "p50": 16252927,
+          "p95": 26214399,
+          "p99": 28311551,
+          "p99_9": 30367705
+        },
+        "copy": {
+          "count": 0
+        },
+        "generation": {
+          "count": 216,
+          "max": 157552,
+          "mean": 111029.39351851853,
+          "min": 34674,
+          "p50": 110591,
+          "p95": 139263,
+          "p99": 155647,
+          "p99_9": 157552
+        },
+        "queue_wait": {
+          "count": 216,
+          "max": 10368822,
+          "mean": 1150501.087962963,
+          "min": 3430,
+          "p50": 5887,
+          "p95": 5242879,
+          "p99": 8388607,
+          "p99_9": 10368822
+        },
+        "submit_to_complete": {
+          "count": 216,
+          "max": 2615804,
+          "mean": 289591.0416666667,
+          "min": 175734,
+          "p50": 278527,
+          "p95": 425983,
+          "p99": 622591,
+          "p99_9": 2615804
+        },
+        "sync": {
+          "count": 14,
+          "max": 11340224,
+          "mean": 6353804.071428572,
+          "min": 3467971,
+          "p50": 6291455,
+          "p95": 11340224,
+          "p99": 11340224,
+          "p99_9": 11340224
+        }
+      },
+      "process": {
+        "cpu_time_ns": 139264725,
+        "peak_rss_bytes": 118894592,
+        "rss_bytes": 118894592,
+        "wall_ns": 399401787
+      },
+      "durable_Bps": 828021525.946417
+    },
+    {
+      "case": "writer-6-plain",
+      "command": [
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/src/target/release/recorder",
+        "record",
+        "--config",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/runs-final/writer-6-plain/config.toml",
+        "--output",
+        "/home/ryo/development/ros2_tools/predictable_recorder/target/control-followup/runs-final/writer-6-plain/run.mcap",
+        "--duration-sec",
+        "0.27",
+        "--allow-unverified"
+      ],
+      "profile": null,
+      "journal": null,
+      "verifier": true,
+      "planned": 216,
+      "verified": 216,
+      "copy_bytes": 0,
+      "queue_peak": 9,
+      "timings": {
+        "accepted_to_committed": {
+          "count": 216,
+          "max": 30181734,
+          "mean": 15924619.763888888,
+          "min": 4873513,
+          "p50": 15728639,
+          "p95": 26214399,
+          "p99": 28311551,
+          "p99_9": 30181734
+        },
+        "copy": {
+          "count": 0
+        },
+        "generation": {
+          "count": 216,
+          "max": 150820,
+          "mean": 115903.75925925926,
+          "min": 59267,
+          "p50": 114687,
+          "p95": 139263,
+          "p99": 147455,
+          "p99_9": 150820
+        },
+        "queue_wait": {
+          "count": 216,
+          "max": 10183328,
+          "mean": 1130150.3796296297,
+          "min": 3810,
+          "p50": 5375,
+          "p95": 5242879,
+          "p99": 8126463,
+          "p99_9": 10183328
+        },
+        "submit_to_complete": {
+          "count": 216,
+          "max": 928843,
+          "mean": 294727.40277777775,
+          "min": 169046,
+          "p50": 294911,
+          "p95": 491519,
+          "p99": 622591,
+          "p99_9": 928843
+        },
+        "sync": {
+          "count": 14,
+          "max": 11171239,
+          "mean": 6299980.285714285,
+          "min": 3706051,
+          "p50": 6029311,
+          "p95": 11171239,
+          "p99": 11171239,
+          "p99_9": 11171239
+        }
+      },
+      "process": {
+        "cpu_time_ns": 143187749,
+        "peak_rss_bytes": 118890496,
+        "rss_bytes": 118890496,
+        "wall_ns": 400120267
+      },
+      "durable_Bps": 827306544.8713769
+    }
+  ]
+}

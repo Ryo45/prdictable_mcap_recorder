@@ -1,0 +1,876 @@
+--- a/src/v2/capture.rs
++++ b/src/v2/capture.rs
+@@ -14,0 +15 @@
++    pub(super) trace: Option<&'a super::copy_trace::CopyTrace>,
+@@ -87,0 +89,6 @@
++                    if let Some(trace) = self.trace {
++                        trace.frame("capture_push", frame.queued_ns, &frame, serde_json::json!({
++                            "captured_ns":frame.captured_ns, "planned_ns":frame.planned_ns,
++                            "borrowed":frame.borrowed().is_some(), "available_after_acquire":free_after_acquire
++                        }));
++                    }
+--- a/src/v2/copy_trace.rs
++++ b/src/v2/copy_trace.rs
+@@ -4 +4 @@
+-use std::sync::Mutex;
++use std::sync::{Mutex, OnceLock};
+@@ -11,0 +12,14 @@
++static POOL_EVENTS: OnceLock<Mutex<(Vec<Value>, u64)>> = OnceLock::new();
++
++pub(super) fn pool_event(id: super::pool::BufferId, kind: &str, time: u64, ready: u64) {
++    if let Some(pool) = POOL_EVENTS.get() {
++        let mut pool = pool.lock().unwrap();
++        if pool.0.len() < MAX_EVENTS as usize {
++            pool.0
++                .push(json!({"event":kind, "at_ns":time, "ready_ns":ready,
++                "token":[id.pool, id.buffer, id.generation]}));
++        } else {
++            pool.1 += 1;
++        }
++    }
++}
+@@ -31,0 +46 @@
++        POOL_EVENTS.get_or_init(|| Mutex::new((Vec::new(), 0)));
+@@ -43,0 +59,16 @@
++        let lease = match &frame.payload {
++            super::adapter::Payload::Borrowed(lease) | super::adapter::Payload::Owned(lease) => {
++                lease
++            }
++        };
++        self.event(json!({
++            "event": event, "at_ns": now, "stream": frame.id.source,
++            "sequence": frame.id.sequence, "epoch": frame.id.session_epoch,
++            "size_bytes": frame.size, "queued_ns": frame.queued_ns,
++            "lease_deadline_ns": frame.borrowed().and_then(|lease| lease.deadline_ns),
++            "token":[lease.id.pool, lease.id.buffer, lease.id.generation],
++            "detail": detail,
++        }));
++    }
++
++    pub(super) fn event(&self, value: Value) {
+@@ -49,7 +79,0 @@
+-        let value = json!({
+-            "event": event, "at_ns": now, "stream": frame.id.source,
+-            "sequence": frame.id.sequence, "epoch": frame.id.session_epoch,
+-            "size_bytes": frame.size, "queued_ns": frame.queued_ns,
+-            "lease_deadline_ns": frame.borrowed().and_then(|lease| lease.deadline_ns),
+-            "detail": detail,
+-        });
+@@ -63,0 +88,7 @@
++        if let Some(pool) = POOL_EVENTS.get() {
++            let mut pool = pool.lock().unwrap();
++            for row in pool.0.drain(..) {
++                self.event(row);
++            }
++            self.0.lock().unwrap().omitted += std::mem::take(&mut pool.1);
++        }
+--- /dev/null
++++ b/src/v2/experiment.rs
+@@ -0,0 +1,50 @@
++use anyhow::{Result, ensure};
++use serde::{Deserialize, Serialize};
++use std::sync::OnceLock;
++
++#[derive(Clone, Copy, Debug, Default, Deserialize, PartialEq, Serialize)]
++#[serde(rename_all = "kebab-case")]
++pub enum Mode {
++    #[default]
++    Baseline,
++    LossOnly,
++    LossOnlyNoCrc,
++    CacheOnly,
++}
++static MODE: OnceLock<Mode> = OnceLock::new();
++static VECTORED: OnceLock<bool> = OnceLock::new();
++pub fn init() -> Result<()> {
++    let mode = match std::env::var("RECORDER_ABLATION").as_deref() {
++        Err(std::env::VarError::NotPresent) | Ok("baseline") => Mode::Baseline,
++        Ok("loss-only") => Mode::LossOnly,
++        Ok("loss-only-no-crc") => Mode::LossOnlyNoCrc,
++        Ok("cache-only") => Mode::CacheOnly,
++        _ => anyhow::bail!("invalid experimental integrity mode"),
++    };
++    let io = std::env::var("RECORDER_ABLATION_IO");
++    ensure!(
++        matches!(
++            io.as_deref(),
++            Err(std::env::VarError::NotPresent) | Ok("split" | "pwritev")
++        ),
++        "invalid experimental I/O mode"
++    );
++    let _ = MODE.set(mode);
++    let _ = VECTORED.set(io.as_deref() == Ok("pwritev"));
++    Ok(())
++}
++pub fn mode() -> Mode {
++    *MODE.get().unwrap_or(&Mode::Baseline)
++}
++pub fn full_journal() -> bool {
++    mode() == Mode::Baseline
++}
++pub fn data_crc() -> bool {
++    mode() != Mode::LossOnlyNoCrc
++}
++pub fn no_sync() -> bool {
++    mode() == Mode::CacheOnly
++}
++pub fn vectored() -> bool {
++    *VECTORED.get().unwrap_or(&false)
++}
+--- a/src/v2/integrity.rs
++++ b/src/v2/integrity.rs
+@@ -116,0 +117 @@
++    profile: Option<JournalProfile>,
+@@ -123,0 +125,2 @@
++            profile: (std::env::var_os("RECORDER_WRITER_PROFILE").as_deref() == Some("1".as_ref()))
++                .then(JournalProfile::default),
+@@ -128 +131,6 @@
+-        line(&mut self.output, &event)?;
++        let timer = self.profile.as_ref().map(|_| Instant::now());
++        let result = line(&mut self.output, &event);
++        if let (Some(profile), Some(timer)) = (self.profile.as_mut(), timer) {
++            profile.write.add(ns(timer.elapsed()));
++        }
++        result?;
+@@ -152,2 +160,12 @@
+-        self.output.flush()?;
+-        self.output.get_ref().sync_data()
++        let before = self.profile.as_ref().map(|_| Instant::now());
++        let result = self.output.flush();
++        if let (Some(profile), Some(before)) = (&mut self.profile, before) {
++            profile.flush.add(ns(before.elapsed()));
++        }
++        result?;
++        let before = self.profile.as_ref().map(|_| Instant::now());
++        let result = self.output.get_ref().sync_data();
++        if let (Some(profile), Some(before)) = (&mut self.profile, before) {
++            profile.fdatasync.add(ns(before.elapsed()));
++        }
++        result
+@@ -162,0 +181 @@
++    commit_send: std::cell::RefCell<Option<super::writer::Cost>>,
+@@ -177,0 +197,4 @@
++            commit_send: std::cell::RefCell::new(
++                (std::env::var_os("RECORDER_WRITER_PROFILE").as_deref() == Some("1".as_ref()))
++                    .then(super::writer::Cost::default),
++            ),
+@@ -229,0 +253 @@
++        let timer = self.commit_send.borrow().as_ref().map(|_| Instant::now());
+@@ -230,0 +255,7 @@
++        if let (Some(cost), Some(timer)) = (self.commit_send.borrow_mut().as_mut(), timer) {
++            cost.add(ns(timer.elapsed()));
++        }
++    }
++
++    pub(super) fn take_commit_send(&self) -> Option<super::writer::Cost> {
++        self.commit_send.borrow_mut().take()
+@@ -266,0 +298,7 @@
++struct JournalProfile {
++    flush: super::writer::Cost,
++    fdatasync: super::writer::Cost,
++    write: super::writer::Cost,
++}
++
++#[derive(Default, Serialize)]
+@@ -271,0 +310 @@
++    commit_profile: Option<JournalProfile>,
+@@ -333 +372,3 @@
+-        report.commit_log_synced = self.observe(commits.sync().map_err(Into::into), &mut report);
++        let commit_sync = commits.sync();
++        report.commit_profile = commits.profile.take();
++        report.commit_log_synced = self.observe(commit_sync.map_err(Into::into), &mut report);
+@@ -452,0 +494,20 @@
++
++#[cfg(test)]
++#[test]
++fn readonly_sidecar_flush_reports_failure() {
++    let temporary = tempfile::NamedTempFile::new().unwrap();
++    let mut journal = CommitJournal::new(File::open(temporary.path()).unwrap());
++    let result = journal.push(CommitLine::Group {
++        group_id: 0,
++        start_offset: 0,
++        end_offset: 16,
++        message_count: 0,
++        synced_at_ns: 10,
++        finalized: true,
++        prefix_crc32: Some(1),
++    });
++    assert!(result.is_err());
++    let mut loss = BufWriter::new(File::open(temporary.path()).unwrap());
++    line(&mut loss, &"loss fixture").unwrap();
++    assert!(loss.flush().is_err());
++}
+--- a/src/v2/layout.rs
++++ b/src/v2/layout.rs
+@@ -21,0 +22 @@
++    data_crc_enabled: bool,
+@@ -104 +105,3 @@
+-        data_crc.update(&preamble);
++        if super::experiment::data_crc() {
++            data_crc.update(&preamble);
++        }
+@@ -111 +114,3 @@
+-                recovery_crc: settings.record.writer != WriterMode::Null
++                data_crc_enabled: super::experiment::data_crc(),
++                recovery_crc: super::experiment::full_journal()
++                    && settings.record.writer != WriterMode::Null
+@@ -121 +126,8 @@
+-    pub fn message(&mut self, id: u64, frame: Frame, submitted_ns: u64) -> Request {
++    pub fn message(
++        &mut self,
++        id: u64,
++        frame: Frame,
++        submitted_ns: u64,
++        profile: Option<&mut super::writer::LayoutProfile>,
++    ) -> Request {
++        let before = profile.as_ref().map(|_| std::time::Instant::now());
+@@ -129,2 +141,11 @@
+-        self.data_crc.update(&header);
+-        self.data_crc.update(frame.bytes());
++        let crc_cpu = (profile.is_some() && self.data_crc_enabled).then(super::writer::thread_cpu);
++        let crc_start = before.map(|_| std::time::Instant::now());
++        if self.data_crc_enabled {
++            self.data_crc.update(&header);
++        }
++        let payload_start = before.map(|_| std::time::Instant::now());
++        if self.data_crc_enabled {
++            self.data_crc.update(frame.bytes());
++        }
++        let crc_end = before.map(|_| std::time::Instant::now());
++        let crc_cpu_ns = crc_cpu.map(|start| super::writer::thread_cpu() - start);
+@@ -132,0 +154,17 @@
++        if let (Some(profile), Some(before), Some(crc_start), Some(crc_end)) =
++            (profile, before, crc_start, crc_end)
++        {
++            profile.message_layout.add(crate::metrics::ns(
++                crc_start.duration_since(before) + crc_end.elapsed(),
++            ));
++            if self.data_crc_enabled {
++                profile.crc_cpu_ns += crc_cpu_ns.unwrap();
++                let payload_start = payload_start.unwrap();
++                profile
++                    .header_crc
++                    .add(crate::metrics::ns(payload_start.duration_since(crc_start)));
++                profile
++                    .payload_crc
++                    .add(crate::metrics::ns(crc_end.duration_since(payload_start)));
++            }
++        }
+@@ -150 +188,8 @@
+-        tail[9..13].copy_from_slice(&self.data_crc.clone().finalize().to_le_bytes());
++        tail[9..13].copy_from_slice(
++            &(if self.data_crc_enabled {
++                self.data_crc.clone().finalize()
++            } else {
++                0
++            })
++            .to_le_bytes(),
++        );
+--- a/src/v2/mod.rs
++++ b/src/v2/mod.rs
+@@ -6,0 +7 @@
++mod experiment;
+--- a/src/v2/pool.rs
++++ b/src/v2/pool.rs
+@@ -38,0 +39 @@
++    id: BufferId,
+@@ -328 +329 @@
+-                self.complete(entry);
++                self.complete(entry, now);
+@@ -335 +336,2 @@
+-    fn complete(&mut self, entry: Return) {
++    fn complete(&mut self, entry: Return, now: u64) {
++        super::copy_trace::pool_event(entry.id, "pool_reap", now, entry.ready_ns);
+@@ -379,0 +382 @@
++        super::copy_trace::pool_event(self.id, "return_requested", now, now.saturating_add(delay));
+@@ -380,0 +384 @@
++            id: self.id,
+@@ -388 +392 @@
+-            state.complete(entry);
++            state.complete(entry, now);
+--- a/src/v2/queue.rs
++++ b/src/v2/queue.rs
+@@ -150,0 +151,11 @@
++        self.claim_write_profiled(permit_borrow, abort, None, force_copy)
++    }
++
++    pub(super) fn claim_write_profiled(
++        &self,
++        permit_borrow: bool,
++        abort: bool,
++        lock_wait: Option<&mut super::writer::Cost>,
++        force_copy: impl Fn(&Job) -> bool,
++    ) -> Option<Job> {
++        let before = lock_wait.as_ref().map(|_| std::time::Instant::now());
+@@ -151,0 +163,3 @@
++        if let (Some(cost), Some(before)) = (lock_wait, before) {
++            cost.add(crate::metrics::ns(before.elapsed()));
++        }
+--- a/src/v2/record.rs
++++ b/src/v2/record.rs
+@@ -46,0 +47,2 @@
++    #[serde(default, skip_serializing_if = "is_baseline")]
++    pub experiment: super::experiment::Mode,
+@@ -66,0 +69,4 @@
++fn is_baseline(mode: &super::experiment::Mode) -> bool {
++    *mode == super::experiment::Mode::Baseline
++}
++
+@@ -67,0 +74 @@
++    super::experiment::init()?;
+@@ -190,0 +198 @@
++        trace: trace.as_ref(),
+@@ -262,3 +269,0 @@
+-    if let Some(trace) = trace {
+-        trace.finish();
+-    }
+@@ -278,0 +284,3 @@
++    if let Some(trace) = trace {
++        trace.finish();
++    }
+@@ -330 +338,2 @@
+-    let contract = plan.verdict == Verdict::Accepted
++    let contract = super::experiment::full_journal()
++        && plan.verdict == Verdict::Accepted
+@@ -352,0 +362 @@
++        experiment: super::experiment::mode(),
+--- a/src/v2/scheduler.rs
++++ b/src/v2/scheduler.rs
+@@ -335,0 +336,12 @@
++        if let Some(trace) = self.trace {
++            trace.frame(
++                "copy_start",
++                ns(self.start.elapsed()),
++                &job.frame,
++                serde_json::json!({
++                    "spill_class_bytes":spill.map(Pool::size),
++                    "spill_token":[target.id.pool,target.id.buffer,target.id.generation],
++                    "forced":forced, "copy_deadline_ns":deadline_ns,
++                }),
++            );
++        }
+--- a/src/v2/storage.rs
++++ b/src/v2/storage.rs
+@@ -184,0 +185,30 @@
++    if super::experiment::vectored()
++        && injected_error(faults, request.id).is_none()
++        && let Some(file) = file
++    {
++        return write_vec_all(
++            &request.header,
++            request.frame.bytes(),
++            request.offset,
++            faults.io_short_bytes,
++            |parts, offset| {
++                use std::os::fd::AsRawFd;
++                // The synchronous kernel call can only borrow these slices until it returns.
++                let offset =
++                    libc::off_t::try_from(offset).map_err(|_| io::ErrorKind::InvalidInput)?;
++                let result = unsafe {
++                    libc::pwritev(
++                        file.as_raw_fd(),
++                        parts.as_ptr().cast(),
++                        parts.len() as _,
++                        offset,
++                    )
++                };
++                if result < 0 {
++                    Err(io::Error::last_os_error())
++                } else {
++                    Ok(result as usize)
++                }
++            },
++        );
++    }
+@@ -199,0 +230,63 @@
++}
++
++fn write_vec_all(
++    mut header: &[u8],
++    mut payload: &[u8],
++    mut offset: u64,
++    cap: Option<usize>,
++    mut write: impl FnMut(&[io::IoSlice<'_>], u64) -> io::Result<usize>,
++) -> io::Result<()> {
++    let cap = cap.unwrap_or(usize::MAX);
++    while !header.is_empty() || !payload.is_empty() {
++        let header_len = header.len().min(cap);
++        let payload_len = payload.len().min(cap - header_len);
++        let slices = [
++            io::IoSlice::new(&header[..header_len]),
++            io::IoSlice::new(&payload[..payload_len]),
++        ];
++        let parts = if header_len == 0 {
++            &slices[1..]
++        } else if payload_len == 0 {
++            &slices[..1]
++        } else {
++            &slices[..]
++        };
++        let n = match write(parts, offset) {
++            Ok(0) => return Err(io::ErrorKind::WriteZero.into()),
++            Ok(n) if n <= header_len + payload_len => n,
++            Ok(_) => return Err(io::ErrorKind::InvalidData.into()),
++            Err(err) if err.kind() == io::ErrorKind::Interrupted => continue,
++            Err(err) => return Err(err),
++        };
++        payload = &payload[n.saturating_sub(header.len())..];
++        header = &header[n.min(header.len())..];
++        offset = offset
++            .checked_add(n as u64)
++            .ok_or(io::ErrorKind::InvalidInput)?;
++    }
++    Ok(())
++}
++
++#[cfg(test)]
++#[test]
++fn vectored_retries_partial_header_crossing_and_interrupt() {
++    let mut seen = Vec::new();
++    let mut calls = 0;
++    write_vec_all(b"abcd", b"efghi", 17, Some(5), |parts, offset| {
++        calls += 1;
++        if calls == 2 {
++            return Err(io::ErrorKind::Interrupted.into());
++        }
++        assert_eq!(offset, 17 + seen.len() as u64);
++        let chunk: Vec<u8> = parts
++            .iter()
++            .flat_map(|slice| slice.iter().copied())
++            .take(3)
++            .collect();
++        seen.extend_from_slice(&chunk);
++        Ok(chunk.len())
++    })
++    .unwrap();
++    assert_eq!(&seen, b"abcdefghi");
++    assert!(matches!(write_vec_all(b"x", b"", 0, None, |_, _| Ok(0)),
++        Err(error) if error.kind() == io::ErrorKind::WriteZero));
+--- a/src/v2/verify.rs
++++ b/src/v2/verify.rs
+@@ -157,13 +157,24 @@
+-    match CommitScan::new(commit_path, &core, &schedules) {
+-        Ok(mut commits) => {
+-            if let Err(error) = read_mcap(
+-                &args.input,
+-                &core,
+-                &schedules,
+-                &mut sets,
+-                &mut result,
+-                &mut commits,
+-            ) {
+-                result
+-                    .errors
+-                    .push(format!("MCAP or commit membership: {error:#}"));
++    if core.experiment != super::experiment::Mode::Baseline {
++        if let Err(error) = read_mcap(&args.input, &core, &schedules, &mut sets, &mut result, None)
++        {
++            result.errors.push(format!("MCAP: {error:#}"));
++        }
++    } else {
++        match CommitScan::new(commit_path, &core, &schedules) {
++            Ok(mut commits) => {
++                if let Err(error) = read_mcap(
++                    &args.input,
++                    &core,
++                    &schedules,
++                    &mut sets,
++                    &mut result,
++                    Some(&mut commits),
++                ) {
++                    result
++                        .errors
++                        .push(format!("MCAP or commit membership: {error:#}"));
++                }
++                result.commit_groups_read = commits.groups;
++                if commits.groups != core.group_count {
++                    result.errors.push("commit group count mismatch".into());
++                }
+@@ -171,6 +182,2 @@
+-            result.commit_groups_read = commits.groups;
+-            if commits.groups != core.group_count {
+-                result.errors.push("commit group count mismatch".into());
+-            }
+-        }
+-        Err(error) => result.errors.push(format!("commit ledger: {error:#}")),
++            Err(error) => result.errors.push(format!("commit ledger: {error:#}")),
++        }
+@@ -456 +463 @@
+-    commits: &mut CommitScan<'_>,
++    mut commits: Option<&mut CommitScan<'_>>,
+@@ -495,4 +502,6 @@
+-                commits.start_record(offset, end, &crc)?;
+-                crc.update(&[opcode]);
+-                crc.update(&(data.len() as u64).to_le_bytes());
+-                crc.update(data);
++                if let Some(commits) = commits.as_deref_mut() {
++                    commits.start_record(offset, end, &crc)?;
++                    crc.update(&[opcode]);
++                    crc.update(&(data.len() as u64).to_le_bytes());
++                    crc.update(data);
++                }
+@@ -574 +583 @@
+-                            commits,
++                            commits.as_deref_mut(),
+@@ -609 +618,3 @@
+-    commits.finish(end, &crc)?;
++    if let Some(commits) = commits {
++        commits.finish(end, &crc)?;
++    }
+@@ -620 +631 @@
+-    commits: &mut CommitScan<'_>,
++    commits: Option<&mut CommitScan<'_>>,
+@@ -660 +671,6 @@
+-    let committed = commits.frame(stream, sequence)?;
++    let committed = match commits {
++        Some(commits) => commits.frame(stream, sequence)?,
++        None => {
++            core.status == Status::Ok && core.finalized && core.final_sync && core.loss_log_synced
++        }
++    };
+--- a/src/v2/writer/group.rs
++++ b/src/v2/writer/group.rs
+@@ -94,9 +94,11 @@
+-        ledger.commit(CommitLine::Group {
+-            group_id: self.id,
+-            start_offset: self.start_offset,
+-            end_offset,
+-            message_count: self.entries.len() as u64,
+-            synced_at_ns: now,
+-            finalized,
+-            prefix_crc32,
+-        });
++        if super::super::experiment::full_journal() {
++            ledger.commit(CommitLine::Group {
++                group_id: self.id,
++                start_offset: self.start_offset,
++                end_offset,
++                message_count: self.entries.len() as u64,
++                synced_at_ns: now,
++                finalized,
++                prefix_crc32,
++            });
++        }
+@@ -112,0 +115,3 @@
++            if !super::super::experiment::full_journal() {
++                continue;
++            }
+@@ -137,0 +143,8 @@
++    pub(super) fn retire_unsynced(&mut self, offset: u64, ledger: &mut Ledger<'_>, now: u64) {
++        self.unknown(ledger, now, Reason::Unknown);
++        self.first_request += self.entries.len() as u64;
++        self.entries.clear();
++        self.start_offset = offset;
++        self.id += 1;
++    }
++
+--- a/src/v2/writer.rs
++++ b/src/v2/writer.rs
+@@ -20,0 +21,68 @@
++#[derive(Default)]
++pub(super) struct Cost {
++    count: u64,
++    total_ns: u64,
++    max_ns: u64,
++    histogram: Option<Box<crate::metrics::Histogram>>,
++}
++
++impl Cost {
++    pub(super) fn add(&mut self, time: u64) {
++        self.histogram.get_or_insert_with(Box::default).record(time);
++        self.count += 1;
++        self.total_ns += time;
++        self.max_ns = self.max_ns.max(time);
++    }
++}
++
++impl Serialize for Cost {
++    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
++        use serde::ser::SerializeStruct;
++        let mut row = serializer.serialize_struct("Cost", 3)?;
++        row.serialize_field("total_ns", &self.total_ns)?;
++        row.serialize_field("max_ns", &self.max_ns)?;
++        let latency = self.histogram.as_ref().map(|histogram| histogram.summary());
++        row.serialize_field("latency", &latency)?;
++        row.end()
++    }
++}
++
++#[derive(Default, Serialize)]
++pub(super) struct LayoutProfile {
++    pub(super) message_layout: Cost,
++    pub(super) header_crc: Cost,
++    pub(super) payload_crc: Cost,
++    pub(super) crc_cpu_ns: u64,
++}
++
++#[derive(Default, Serialize)]
++pub(super) struct Profile {
++    layout: LayoutProfile,
++    writer_cpu_ns: u64,
++    io_submit_cpu_ns: u64,
++    group_submit: Cost,
++    group_complete: Cost,
++    group_commit: Cost,
++    journal_send: Option<Cost>,
++    completion_and_release: Cost,
++    io_residence: Cost,
++    io_submit_call: Cost,
++    completion_poll_call: Cost,
++    sync_completion_delivery: Cost,
++    async_queue_wait_with_inflight: Cost,
++    writer_queue_residence: Cost,
++    writer_idle_queue_wait: Cost,
++    queue_claim_mutex_wait: Cost,
++    data_sync_call: Cost,
++}
++
++pub(super) fn thread_cpu() -> u64 {
++    crate::metrics::cpu_ns(rustix::time::ClockId::ThreadCPUTime)
++}
++
++fn time_if(enabled: bool, cost: &mut Cost, start: Option<Instant>) {
++    if enabled {
++        cost.add(ns(start.unwrap().elapsed()));
++    }
++}
++
+@@ -26,0 +95,2 @@
++    pub max_unsynced_payload: u64,
++    pub last_completion_ns: u64,
+@@ -33,0 +104 @@
++    pub(super) profile: Option<Profile>,
+@@ -45,0 +117,6 @@
++#[derive(Default)]
++struct CompletionProfile {
++    release: Cost,
++    group: Cost,
++    io_residence: Cost,
++}
+@@ -54,0 +132,8 @@
++        let profile_enabled =
++            std::env::var_os("RECORDER_WRITER_PROFILE").as_deref() == Some("1".as_ref());
++        let mut profile = Profile::default();
++        let cpu_start =
++            profile_enabled.then(|| crate::metrics::cpu_ns(rustix::time::ClockId::ThreadCPUTime));
++        let completion_profile =
++            std::cell::RefCell::new(profile_enabled.then(CompletionProfile::default));
++        let mut sync_submit_end = None;
+@@ -60,0 +146 @@
++        let mut unsynced_payload = 0_u64;
+@@ -86 +172,4 @@
+-                    match backend.completion(poll_at) {
++                    let timer = profile_enabled.then(Instant::now);
++                    let completion = backend.completion(poll_at);
++                    time_if(profile_enabled, &mut profile.completion_poll_call, timer);
++                    match completion {
+@@ -87,0 +177,3 @@
++                            if let Some(submitted) = sync_submit_end.take() {
++                                profile.sync_completion_delivery.add(self.now() - submitted);
++                            }
+@@ -93 +185,7 @@
+-                            self.completed(completion, &mut group, &mut report, &mut ledger);
++                            self.completed(
++                                completion,
++                                &mut group,
++                                &mut report,
++                                &mut ledger,
++                                completion_profile.borrow_mut().as_mut(),
++                            );
+@@ -150,0 +249 @@
++                        profile_enabled.then_some(&mut profile),
+@@ -161,0 +261 @@
++                        profile_enabled.then_some(&mut profile),
+@@ -163,0 +264,3 @@
++                    if !super::experiment::no_sync() {
++                        unsynced_payload = 0;
++                    }
+@@ -173,20 +276,28 @@
+-                    if let Some(job) = self.queue.claim_write(may_borrow, false, |job| {
+-                        let device = &self.devices[usize::from(job.frame.id.source)];
+-                        let defer = self.settings.record.policy.adaptive()
+-                            && job
+-                                .frame
+-                                .borrowed()
+-                                .and_then(|lease| lease.deadline_ns)
+-                                .is_some_and(|deadline| {
+-                                    deadline
+-                                        <= now
+-                                            .saturating_add(io_bound)
+-                                            .saturating_add(device.source.return_delay_us * US)
+-                                });
+-                        if defer && self.settings.record.copy_scheduling == CopyScheduling::Global {
+-                            p.global_copy
+-                                .borrow_admission_deferrals
+-                                .fetch_add(1, Relaxed);
+-                        }
+-                        defer
+-                    }) {
++                    if let Some(job) = self.queue.claim_write_profiled(
++                        may_borrow,
++                        false,
++                        profile_enabled.then_some(&mut profile.queue_claim_mutex_wait),
++                        |job| {
++                            let device = &self.devices[usize::from(job.frame.id.source)];
++                            let defer = self.settings.record.policy.adaptive()
++                                && job
++                                    .frame
++                                    .borrowed()
++                                    .and_then(|lease| lease.deadline_ns)
++                                    .is_some_and(|deadline| {
++                                        deadline
++                                            <= now
++                                                .saturating_add(io_bound)
++                                                .saturating_add(device.source.return_delay_us * US)
++                                    });
++                            if defer
++                                && self.settings.record.copy_scheduling == CopyScheduling::Global
++                            {
++                                p.global_copy
++                                    .borrow_admission_deferrals
++                                    .fetch_add(1, Relaxed);
++                            }
++                            defer
++                        },
++                    ) {
++                        let claimed_ns = self.now();
+@@ -193,0 +305,5 @@
++                        if profile_enabled {
++                            profile
++                                .writer_queue_residence
++                                .add(claimed_ns.saturating_sub(frame.queued_ns));
++                        }
+@@ -197 +313 @@
+-                                now,
++                                claimed_ns,
+@@ -209,0 +326,4 @@
++                        let group_timer = profile_enabled.then(Instant::now);
++                        unsynced_payload += size;
++                        report.max_unsynced_payload =
++                            report.max_unsynced_payload.max(unsynced_payload);
+@@ -210,0 +331 @@
++                        time_if(profile_enabled, &mut profile.group_submit, group_timer);
+@@ -213 +334,6 @@
+-                        let request = layout.message(id, frame, now);
++                        let request = layout.message(
++                            id,
++                            frame,
++                            now,
++                            profile_enabled.then_some(&mut profile.layout),
++                        );
+@@ -220,0 +347 @@
++                        let io_cpu = profile_enabled.then(thread_cpu);
+@@ -223 +350,12 @@
+-                        p.write_busy_ns.fetch_add(ns(timer.elapsed()), Relaxed);
++                        let span = ns(timer.elapsed());
++                        p.write_busy_ns.fetch_add(span, Relaxed);
++                        if profile_enabled {
++                            if let Some(io_cpu) = io_cpu {
++                                profile.io_submit_cpu_ns += thread_cpu() - io_cpu;
++                            }
++                            profile.io_submit_call.add(span);
++                            if self.settings.record.writer == WriterMode::Sync && submitted.is_ok()
++                            {
++                                sync_submit_end = Some(self.now());
++                            }
++                        }
+@@ -240,0 +379 @@
++            let timer = profile_enabled.then(Instant::now);
+@@ -243 +382,19 @@
+-        }
++            if let Some(timer) = timer {
++                let metric = if inflight == 0 {
++                    &mut profile.writer_idle_queue_wait
++                } else {
++                    &mut profile.async_queue_wait_with_inflight
++                };
++                metric.add(ns(timer.elapsed()));
++            }
++        }
++        if let Some(cpu_start) = cpu_start {
++            profile.writer_cpu_ns =
++                crate::metrics::cpu_ns(rustix::time::ClockId::ThreadCPUTime) - cpu_start;
++            let completed = completion_profile.into_inner().unwrap();
++            profile.completion_and_release = completed.release;
++            profile.group_complete = completed.group;
++            profile.io_residence = completed.io_residence;
++            profile.journal_send = ledger.take_commit_send();
++        }
++        report.profile = profile_enabled.then_some(profile);
+@@ -256,0 +414 @@
++        mut profile: Option<&mut CompletionProfile>,
+@@ -257,0 +416 @@
++        let timer = profile.as_ref().map(|_| Instant::now());
+@@ -264,0 +424,3 @@
++        if completion.result.is_ok() {
++            report.last_completion_ns = now;
++        }
+@@ -280,0 +443,4 @@
++        if let (Some(profile), Some(timer)) = (profile.as_mut(), timer) {
++            profile.release.add(ns(timer.elapsed()));
++            profile.io_residence.add(now.saturating_sub(submitted_ns));
++        }
+@@ -296,0 +463 @@
++        let timer = profile.as_ref().map(|_| Instant::now());
+@@ -297,0 +465,3 @@
++        if let (Some(profile), Some(timer)) = (profile, timer) {
++            profile.group.add(ns(timer.elapsed()));
++        }
+@@ -320,0 +491 @@
++    #[allow(clippy::too_many_arguments)]
+@@ -327,0 +499 @@
++        mut profile: Option<&mut Profile>,
+@@ -335,0 +508,5 @@
++        let before = self.now();
++        if super::experiment::no_sync() {
++            group.retire_unsynced(boundary.0, ledger, before);
++            return false;
++        }
+@@ -336,0 +514,11 @@
++        if let Some(profile) = profile.as_mut() {
++            profile
++                .data_sync_call
++                .add(self.now().saturating_sub(before));
++        }
++        if let Some(trace) = self.trace {
++            trace.event(serde_json::json!({
++                "event":"storage_sync", "at_ns":before, "end_ns":self.now(), "group":group.id(),
++                "success":result.is_ok()
++            }));
++        }
+@@ -350,0 +539 @@
++                let timer = profile.as_ref().map(|_| Instant::now());
+@@ -358,0 +548,3 @@
++                if let (Some(profile), Some(timer)) = (profile, timer) {
++                    profile.group_commit.add(ns(timer.elapsed()));
++                }
+--- /dev/null
++++ b/tests/crc_cost.rs
+@@ -0,0 +1,27 @@
++use std::hint::black_box;
++use std::time::Instant;
++
++#[test]
++#[ignore = "opt-in CRC microbenchmark; run in release"]
++fn payload_crc_bandwidth() {
++    let frame = 1 << 20;
++    let buffer = vec![0xef_u8; 64 * frame];
++    for trial in 1..=3 {
++        let wall = Instant::now();
++        let cpu = rustix::time::clock_gettime(rustix::time::ClockId::ThreadCPUTime);
++        let mut hash = crc32fast::Hasher::new();
++        for _ in 0..8 {
++            for payload in buffer.chunks_exact(frame) {
++                hash.update(black_box(payload));
++            }
++        }
++        let cpu_end = rustix::time::clock_gettime(rustix::time::ClockId::ThreadCPUTime);
++        let cpu_ns = (cpu_end.tv_sec - cpu.tv_sec) * 1_000_000_000 + cpu_end.tv_nsec - cpu.tv_nsec;
++        println!(
++            "CRC {trial} {} {} {cpu_ns} {}",
++            8 * buffer.len(),
++            wall.elapsed().as_nanos(),
++            black_box(hash.finalize())
++        );
++    }
++}

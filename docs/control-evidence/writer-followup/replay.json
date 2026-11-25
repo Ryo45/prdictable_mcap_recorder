@@ -1,0 +1,429 @@
+[
+  {
+    "case": "aligned-1-profile-trace",
+    "capture_rows": 28,
+    "actual_lost": 0,
+    "outside_capture_trace": 0,
+    "actual_copy_no_spill_attempts": 0,
+    "actual_deadline_exceeded": 0,
+    "independent_verifier": true,
+    "results": [
+      {
+        "mode": "phase0_prior",
+        "copied": {
+          "matched": 8,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": 8655020.0,
+          "median_absolute_ns": 8655020.0,
+          "max_absolute_ns": 9114182
+        },
+        "observed_only_copies": [],
+        "predicted_only_copies": [],
+        "copy_actual_bytes": 32768,
+        "copy_predicted_bytes": 32768,
+        "writer_claim": {
+          "matched": 28,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -57129.5,
+          "median_absolute_ns": 57129.5,
+          "max_absolute_ns": 1453390
+        },
+        "claim_pair_inversions": 0,
+        "claim_pairs": 378,
+        "dma_ack_eligible": {
+          "matched": 28,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -54757.0,
+          "median_absolute_ns": 71770.5,
+          "max_absolute_ns": 9053196
+        },
+        "dma_reap_observed": {
+          "matched": 28,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -625774.0,
+          "median_absolute_ns": 651816.0,
+          "max_absolute_ns": 8999903
+        },
+        "spill_actual": {
+          "4096": {
+            "peak": 8,
+            "slot_ns": 354441929
+          }
+        },
+        "spill_predicted": {
+          "4096": {
+            "peak": 8,
+            "slot_ns": 283578740
+          }
+        },
+        "loss_model": {},
+        "late_model": 8,
+        "modeled_copy_attempts_without_spill": 0
+      },
+      {
+        "mode": "conditional_same_run",
+        "copied": {
+          "matched": 8,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": 8739928.5,
+          "median_absolute_ns": 8739928.5,
+          "max_absolute_ns": 9114182
+        },
+        "observed_only_copies": [],
+        "predicted_only_copies": [],
+        "copy_actual_bytes": 32768,
+        "copy_predicted_bytes": 32768,
+        "writer_claim": {
+          "matched": 28,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -43640.5,
+          "median_absolute_ns": 43640.5,
+          "max_absolute_ns": 1419248
+        },
+        "claim_pair_inversions": 0,
+        "claim_pairs": 378,
+        "dma_ack_eligible": {
+          "matched": 28,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -32546.5,
+          "median_absolute_ns": 48547.5,
+          "max_absolute_ns": 9109382
+        },
+        "dma_reap_observed": {
+          "matched": 28,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -602047.0,
+          "median_absolute_ns": 627032.5,
+          "max_absolute_ns": 9056089
+        },
+        "spill_actual": {
+          "4096": {
+            "peak": 8,
+            "slot_ns": 354441929
+          }
+        },
+        "spill_predicted": {
+          "4096": {
+            "peak": 8,
+            "slot_ns": 283627435
+          }
+        },
+        "loss_model": {},
+        "late_model": 8,
+        "modeled_copy_attempts_without_spill": 0
+      },
+      {
+        "mode": "conditional_with_rust_margins",
+        "copied": {
+          "matched": 8,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -69472.5,
+          "median_absolute_ns": 69472.5,
+          "max_absolute_ns": 89915
+        },
+        "observed_only_copies": [],
+        "predicted_only_copies": [],
+        "copy_actual_bytes": 32768,
+        "copy_predicted_bytes": 32768,
+        "writer_claim": {
+          "matched": 28,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -43640.5,
+          "median_absolute_ns": 43640.5,
+          "max_absolute_ns": 1419248
+        },
+        "claim_pair_inversions": 0,
+        "claim_pairs": 378,
+        "dma_ack_eligible": {
+          "matched": 28,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -48547.5,
+          "median_absolute_ns": 48547.5,
+          "max_absolute_ns": 1423916
+        },
+        "dma_reap_observed": {
+          "matched": 28,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -615085.5,
+          "median_absolute_ns": 615085.5,
+          "max_absolute_ns": 1992619
+        },
+        "spill_actual": {
+          "4096": {
+            "peak": 8,
+            "slot_ns": 354441929
+          }
+        },
+        "spill_predicted": {
+          "4096": {
+            "peak": 8,
+            "slot_ns": 354072668
+          }
+        },
+        "loss_model": {},
+        "late_model": 0,
+        "modeled_copy_attempts_without_spill": 0
+      }
+    ]
+  },
+  {
+    "case": "mixed-2-profile-trace",
+    "capture_rows": 90,
+    "actual_lost": 14,
+    "outside_capture_trace": 0,
+    "actual_copy_no_spill_attempts": 27,
+    "actual_deadline_exceeded": 7,
+    "independent_verifier": true,
+    "results": [
+      {
+        "mode": "phase0_prior",
+        "copied": {
+          "matched": 10,
+          "actual_only": 2,
+          "predicted_only": 0,
+          "median_signed_ns": 70920.5,
+          "median_absolute_ns": 830578.5,
+          "max_absolute_ns": 1618364
+        },
+        "observed_only_copies": [
+          {
+            "stream": 0,
+            "sequence": 1,
+            "size_bytes": 1048576,
+            "forced": true
+          },
+          {
+            "stream": 2,
+            "sequence": 1,
+            "size_bytes": 1048576,
+            "forced": true
+          }
+        ],
+        "predicted_only_copies": [],
+        "copy_actual_bytes": 6291456,
+        "copy_predicted_bytes": 4194304,
+        "writer_claim": {
+          "matched": 76,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -8114.0,
+          "median_absolute_ns": 21714.5,
+          "max_absolute_ns": 2094063
+        },
+        "claim_pair_inversions": 14,
+        "claim_pairs": 2850,
+        "dma_ack_eligible": {
+          "matched": 76,
+          "actual_only": 14,
+          "predicted_only": 0,
+          "median_signed_ns": 19019.5,
+          "median_absolute_ns": 59780.5,
+          "max_absolute_ns": 2514976
+        },
+        "dma_reap_observed": {
+          "matched": 76,
+          "actual_only": 14,
+          "predicted_only": 0,
+          "median_signed_ns": -583112.5,
+          "median_absolute_ns": 615476.5,
+          "max_absolute_ns": 2252865
+        },
+        "spill_actual": {
+          "1048576": {
+            "peak": 2,
+            "slot_ns": 70711152
+          },
+          "262144": {
+            "peak": 3,
+            "slot_ns": 96992127
+          }
+        },
+        "spill_predicted": {
+          "1048576": {
+            "peak": 2,
+            "slot_ns": 70512284
+          },
+          "262144": {
+            "peak": 3,
+            "slot_ns": 97382102
+          }
+        },
+        "loss_model": {
+          "queue_full": 14
+        },
+        "late_model": 7,
+        "modeled_copy_attempts_without_spill": 226
+      },
+      {
+        "mode": "conditional_same_run",
+        "copied": {
+          "matched": 10,
+          "actual_only": 2,
+          "predicted_only": 0,
+          "median_signed_ns": 75631.5,
+          "median_absolute_ns": 830578.5,
+          "max_absolute_ns": 1618364
+        },
+        "observed_only_copies": [
+          {
+            "stream": 0,
+            "sequence": 1,
+            "size_bytes": 1048576,
+            "forced": true
+          },
+          {
+            "stream": 2,
+            "sequence": 1,
+            "size_bytes": 1048576,
+            "forced": true
+          }
+        ],
+        "predicted_only_copies": [],
+        "copy_actual_bytes": 6291456,
+        "copy_predicted_bytes": 4194304,
+        "writer_claim": {
+          "matched": 76,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -17046.5,
+          "median_absolute_ns": 21196.0,
+          "max_absolute_ns": 2054500
+        },
+        "claim_pair_inversions": 14,
+        "claim_pairs": 2850,
+        "dma_ack_eligible": {
+          "matched": 76,
+          "actual_only": 14,
+          "predicted_only": 0,
+          "median_signed_ns": -22059.5,
+          "median_absolute_ns": 25744.0,
+          "max_absolute_ns": 1608905
+        },
+        "dma_reap_observed": {
+          "matched": 76,
+          "actual_only": 14,
+          "predicted_only": 0,
+          "median_signed_ns": -669501.0,
+          "median_absolute_ns": 677799.0,
+          "max_absolute_ns": 1768133
+        },
+        "spill_actual": {
+          "1048576": {
+            "peak": 2,
+            "slot_ns": 70711152
+          },
+          "262144": {
+            "peak": 3,
+            "slot_ns": 96992127
+          }
+        },
+        "spill_predicted": {
+          "1048576": {
+            "peak": 2,
+            "slot_ns": 70181198
+          },
+          "262144": {
+            "peak": 3,
+            "slot_ns": 97211366
+          }
+        },
+        "loss_model": {
+          "queue_full": 14
+        },
+        "late_model": 7,
+        "modeled_copy_attempts_without_spill": 258
+      },
+      {
+        "mode": "conditional_with_rust_margins",
+        "copied": {
+          "matched": 10,
+          "actual_only": 2,
+          "predicted_only": 0,
+          "median_signed_ns": -176598.0,
+          "median_absolute_ns": 176598.0,
+          "max_absolute_ns": 1245170
+        },
+        "observed_only_copies": [
+          {
+            "stream": 0,
+            "sequence": 1,
+            "size_bytes": 1048576,
+            "forced": true
+          },
+          {
+            "stream": 2,
+            "sequence": 1,
+            "size_bytes": 1048576,
+            "forced": true
+          }
+        ],
+        "predicted_only_copies": [],
+        "copy_actual_bytes": 6291456,
+        "copy_predicted_bytes": 4194304,
+        "writer_claim": {
+          "matched": 76,
+          "actual_only": 0,
+          "predicted_only": 0,
+          "median_signed_ns": -17046.5,
+          "median_absolute_ns": 21196.0,
+          "max_absolute_ns": 2054500
+        },
+        "claim_pair_inversions": 14,
+        "claim_pairs": 2850,
+        "dma_ack_eligible": {
+          "matched": 76,
+          "actual_only": 14,
+          "predicted_only": 0,
+          "median_signed_ns": -25145.0,
+          "median_absolute_ns": 25744.0,
+          "max_absolute_ns": 1576545
+        },
+        "dma_reap_observed": {
+          "matched": 76,
+          "actual_only": 14,
+          "predicted_only": 0,
+          "median_signed_ns": -670232.0,
+          "median_absolute_ns": 670232.0,
+          "max_absolute_ns": 1768133
+        },
+        "spill_actual": {
+          "1048576": {
+            "peak": 2,
+            "slot_ns": 70711152
+          },
+          "262144": {
+            "peak": 3,
+            "slot_ns": 96992127
+          }
+        },
+        "spill_predicted": {
+          "1048576": {
+            "peak": 2,
+            "slot_ns": 72781198
+          },
+          "262144": {
+            "peak": 3,
+            "slot_ns": 99911366
+          }
+        },
+        "loss_model": {
+          "queue_full": 14
+        },
+        "late_model": 7,
+        "modeled_copy_attempts_without_spill": 261
+      }
+    ]
+  }
+]

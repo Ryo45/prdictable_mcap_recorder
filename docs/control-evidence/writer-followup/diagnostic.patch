@@ -1,0 +1,359 @@
+--- a/src/v2/capture.rs
++++ b/src/v2/capture.rs
+@@ -14,0 +15 @@
++    pub(super) trace: Option<&'a super::copy_trace::CopyTrace>,
+@@ -87,0 +89,6 @@
++                    if let Some(trace) = self.trace {
++                        trace.frame("capture_push", frame.queued_ns, &frame, serde_json::json!({
++                            "captured_ns":frame.captured_ns, "planned_ns":frame.planned_ns,
++                            "borrowed":frame.borrowed().is_some(), "available_after_acquire":free_after_acquire
++                        }));
++                    }
+--- a/src/v2/copy_trace.rs
++++ b/src/v2/copy_trace.rs
+@@ -4 +4 @@
+-use std::sync::Mutex;
++use std::sync::{Mutex, OnceLock};
+@@ -11,0 +12,14 @@
++static POOL_EVENTS: OnceLock<Mutex<(Vec<Value>, u64)>> = OnceLock::new();
++
++pub(super) fn pool_event(id: super::pool::BufferId, kind: &str, time: u64, ready: u64) {
++    if let Some(pool) = POOL_EVENTS.get() {
++        let mut pool = pool.lock().unwrap();
++        if pool.0.len() < MAX_EVENTS as usize {
++            pool.0
++                .push(json!({"event":kind, "at_ns":time, "ready_ns":ready,
++                "token":[id.pool, id.buffer, id.generation]}));
++        } else {
++            pool.1 += 1;
++        }
++    }
++}
+@@ -31,0 +46 @@
++        POOL_EVENTS.get_or_init(|| Mutex::new((Vec::new(), 0)));
+@@ -43,0 +59,16 @@
++        let lease = match &frame.payload {
++            super::adapter::Payload::Borrowed(lease) | super::adapter::Payload::Owned(lease) => {
++                lease
++            }
++        };
++        self.event(json!({
++            "event": event, "at_ns": now, "stream": frame.id.source,
++            "sequence": frame.id.sequence, "epoch": frame.id.session_epoch,
++            "size_bytes": frame.size, "queued_ns": frame.queued_ns,
++            "lease_deadline_ns": frame.borrowed().and_then(|lease| lease.deadline_ns),
++            "token":[lease.id.pool, lease.id.buffer, lease.id.generation],
++            "detail": detail,
++        }));
++    }
++
++    pub(super) fn event(&self, value: Value) {
+@@ -49,7 +79,0 @@
+-        let value = json!({
+-            "event": event, "at_ns": now, "stream": frame.id.source,
+-            "sequence": frame.id.sequence, "epoch": frame.id.session_epoch,
+-            "size_bytes": frame.size, "queued_ns": frame.queued_ns,
+-            "lease_deadline_ns": frame.borrowed().and_then(|lease| lease.deadline_ns),
+-            "detail": detail,
+-        });
+@@ -63,0 +88,7 @@
++        if let Some(pool) = POOL_EVENTS.get() {
++            let mut pool = pool.lock().unwrap();
++            for row in pool.0.drain(..) {
++                self.event(row);
++            }
++            self.0.lock().unwrap().omitted += std::mem::take(&mut pool.1);
++        }
+--- a/src/v2/integrity.rs
++++ b/src/v2/integrity.rs
+@@ -116,0 +117 @@
++    profile: Option<JournalProfile>,
+@@ -123,0 +125,2 @@
++            profile: (std::env::var_os("RECORDER_WRITER_PROFILE").as_deref() == Some("1".as_ref()))
++                .then(JournalProfile::default),
+@@ -152,2 +155,12 @@
+-        self.output.flush()?;
+-        self.output.get_ref().sync_data()
++        let before = self.profile.as_ref().map(|_| Instant::now());
++        let result = self.output.flush();
++        if let (Some(profile), Some(before)) = (&mut self.profile, before) {
++            profile.flush.add(ns(before.elapsed()));
++        }
++        result?;
++        let before = self.profile.as_ref().map(|_| Instant::now());
++        let result = self.output.get_ref().sync_data();
++        if let (Some(profile), Some(before)) = (&mut self.profile, before) {
++            profile.fdatasync.add(ns(before.elapsed()));
++        }
++        result
+@@ -266,0 +280,6 @@
++struct JournalProfile {
++    flush: super::writer::Cost,
++    fdatasync: super::writer::Cost,
++}
++
++#[derive(Default, Serialize)]
+@@ -271,0 +291 @@
++    commit_profile: Option<JournalProfile>,
+@@ -333 +353,3 @@
+-        report.commit_log_synced = self.observe(commits.sync().map_err(Into::into), &mut report);
++        let commit_sync = commits.sync();
++        report.commit_profile = commits.profile.take();
++        report.commit_log_synced = self.observe(commit_sync.map_err(Into::into), &mut report);
+--- a/src/v2/layout.rs
++++ b/src/v2/layout.rs
+@@ -121 +121,8 @@
+-    pub fn message(&mut self, id: u64, frame: Frame, submitted_ns: u64) -> Request {
++    pub fn message(
++        &mut self,
++        id: u64,
++        frame: Frame,
++        submitted_ns: u64,
++        profile: Option<(&mut super::writer::Cost, &mut super::writer::Cost)>,
++    ) -> Request {
++        let before = profile.as_ref().map(|_| std::time::Instant::now());
+@@ -128,0 +136 @@
++        let crc_start = before.map(|_| std::time::Instant::now());
+@@ -130,0 +139 @@
++        let crc_end = before.map(|_| std::time::Instant::now());
+@@ -132,0 +142,8 @@
++        if let (Some((layout, crc)), Some(before), Some(crc_start), Some(crc_end)) =
++            (profile, before, crc_start, crc_end)
++        {
++            layout.add(crate::metrics::ns(
++                crc_start.duration_since(before) + crc_end.elapsed(),
++            ));
++            crc.add(crate::metrics::ns(crc_end.duration_since(crc_start)));
++        }
+--- a/src/v2/pool.rs
++++ b/src/v2/pool.rs
+@@ -38,0 +39 @@
++    id: BufferId,
+@@ -328 +329 @@
+-                self.complete(entry);
++                self.complete(entry, now);
+@@ -335 +336,2 @@
+-    fn complete(&mut self, entry: Return) {
++    fn complete(&mut self, entry: Return, now: u64) {
++        super::copy_trace::pool_event(entry.id, "pool_reap", now, entry.ready_ns);
+@@ -379,0 +382 @@
++        super::copy_trace::pool_event(self.id, "return_requested", now, now.saturating_add(delay));
+@@ -380,0 +384 @@
++            id: self.id,
+@@ -388 +392 @@
+-            state.complete(entry);
++            state.complete(entry, now);
+--- a/src/v2/queue.rs
++++ b/src/v2/queue.rs
+@@ -150,0 +151,11 @@
++        self.claim_write_profiled(permit_borrow, abort, None, force_copy)
++    }
++
++    pub(super) fn claim_write_profiled(
++        &self,
++        permit_borrow: bool,
++        abort: bool,
++        lock_wait: Option<&mut super::writer::Cost>,
++        force_copy: impl Fn(&Job) -> bool,
++    ) -> Option<Job> {
++        let before = lock_wait.as_ref().map(|_| std::time::Instant::now());
+@@ -151,0 +163,3 @@
++        if let (Some(cost), Some(before)) = (lock_wait, before) {
++            cost.add(crate::metrics::ns(before.elapsed()));
++        }
+--- a/src/v2/record.rs
++++ b/src/v2/record.rs
+@@ -190,0 +191 @@
++        trace: trace.as_ref(),
+@@ -262,3 +262,0 @@
+-    if let Some(trace) = trace {
+-        trace.finish();
+-    }
+@@ -278,0 +277,3 @@
++    if let Some(trace) = trace {
++        trace.finish();
++    }
+--- a/src/v2/scheduler.rs
++++ b/src/v2/scheduler.rs
+@@ -335,0 +336,12 @@
++        if let Some(trace) = self.trace {
++            trace.frame(
++                "copy_start",
++                ns(self.start.elapsed()),
++                &job.frame,
++                serde_json::json!({
++                    "spill_class_bytes":spill.map(Pool::size),
++                    "spill_token":[target.id.pool,target.id.buffer,target.id.generation],
++                    "forced":forced, "copy_deadline_ns":deadline_ns,
++                }),
++            );
++        }
+--- a/src/v2/writer.rs
++++ b/src/v2/writer.rs
+@@ -20,0 +21,35 @@
++#[derive(Default, Serialize)]
++pub(super) struct Cost {
++    count: u64,
++    total_ns: u64,
++    max_ns: u64,
++}
++
++impl Cost {
++    pub(super) fn add(&mut self, time: u64) {
++        self.count += 1;
++        self.total_ns += time;
++        self.max_ns = self.max_ns.max(time);
++    }
++}
++
++#[derive(Default, Serialize)]
++pub(super) struct Profile {
++    message_layout: Cost,
++    payload_and_header_crc: Cost,
++    io_submit_call: Cost,
++    completion_poll_call: Cost,
++    sync_completion_delivery: Cost,
++    async_queue_wait_with_inflight: Cost,
++    writer_queue_residence: Cost,
++    writer_idle_queue_wait: Cost,
++    queue_claim_mutex_wait: Cost,
++    data_sync_call: Cost,
++}
++
++fn time_if(enabled: bool, cost: &mut Cost, start: Option<Instant>) {
++    if enabled {
++        cost.add(ns(start.unwrap().elapsed()));
++    }
++}
++
+@@ -33,0 +69 @@
++    pub(super) profile: Option<Profile>,
+@@ -54,0 +91,4 @@
++        let profile_enabled =
++            std::env::var_os("RECORDER_WRITER_PROFILE").as_deref() == Some("1".as_ref());
++        let mut profile = Profile::default();
++        let mut sync_submit_end = None;
+@@ -86 +126,4 @@
+-                    match backend.completion(poll_at) {
++                    let timer = profile_enabled.then(Instant::now);
++                    let completion = backend.completion(poll_at);
++                    time_if(profile_enabled, &mut profile.completion_poll_call, timer);
++                    match completion {
+@@ -87,0 +131,3 @@
++                            if let Some(submitted) = sync_submit_end.take() {
++                                profile.sync_completion_delivery.add(self.now() - submitted);
++                            }
+@@ -150,0 +197 @@
++                        profile_enabled.then_some(&mut profile.data_sync_call),
+@@ -161,0 +209 @@
++                        profile_enabled.then_some(&mut profile.data_sync_call),
+@@ -173,20 +221,28 @@
+-                    if let Some(job) = self.queue.claim_write(may_borrow, false, |job| {
+-                        let device = &self.devices[usize::from(job.frame.id.source)];
+-                        let defer = self.settings.record.policy.adaptive()
+-                            && job
+-                                .frame
+-                                .borrowed()
+-                                .and_then(|lease| lease.deadline_ns)
+-                                .is_some_and(|deadline| {
+-                                    deadline
+-                                        <= now
+-                                            .saturating_add(io_bound)
+-                                            .saturating_add(device.source.return_delay_us * US)
+-                                });
+-                        if defer && self.settings.record.copy_scheduling == CopyScheduling::Global {
+-                            p.global_copy
+-                                .borrow_admission_deferrals
+-                                .fetch_add(1, Relaxed);
+-                        }
+-                        defer
+-                    }) {
++                    if let Some(job) = self.queue.claim_write_profiled(
++                        may_borrow,
++                        false,
++                        profile_enabled.then_some(&mut profile.queue_claim_mutex_wait),
++                        |job| {
++                            let device = &self.devices[usize::from(job.frame.id.source)];
++                            let defer = self.settings.record.policy.adaptive()
++                                && job
++                                    .frame
++                                    .borrowed()
++                                    .and_then(|lease| lease.deadline_ns)
++                                    .is_some_and(|deadline| {
++                                        deadline
++                                            <= now
++                                                .saturating_add(io_bound)
++                                                .saturating_add(device.source.return_delay_us * US)
++                                    });
++                            if defer
++                                && self.settings.record.copy_scheduling == CopyScheduling::Global
++                            {
++                                p.global_copy
++                                    .borrow_admission_deferrals
++                                    .fetch_add(1, Relaxed);
++                            }
++                            defer
++                        },
++                    ) {
++                        let claimed_ns = self.now();
+@@ -193,0 +250,5 @@
++                        if profile_enabled {
++                            profile
++                                .writer_queue_residence
++                                .add(claimed_ns.saturating_sub(frame.queued_ns));
++                        }
+@@ -197 +258 @@
+-                                now,
++                                claimed_ns,
+@@ -213 +274,9 @@
+-                        let request = layout.message(id, frame, now);
++                        let request = layout.message(
++                            id,
++                            frame,
++                            now,
++                            profile_enabled.then_some((
++                                &mut profile.message_layout,
++                                &mut profile.payload_and_header_crc,
++                            )),
++                        );
+@@ -223 +292,9 @@
+-                        p.write_busy_ns.fetch_add(ns(timer.elapsed()), Relaxed);
++                        let span = ns(timer.elapsed());
++                        p.write_busy_ns.fetch_add(span, Relaxed);
++                        if profile_enabled {
++                            profile.io_submit_call.add(span);
++                            if self.settings.record.writer == WriterMode::Sync && submitted.is_ok()
++                            {
++                                sync_submit_end = Some(self.now());
++                            }
++                        }
+@@ -240,0 +318 @@
++            let timer = profile_enabled.then(Instant::now);
+@@ -243 +321,10 @@
+-        }
++            if let Some(timer) = timer {
++                let metric = if inflight == 0 {
++                    &mut profile.writer_idle_queue_wait
++                } else {
++                    &mut profile.async_queue_wait_with_inflight
++                };
++                metric.add(ns(timer.elapsed()));
++            }
++        }
++        report.profile = profile_enabled.then_some(profile);
+@@ -320,0 +408 @@
++    #[allow(clippy::too_many_arguments)]
+@@ -327,0 +416 @@
++        cost: Option<&mut Cost>,
+@@ -335,0 +425 @@
++        let before = self.now();
+@@ -336,0 +427,9 @@
++        if let Some(cost) = cost {
++            cost.add(self.now().saturating_sub(before));
++        }
++        if let Some(trace) = self.trace {
++            trace.event(serde_json::json!({
++                "event":"storage_sync", "at_ns":before, "end_ns":self.now(), "group":group.id(),
++                "success":result.is_ok()
++            }));
++        }
