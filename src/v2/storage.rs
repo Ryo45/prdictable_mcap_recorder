@@ -146,6 +146,10 @@ impl Backend {
         Ok(())
     }
 
+    pub fn clone_data_file(&self) -> io::Result<Option<File>> {
+        self.file.as_ref().map(File::try_clone).transpose()
+    }
+
     pub fn sync(&self, group: u64) -> io::Result<()> {
         if self.faults.sync_fail_group == Some(group) {
             return Err(io::Error::from_raw_os_error(libc::EIO));

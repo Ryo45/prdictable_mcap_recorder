@@ -14,7 +14,7 @@ pub(super) struct Journal {
     pub(super) report: JournalReport,
 }
 
-#[derive(Default, Serialize)]
+#[derive(Clone, Copy, Default, Serialize)]
 pub struct JournalReport {
     pub write_ns: u64,
     pub flush_ns: u64,
@@ -69,6 +69,15 @@ impl Journal {
             {
                 self.report.rollback_failed = true;
             }
+        }
+    }
+}
+
+impl Drop for Journal {
+    fn drop(&mut self) {
+        // Groups are flushed only by the explicit sync path.
+        if let Some(output) = self.output.take() {
+            let _ = output.into_parts();
         }
     }
 }

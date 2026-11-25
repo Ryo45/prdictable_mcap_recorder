@@ -15,6 +15,8 @@ pub const MIB: u64 = 1024 * 1024;
 #[serde(deny_unknown_fields)]
 pub struct Settings {
     pub record: Record,
+    #[serde(default, skip_serializing_if = "Durability::is_default")]
+    pub durability: Durability,
     #[serde(default)]
     pub storage_profile: StorageProfile,
     #[serde(default)]
@@ -24,6 +26,50 @@ pub struct Settings {
     pub sources: Vec<Source>,
     #[serde(default)]
     pub spill: Vec<Spill>,
+}
+
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum DurabilityMode {
+    #[default]
+    Barrier,
+    Overlap,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct Durability {
+    pub mode: DurabilityMode,
+    pub commit_bytes: Option<u64>,
+    pub commit_messages: Option<usize>,
+    pub commit_interval_ms: Option<u64>,
+    pub max_pending_bytes: u64,
+    pub max_pending_groups: usize,
+    pub event_queue_capacity: usize,
+}
+
+impl Default for Durability {
+    fn default() -> Self {
+        Self {
+            mode: DurabilityMode::Barrier,
+            commit_bytes: None,
+            commit_messages: None,
+            commit_interval_ms: None,
+            max_pending_bytes: 128 * MIB,
+            max_pending_groups: 2,
+            event_queue_capacity: 2,
+        }
+    }
+}
+
+impl Durability {
+    fn is_default(&self) -> bool {
+        *self == Self::default()
+    }
+
+    pub fn sealed_limit(&self) -> usize {
+        self.max_pending_groups.min(self.event_queue_capacity)
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -138,6 +184,12 @@ pub struct Faults {
     pub io_error_request: Option<u64>,
     pub io_error: Option<IoFault>,
     pub sync_fail_group: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub journal_fail_group: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub durability_stop_group: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub durability_sync_delay_ms: Option<u64>,
     pub mock_delay_us: u64,
 }
 
@@ -249,6 +301,14 @@ impl Settings {
             settings.storage_profile = override_profile.storage_profile;
             settings.copy_profile = override_profile.copy_profile;
         }
+        let policy = &settings.durability;
+        settings.record.commit_bytes = policy.commit_bytes.unwrap_or(settings.record.commit_bytes);
+        settings.record.commit_messages = policy
+            .commit_messages
+            .unwrap_or(settings.record.commit_messages);
+        settings.record.commit_interval_ms = policy
+            .commit_interval_ms
+            .unwrap_or(settings.record.commit_interval_ms);
         settings.validate()?;
         Ok(settings)
     }
@@ -262,8 +322,42 @@ impl Settings {
         }
     }
 
+    pub fn max_wire_frame(&self) -> u64 {
+        self.sources
+            .iter()
+            .map(|source| source.frame_bytes as u64)
+            .max()
+            .unwrap_or(0)
+            .saturating_add(super::layout::MESSAGE_HEADER_BYTES as u64)
+    }
+
     pub fn validate(&self) -> Result<Budget> {
         let record = &self.record;
+        let durability = &self.durability;
+        ensure!(
+            (1..=64).contains(&durability.max_pending_groups)
+                && (1..=64).contains(&durability.event_queue_capacity)
+                && durability.max_pending_bytes > 0,
+            "invalid durability capacity"
+        );
+        ensure!(
+            durability
+                .commit_bytes
+                .is_none_or(|v| v == record.commit_bytes)
+                && durability
+                    .commit_messages
+                    .is_none_or(|v| v == record.commit_messages)
+                && durability
+                    .commit_interval_ms
+                    .is_none_or(|v| v == record.commit_interval_ms),
+            "durability and effective commit policy disagree"
+        );
+        if durability.mode == DurabilityMode::Overlap {
+            ensure!(
+                durability.max_pending_bytes >= self.max_wire_frame(),
+                "overlap pending byte limit must fit the largest message"
+            );
+        }
         ensure!(
             record.copy_scheduling != CopyScheduling::Global || record.policy.adaptive(),
             "global copy scheduling requires an adaptive policy"
@@ -411,6 +505,7 @@ impl Settings {
             Some(record.commit_interval_ms),
             Some(record.metrics_interval_ms),
             faults.stall_duration_ms,
+            faults.durability_sync_delay_ms,
             faults.stall_at_ms,
             faults.stall_period_ms,
             self.storage_profile.max_stall_ms,
@@ -442,7 +537,13 @@ impl Settings {
             + self.spill.len() as u128 * 32_768
             + slots * 192
             + (record.queue_capacity as u128 + record.in_flight as u128) * 512
-            + record.commit_messages as u128 * 256
+            + record.commit_messages as u128
+                * 256
+                * if durability.mode == DurabilityMode::Overlap {
+                    1 + durability.sealed_limit() as u128
+                } else {
+                    1
+                }
             + record.loss_queue_capacity as u128 * 256;
         let total = payload
             .checked_add(metadata)

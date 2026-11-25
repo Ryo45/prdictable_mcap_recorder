@@ -21,6 +21,8 @@ const IDLE_POLL_NS: u64 = 1_000_000;
 #[derive(Default, Serialize)]
 pub struct WriterReport {
     pub groups: u64,
+    pub cpu_ns: u64,
+    pub lease_drop_ns: u64,
     pub durability: DurabilityReport,
     pub finalized: bool,
     pub final_sync: bool,
@@ -51,14 +53,23 @@ impl Writer<'_> {
         commits: std::fs::File,
     ) -> WriterReport {
         let mut report = WriterReport::default();
-        let mut durability = Coordinator::new(
+        use rustix::time::ClockId;
+        let cpu_start = crate::metrics::cpu_ns(ClockId::ThreadCPUTime);
+        let mut durability = match Coordinator::new(
             self.start,
             self.settings,
             self.progress,
             self.sources,
             commits,
             layout.offset,
-        );
+            &backend,
+        ) {
+            Ok(coordinator) => coordinator,
+            Err(error) => {
+                self.abort(&mut report, format!("durability initialization: {error:#}"));
+                return report;
+            }
+        };
         let mut broken_ring = false;
         let mut next_stall = Stalls::new(&self.settings.faults);
         let mut next_submit_ns = 0;
@@ -69,6 +80,9 @@ impl Writer<'_> {
         }
         let p = self.progress;
         loop {
+            if let Err(error) = durability.poll(&mut ledger) {
+                self.abort(&mut report, format!("{error:#}"));
+            }
             let queue = self.queue.snapshot();
             let now = self.now();
             let draining_error = report.error.is_some() || p.stopped();
@@ -138,7 +152,7 @@ impl Writer<'_> {
                 }
             } else {
                 let barrier = durability.due(now, layout.offset);
-                if queue.closed && queue.depth == 0 && inflight == 0 {
+                if queue.closed && queue.depth == 0 && inflight == 0 && durability.can_seal() {
                     let tail = layout.finish();
                     if let Err(error) = backend.write_control(layout.offset, &tail) {
                         self.abort(&mut report, format!("MCAP footer: {error}"));
@@ -159,7 +173,7 @@ impl Writer<'_> {
                     }
                     break;
                 }
-                if barrier && inflight == 0 {
+                if barrier && inflight == 0 && durability.can_seal() {
                     if let Err(error) = durability.seal(
                         &backend,
                         (layout.offset, layout.prefix_crc()),
@@ -173,7 +187,7 @@ impl Writer<'_> {
                 let paced = !stopping && now < next_submit_ns;
                 if paced {
                     p.writer_blocked_until_ns.store(next_submit_ns, Relaxed);
-                } else if !barrier && inflight < self.settings.depth() {
+                } else if !barrier && durability.can_submit() && inflight < self.settings.depth() {
                     let may_borrow = p.borrowed_in_flight.load(Relaxed)
                         < self.settings.record.max_borrowed_in_flight as u64;
                     let io_bound = self.settings.storage_profile.max_io_us.unwrap_or(1_000) * US;
@@ -243,9 +257,12 @@ impl Writer<'_> {
                         if borrowed {
                             bump(&p.borrowed_in_flight, &p.peak_borrowed_in_flight, 1);
                         }
+                        let syncing = durability.syncing();
                         let timer = Instant::now();
                         let submitted = backend.submit(request, self.now());
-                        p.write_busy_ns.fetch_add(ns(timer.elapsed()), Relaxed);
+                        let write_elapsed = ns(timer.elapsed());
+                        p.write_busy_ns.fetch_add(write_elapsed, Relaxed);
+                        durability.observe_submit_overlap(syncing, write_elapsed);
                         if let Err(error) = submitted {
                             // Ring transport failure cannot prove its requests are quiescent.
                             broken_ring = true;
@@ -263,9 +280,24 @@ impl Writer<'_> {
             } else {
                 ASYNC_POLL_NS
             };
-            self.queue
-                .wait_change(queue.version, Duration::from_nanos(poll));
+            let limited = !durability.can_submit()
+                || ((durability.due(now, layout.offset) || queue.closed) && !durability.can_seal());
+            let wait = limited.then(Instant::now);
+            self.queue.wait_change(
+                queue.version,
+                Duration::from_nanos(if limited { ASYNC_POLL_NS } else { poll }),
+            );
+            if let Some(wait) = wait {
+                durability.waiting(ns(wait.elapsed()));
+            }
         }
+        if let Err(error) = durability.drain(&mut ledger) {
+            self.abort(&mut report, format!("{error:#}"));
+        }
+        if report.error.is_some() {
+            durability.unknown(&mut ledger, self.now(), Reason::Unknown);
+        }
+        report.cpu_ns = crate::metrics::cpu_ns(ClockId::ThreadCPUTime) - cpu_start;
         report.groups = durability.groups();
         report.durability = durability.report();
         report.final_sync = report.durability.final_data_synced;
@@ -304,7 +336,9 @@ impl Writer<'_> {
                 }),
             );
         }
+        let drop_start = Instant::now();
         drop(frame);
+        report.lease_drop_ns += ns(drop_start.elapsed());
         let p = self.progress;
         if let Err(error) = durability.completed(request_id, id, completion.result.is_ok()) {
             self.abort(report, format!("{error:#}"));

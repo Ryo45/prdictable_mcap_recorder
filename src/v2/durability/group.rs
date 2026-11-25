@@ -27,6 +27,7 @@ pub(super) struct Group {
     start_offset: u64,
     first_submit_ns: u64,
     next_offset: u64,
+    first_message_offset: u64,
     entries: Vec<Entry>,
     spans: Vec<Option<Span>>,
 }
@@ -39,6 +40,7 @@ impl Group {
             start_offset: 0,
             first_submit_ns: 0,
             next_offset: first_offset,
+            first_message_offset: first_offset,
             entries: Vec::with_capacity(settings.record.commit_messages),
             spans: vec![None; settings.sources.len()],
         }
@@ -76,6 +78,24 @@ impl Group {
 
     pub(super) fn id(&self) -> u64 {
         self.id
+    }
+
+    pub(super) fn wire_bytes(&self) -> u64 {
+        self.next_offset - self.first_message_offset
+    }
+
+    pub(super) fn next_request(&self) -> u64 {
+        self.first_request + self.entries.len() as u64
+    }
+
+    pub(super) fn reset(&mut self, group: u64, request: u64, offset: u64) {
+        self.id = group;
+        self.first_request = request;
+        self.start_offset = offset;
+        self.next_offset = offset;
+        self.first_message_offset = offset;
+        self.entries.clear();
+        self.spans.fill(None);
     }
 
     pub(super) fn is_empty(&self) -> bool {
@@ -190,6 +210,7 @@ impl Group {
         self.entries.clear();
         self.start_offset = end_offset;
         self.next_offset = end_offset;
+        self.first_message_offset = end_offset;
         self.id += 1;
     }
 
@@ -205,5 +226,47 @@ impl Group {
                 entry.state = WriteState::Unknown;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::v2::durability::Submitted;
+
+    #[test]
+    fn contiguous_boundary_requires_every_unique_completion() {
+        let settings =
+            toml::from_str::<Settings>(include_str!("../../../configs/v2-smoke.toml")).unwrap();
+        let mut group = Group::new(&settings, 100);
+        let mut ids = Vec::new();
+        for request_id in 0..3 {
+            let frame_id = FrameId {
+                source: 0,
+                sequence: request_id,
+                session_epoch: 1,
+            };
+            ids.push(frame_id);
+            group
+                .submit(Submitted {
+                    request_id,
+                    frame_id,
+                    offset: 100 + request_id * 40,
+                    size: 9,
+                    wire_len: 40,
+                    now: 2,
+                    queued_ns: 1,
+                })
+                .unwrap();
+        }
+        assert!(group.complete(3, ids[0], true).is_err());
+        group.complete(2, ids[2], true).unwrap();
+        group.complete(0, ids[0], true).unwrap();
+        assert!(group.complete(2, ids[2], true).is_err());
+        assert!(group.validate_boundary(220, false).is_err());
+        group.complete(1, ids[1], true).unwrap();
+        assert!(group.validate_boundary(219, false).is_err());
+        assert!(group.validate_boundary(220, false).is_ok());
+        assert!(group.validate_boundary(270, true).is_ok());
     }
 }
