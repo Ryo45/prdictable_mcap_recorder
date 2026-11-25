@@ -153,6 +153,7 @@ fn run(
     let progress = Progress::default();
     let sources: Vec<_> = devices.iter().map(|_| SourceProgress::default()).collect();
     let queue = Queue::new(settings.record.queue_capacity, devices.len());
+    let trace = super::copy_trace::CopyTrace::open(path)?;
     let mut summary = create_new(&outputs.summary)?;
     let files = MonitorFiles {
         loss: create_new(&outputs.losses)?,
@@ -205,6 +206,7 @@ fn run(
         queue: &queue,
     };
     let scheduler = Scheduler {
+        trace: trace.as_ref(),
         start,
         settings: &settings,
         devices: &devices,
@@ -214,6 +216,7 @@ fn run(
         queue: &queue,
     };
     let writer = Writer {
+        trace: trace.as_ref(),
         start,
         settings: &settings,
         devices: &devices,
@@ -256,6 +259,9 @@ fn run(
         (writer_report, monitor.join().unwrap(), capture_end)
     });
 
+    if let Some(trace) = trace {
+        trace.finish();
+    }
     let elapsed = ns(start.elapsed());
     // The pseudo device has no real interrupt to wait for at shutdown. All
     // producers are stopped, so advance its delayed-return clock to settle.

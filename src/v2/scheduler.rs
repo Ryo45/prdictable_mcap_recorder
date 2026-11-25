@@ -29,6 +29,7 @@ struct RiskEpisode {
 }
 
 pub struct Scheduler<'a> {
+    pub trace: Option<&'a super::copy_trace::CopyTrace>,
     pub start: Instant,
     pub settings: &'a Settings,
     pub devices: &'a [Device],
@@ -94,6 +95,17 @@ impl Scheduler<'_> {
                 }
                 let (claim, plan) = self.queue.claim_global_copy(now, demands, &mut tasks);
                 let metrics = &self.progress.global_copy;
+                if let Some(trace) = self.trace
+                    && let Some(claim) = &claim
+                {
+                    trace.frame("plan_claim", now, &claim.job.frame, serde_json::json!({
+                        "pending_tasks": tasks.len(), "pending_work_ns": plan.work_ns,
+                        "earliest_due_ns": plan.earliest_due_ns, "wake_ns": plan.wake_ns,
+                        "infeasible": plan.infeasible,
+                        "writer_blocked_until_ns": self.progress.writer_blocked_until_ns.load(Relaxed),
+                        "queue_depth": before.depth,
+                    }));
+                }
                 metrics.peak_work_ns.fetch_max(plan.work_ns, Relaxed);
                 if let Some(due) = plan.earliest_due_ns {
                     metrics.earliest_due_ns.fetch_min(due, Relaxed);
@@ -291,6 +303,17 @@ impl Scheduler<'_> {
                 .fetch_add(1, Relaxed);
         }
         let Some((mut target, _)) = spill.and_then(|pool| pool.acquire(now)) else {
+            if let Some(trace) = self.trace {
+                trace.frame(
+                    "spill_unavailable",
+                    now,
+                    &job.frame,
+                    serde_json::json!({
+                        "class_bytes": spill.map(Pool::size), "forced": forced,
+                        "copy_deadline_ns": deadline_ns,
+                    }),
+                );
+            }
             self.progress.copy_spill_pressure.fetch_add(1, Relaxed);
             self.progress.warn(Warning::AtRisk, now);
             if forced {
@@ -340,6 +363,19 @@ impl Scheduler<'_> {
         }
         let elapsed = ns(timer.elapsed());
         let complete = ns(self.start.elapsed());
+        if let Some(trace) = self.trace {
+            trace.frame(
+                "copy_completion",
+                complete,
+                &job.frame,
+                serde_json::json!({
+                    "forced": forced, "copy_deadline_ns": deadline_ns, "elapsed_ns": elapsed,
+                    "copy_bound_ns": needs[stream].copy_bound_ns, "success": !failed,
+                    "ack_estimate_ns": complete.saturating_add(device.source.return_delay_us * US),
+                    "spill_class_bytes": spill.map(Pool::size),
+                }),
+            );
+        }
         self.progress.copy_time.lock().unwrap().record(elapsed);
         self.progress.copy_active_ns.fetch_add(elapsed, Relaxed);
         if elapsed > needs[stream].copy_bound_ns {

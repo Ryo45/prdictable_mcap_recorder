@@ -3,6 +3,7 @@ mod arrival;
 mod capture;
 mod config;
 mod copy_plan;
+mod copy_trace;
 mod integrity;
 mod layout;
 mod metrics;

@@ -334,3 +334,70 @@ fn recovery_reports_duplicate_kinds_and_leaves_repair_unpublished() {
     assert!(!output.exists());
     assert_eq!(fs::read(&path).unwrap(), corrupt);
 }
+
+#[test]
+fn copy_trace_is_opt_in_and_joinable_by_frame_id() {
+    let dir = tempdir().unwrap();
+    let data = dir.path().join("run.mcap");
+    let trace = dir.path().join("run-copy-trace.jsonl");
+    let record = || {
+        let mut command = recorder();
+        command.args([
+            "record",
+            "--config",
+            "configs/multi-source-ci.toml",
+            "--duration-sec",
+            "0.2",
+            "--allow-unverified",
+            "--output",
+        ]);
+        command
+    };
+    let result = record()
+        .env_remove("RECORDER_COPY_TRACE")
+        .arg(dir.path().join("plain.mcap"))
+        .output()
+        .unwrap();
+    assert!(result.status.success(), "{:?}", result);
+    assert!(!dir.path().join("plain-copy-trace.jsonl").exists());
+
+    let result = record()
+        .env("RECORDER_COPY_TRACE", "1")
+        .arg(&data)
+        .output()
+        .unwrap();
+    assert!(result.status.success(), "{:?}", result);
+    let text = fs::read_to_string(&trace).unwrap();
+    let events: Vec<Value> = text
+        .lines()
+        .map(|line| serde_json::from_str(line).unwrap())
+        .collect();
+    let footer = events.last().unwrap();
+    assert_eq!(footer["event"], "trace_end");
+    assert_eq!(footer["omitted"], 0);
+    assert_eq!(
+        footer["written"].as_u64().unwrap() as usize,
+        events.len() - 1
+    );
+    let copy = events
+        .iter()
+        .find(|event| event["event"] == "copy_completion")
+        .unwrap();
+    assert!(copy["lease_deadline_ns"].is_number());
+    assert!(
+        events
+            .iter()
+            .any(|event| event["event"] == "writer_completion"
+                && event["epoch"] == copy["epoch"]
+                && event["stream"] == copy["stream"]
+                && event["sequence"] == copy["sequence"])
+    );
+    assert_eq!(
+        run(recorder()
+            .args(["verify", "--input"])
+            .arg(data)
+            .arg("--report")
+            .arg(dir.path().join("run-summary.json")))["ok"],
+        true
+    );
+}

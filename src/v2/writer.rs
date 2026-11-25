@@ -34,6 +34,7 @@ pub struct WriterReport {
 }
 
 pub struct Writer<'a> {
+    pub trace: Option<&'a super::copy_trace::CopyTrace>,
     pub start: Instant,
     pub settings: &'a Settings,
     pub devices: &'a [Device],
@@ -190,6 +191,16 @@ impl Writer<'_> {
                         defer
                     }) {
                         let frame = job.frame;
+                        if let Some(trace) = self.trace {
+                            trace.frame(
+                                "writer_submit",
+                                now,
+                                &frame,
+                                serde_json::json!({
+                                    "request": submit_count, "borrowed": frame.borrowed().is_some(),
+                                }),
+                            );
+                        }
                         let source = &self.sources[usize::from(frame.id.source)];
                         let size = frame.size as u64;
                         p.queue_wait
@@ -252,6 +263,20 @@ impl Writer<'_> {
         let request_id = completion.request.id;
         let submitted_ns = completion.request.submitted_ns;
         // Original completion is the point where we can release the lease.
+        if let Some(trace) = self.trace {
+            let reusable = borrowed.then(|| {
+                now.saturating_add(self.devices[usize::from(id.source)].source.return_delay_us * US)
+            });
+            trace.frame(
+                "writer_completion",
+                now,
+                &frame,
+                serde_json::json!({
+                    "request": request_id, "borrowed": borrowed, "submitted_ns": submitted_ns,
+                    "ack_estimate_ns": reusable, "success": completion.result.is_ok(),
+                }),
+            );
+        }
         drop(frame);
         let p = self.progress;
         p.in_flight.fetch_sub(1, Relaxed);
