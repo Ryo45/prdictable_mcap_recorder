@@ -1,0 +1,131 @@
+# Opt-in only. About 1.074 GB/s of input. Allow 4.4 GB per second for
+# the four-policy comparison, plus headroom. Pool allocations are 704 MiB.
+[record]
+policy = "deadline-aware"
+copy_scheduling = "global"
+writer = "sync"
+queue_capacity = 128
+memory_budget_bytes = 838860800
+max_output_bytes = 17179869184
+commit_bytes = 134217728
+commit_interval_ms = 200
+commit_messages = 256
+metrics_interval_ms = 10
+in_flight = 4
+max_borrowed_in_flight = 4
+
+[storage_profile]
+sustained_bytes_per_sec = 1300000000
+max_stall_ms = 210
+max_io_us = 12000
+max_sync_ms = 85
+
+[copy_profile]
+assumed_min_bytes_per_sec = 1000000000
+return_margin_us = 700
+scheduling_margin_us = 1500
+max_capture_delay_us = 30000
+
+[faults]
+stall_at_ms = 250
+stall_duration_ms = 200
+
+[[sources]]
+id = "camera_0"
+kind = "mock_v4l2"
+model = "fixed-deadline"
+frame_bytes = 4194304
+fps = 32
+phase_us = 0
+dma_buffers = 12
+capture_reserve = 1
+max_hold_ms = 90
+return_delay_us = 100
+
+[[sources]]
+id = "camera_1"
+kind = "mock_v4l2"
+model = "fixed-deadline"
+frame_bytes = 4194304
+fps = 32
+phase_us = 3906
+dma_buffers = 12
+capture_reserve = 1
+max_hold_ms = 90
+return_delay_us = 130
+
+[[sources]]
+id = "camera_2"
+kind = "mock_v4l2"
+model = "fixed-deadline"
+frame_bytes = 4194304
+fps = 32
+phase_us = 7812
+dma_buffers = 12
+capture_reserve = 1
+max_hold_ms = 90
+return_delay_us = 160
+
+[[sources]]
+id = "camera_3"
+kind = "mock_v4l2"
+model = "fixed-deadline"
+frame_bytes = 4194304
+fps = 32
+phase_us = 11718
+dma_buffers = 12
+capture_reserve = 1
+max_hold_ms = 90
+return_delay_us = 190
+
+[[sources]]
+id = "camera_4"
+kind = "mock_v4l2"
+model = "fixed-deadline"
+frame_bytes = 4194304
+fps = 32
+phase_us = 15624
+dma_buffers = 12
+capture_reserve = 1
+max_hold_ms = 90
+return_delay_us = 220
+
+[[sources]]
+id = "camera_5"
+kind = "mock_v4l2"
+model = "fixed-deadline"
+frame_bytes = 4194304
+fps = 32
+phase_us = 19530
+dma_buffers = 12
+capture_reserve = 1
+max_hold_ms = 90
+return_delay_us = 250
+
+[[sources]]
+id = "camera_6"
+kind = "mock_v4l2"
+model = "fixed-deadline"
+frame_bytes = 4194304
+fps = 32
+phase_us = 23436
+dma_buffers = 12
+capture_reserve = 1
+max_hold_ms = 90
+return_delay_us = 280
+
+[[sources]]
+id = "camera_7"
+kind = "mock_v4l2"
+model = "fixed-deadline"
+frame_bytes = 4194304
+fps = 32
+phase_us = 27342
+dma_buffers = 12
+capture_reserve = 1
+max_hold_ms = 90
+return_delay_us = 310
+
+[[spill]]
+frame_bytes = 4194304
+buffers = 80

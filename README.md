@@ -21,6 +21,7 @@ target/release/recorder benchmark --suite v3-smoke --output-dir target/v3-smoke-
 
 - [V3 検証結果、未達、実機対応状況](docs/v3-report.md)
 - [Deadline-aware BufferLease の比較試験](docs/deadline-aware-bufferlease.md)
+- [複数ソースの Deadline-aware スケジューリング](docs/multi-source-deadline.md)
 - [アーキテクチャ](docs/architecture.md) と [不変条件](docs/invariants.md)
 - [復旧操作](docs/recovery.md) と [同期境界](docs/storage-durability.md)
 - [性能測定方法](docs/performance-methodology.md) と [リファクタリング結果](docs/refactor-report.md)

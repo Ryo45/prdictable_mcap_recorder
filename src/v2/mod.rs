@@ -2,6 +2,7 @@ mod adapter;
 mod arrival;
 mod capture;
 mod config;
+mod copy_plan;
 mod integrity;
 mod layout;
 mod metrics;

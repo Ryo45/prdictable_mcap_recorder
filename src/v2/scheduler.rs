@@ -4,11 +4,11 @@ use std::time::{Duration, Instant};
 
 use super::adapter::{Device, Payload};
 use super::arrival::Requirement;
-use super::config::{Model, Policy, Settings, US, transfer_time};
+use super::config::{CopyScheduling, Model, Policy, Settings, US, transfer_time};
 use super::integrity::{Layer, Ledger, Reason, Span};
 use super::metrics::{Progress, SourceProgress, Warning};
 use super::pool::Pool;
-use super::queue::{CopyClaim, CopyPriority, Job, Queue};
+use super::queue::{CopyClaim, CopyDemand, CopyPriority, CopySelection, Job, Queue};
 use crate::metrics::ns;
 
 const IDLE_SAMPLE_NS: u64 = 1_000_000;
@@ -19,6 +19,7 @@ struct Need {
     copy_and_return_ns: u64,
     copy_bound_ns: u64,
     risk_episode: Option<RiskEpisode>,
+    reported_deadline_overruns: u64,
 }
 
 struct RiskEpisode {
@@ -58,6 +59,18 @@ impl Scheduler<'_> {
                 }
             })
             .collect();
+        let global = self.settings.record.copy_scheduling == CopyScheduling::Global;
+        let mut demands = global.then(|| {
+            (0..self.devices.len())
+                .map(|_| CopyDemand::default())
+                .collect::<Vec<_>>()
+        });
+        let mut tasks = Vec::with_capacity(if global {
+            self.settings.record.queue_capacity
+        } else {
+            0
+        });
+        let mut infeasible = false;
         loop {
             let before = self.queue.snapshot();
             if before.closed && before.depth == 0 {
@@ -66,13 +79,43 @@ impl Scheduler<'_> {
             let now = ns(self.start.elapsed());
             self.observe(now, before.depth, &mut needs);
             if self.progress.stopped() || before.depth == 0 {
+                infeasible = false;
                 self.queue
                     .wait_change(before.version, Duration::from_nanos(IDLE_SAMPLE_NS));
                 continue;
             }
-            let decision = self
-                .queue
-                .claim_copy(now, |job| self.priority(job, now, &needs));
+            let decision = if let Some(demands) = &mut demands {
+                for (demand, need) in demands.iter_mut().zip(&needs) {
+                    demand.set(
+                        need.pool,
+                        need.copy_bound_ns,
+                        need.copy_and_return_ns - need.copy_bound_ns,
+                    );
+                }
+                let (claim, plan) = self.queue.claim_global_copy(now, demands, &mut tasks);
+                let metrics = &self.progress.global_copy;
+                metrics.peak_work_ns.fetch_max(plan.work_ns, Relaxed);
+                if let Some(due) = plan.earliest_due_ns {
+                    metrics.earliest_due_ns.fetch_min(due, Relaxed);
+                }
+                for (source, demand) in self.sources.iter().zip(demands.iter()) {
+                    source
+                        .peak_pending_borrowed
+                        .fetch_max(demand.pending_borrowed, Relaxed);
+                }
+                if plan.infeasible && !infeasible {
+                    metrics.infeasible_events.fetch_add(1, Relaxed);
+                    self.progress.warn(Warning::AtRisk, now);
+                }
+                infeasible = plan.infeasible;
+                CopySelection {
+                    claim,
+                    next_ns: plan.wake_ns,
+                }
+            } else {
+                self.queue
+                    .claim_copy(now, |job| self.priority(job, now, &needs))
+            };
             if let Some(claim) = decision.claim {
                 self.progress.copy_claims.fetch_add(1, Relaxed);
                 self.execute(claim, &mut ledger, &needs);
@@ -103,6 +146,12 @@ impl Scheduler<'_> {
             // next first can overestimate arrivals, never available capacity.
             let next = device.next.load(Acquire);
             let levels = device.pool.levels(now);
+            if self.settings.record.copy_scheduling == CopyScheduling::Global
+                && levels.deadline_exceeded > need.reported_deadline_overruns
+            {
+                need.reported_deadline_overruns = levels.deadline_exceeded;
+                self.progress.warn(Warning::ContractViolation, now);
+            }
             let requirement = if device.source.model == Model::Owned {
                 None
             } else {
@@ -153,6 +202,12 @@ impl Scheduler<'_> {
             }
             if risk && need.risk_episode.is_none() {
                 progress.predicted_risk.fetch_add(1, Relaxed);
+                let _ = progress.first_risk_ns_plus_one.compare_exchange(
+                    0,
+                    now.saturating_add(1),
+                    Relaxed,
+                    Relaxed,
+                );
                 self.progress.warn(Warning::AtRisk, now);
                 need.risk_episode = Some(RiskEpisode {
                     loss_count: progress.confirmed_loss.load(Relaxed),
@@ -209,7 +264,10 @@ impl Scheduler<'_> {
         let device = &self.devices[stream];
         let borrowed = job.frame.borrowed().unwrap();
         let forced = job.force_copy;
+        let source = &self.sources[stream];
+        let global = self.settings.record.copy_scheduling == CopyScheduling::Global;
         if !forced
+            && (!global || borrowed.deadline_ns.is_none())
             && self.settings.record.policy == Policy::DeadlineAwareReserve
             && needs[stream]
                 .pool
@@ -226,6 +284,12 @@ impl Scheduler<'_> {
         }
 
         let spill = self.spill.iter().find(|pool| pool.size() >= job.frame.size);
+        if global && spill.is_none() {
+            self.progress
+                .global_copy
+                .spill_size_class_rejections
+                .fetch_add(1, Relaxed);
+        }
         let Some((mut target, _)) = spill.and_then(|pool| pool.acquire(now)) else {
             self.progress.copy_spill_pressure.fetch_add(1, Relaxed);
             self.progress.warn(Warning::AtRisk, now);
@@ -247,6 +311,14 @@ impl Scheduler<'_> {
         };
 
         let attempt = self.progress.copy_attempts.fetch_add(1, Relaxed);
+        if global {
+            self.progress
+                .global_copy
+                .queue_wait
+                .lock()
+                .unwrap()
+                .record(now.saturating_sub(job.frame.queued_ns));
+        }
         let timer = Instant::now();
         let delay = self.settings.faults.copy_delay_us;
         if delay > 0 {
@@ -284,6 +356,18 @@ impl Scheduler<'_> {
             drop((target, job));
             self.queue.finish_copy(slot, None);
             return;
+        }
+        if global {
+            source.copy_bytes.fetch_add(job.frame.size as u64, Relaxed);
+            source.copy_count.fetch_add(1, Relaxed);
+            if !forced {
+                let count = if borrowed.deadline_ns == Some(deadline_ns) {
+                    &source.fixed_copies
+                } else {
+                    &source.pool_copies
+                };
+                count.fetch_add(1, Relaxed);
+            }
         }
         if forced {
             self.progress.forced_copies.fetch_add(1, Relaxed);

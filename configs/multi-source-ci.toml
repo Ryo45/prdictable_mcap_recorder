@@ -1,0 +1,56 @@
+# 0.35 s at about 0.33 MB/s. Less than 120 KiB of payload per run.
+[record]
+policy = "deadline-aware"
+copy_scheduling = "global"
+writer = "sync"
+queue_capacity = 80
+memory_budget_bytes = 67108864
+max_output_bytes = 8388608
+commit_interval_ms = 100
+commit_messages = 32
+metrics_interval_ms = 5
+
+[storage_profile]
+sustained_bytes_per_sec = 200000000
+max_stall_ms = 100
+max_io_us = 2000
+max_sync_ms = 40
+
+[copy_profile]
+assumed_min_bytes_per_sec = 1000000000
+return_margin_us = 0
+scheduling_margin_us = 2300
+max_capture_delay_us = 3500
+
+[faults]
+stall_at_ms = 1
+stall_duration_ms = 89
+copy_delay_us = 2000
+
+[[sources]]
+id = "camera_a"
+kind = "mock_v4l2"
+model = "fixed-deadline"
+frame_bytes = 4096
+fps = 20
+burst = 2
+phase_us = 5000
+dma_buffers = 12
+max_hold_ms = 22
+return_delay_us = 500
+
+[[sources]]
+id = "camera_b"
+kind = "mock_v4l2"
+model = "fixed-deadline"
+frame_bytes = 4096
+fps = 20
+burst = 2
+phase_us = 5000
+dma_buffers = 12
+max_hold_ms = 22
+return_delay_us = 500
+
+[[spill]]
+frame_bytes = 4096
+buffers = 64

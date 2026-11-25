@@ -13,7 +13,7 @@ use serde_json::json;
 use super::Clock;
 use super::adapter::{Device, ScheduledSource, SourceAdapter};
 use super::capture::Capture;
-use super::config::{MIB, Settings, US, WriterMode};
+use super::config::{CopyScheduling, MIB, Settings, US, WriterMode};
 use super::integrity::{Ledger, Monitor, MonitorFiles};
 use super::layout::Layout;
 use super::metrics::{Progress, SourceCounts, SourceProgress, Warning};
@@ -402,6 +402,29 @@ fn run(
     {
         metrics["timings_ns"]["accepted_to_committed"] =
             serde_json::to_value(progress.accepted_to_committed.lock().unwrap().summary())?;
+    }
+    if settings.record.copy_scheduling == CopyScheduling::Global {
+        let global = &progress.global_copy;
+        let earliest = global.earliest_due_ns.load(Relaxed);
+        metrics["global_copy"] = json!({
+            "peak_pending_copy_work_ns": global.peak_work_ns.load(Relaxed),
+            "earliest_unmet_deadline_ns": (earliest != u64::MAX).then_some(earliest),
+            "unfeasible_demand_events": global.infeasible_events.load(Relaxed),
+            "spill_size_class_rejections": global.spill_size_class_rejections.load(Relaxed),
+            "borrow_admission_deferrals": global.borrow_admission_deferrals.load(Relaxed),
+            "copy_worker_busy_ns": progress.copy_active_ns.load(Relaxed),
+            "copy_queue_wait_ns": global.queue_wait.lock().unwrap().summary(),
+            "sources": sources.iter().zip(&settings.sources).map(|(source, cfg)| json!({
+                "id": cfg.id,
+                "peak_pending_borrowed": source.peak_pending_borrowed.load(Relaxed),
+                "pool_exhausted_losses": source.pool_exhausted_losses.load(Relaxed),
+                "risk_warning_lead_ns": source.warning_lead_ns(),
+                "copy_bytes": source.copy_bytes.load(Relaxed),
+                "copy_count": source.copy_count.load(Relaxed),
+                "copy_reason_fixed": source.fixed_copies.load(Relaxed),
+                "copy_reason_pool": source.pool_copies.load(Relaxed),
+            })).collect::<Vec<_>>(),
+        });
     }
     result
         .as_object_mut()

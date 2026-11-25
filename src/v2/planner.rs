@@ -5,7 +5,7 @@ use anyhow::{Context, Result, ensure};
 use serde::{Deserialize, Serialize};
 
 use super::arrival::{Schedule, schedules};
-use super::config::{Budget, MS, Model, NS, Policy, Settings, US, transfer_time};
+use super::config::{Budget, CopyScheduling, MS, Model, NS, Policy, Settings, US, transfer_time};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -22,6 +22,9 @@ pub struct Plan {
     pub assumptions_missing: Vec<&'static str>,
     pub input_bytes_per_sec: u64,
     pub copy_input_bytes_per_sec: u64,
+    pub copy_input_basis: &'static str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub copy_worker_demand_ns_per_second: Option<u64>,
     pub storage_effective_bytes_per_sec: Option<u64>,
     pub storage_latency_ns: Option<u64>,
     pub backlog_bound_bytes: Option<u64>,
@@ -72,6 +75,10 @@ pub fn analyze(settings: &Settings, duration_ns: u64) -> Result<(Plan, Vec<Sched
     let mut copy_rate = 0_u128;
     let mut copy_burst = 0_u128;
     let mut max_copy = 0_u64;
+    let global = record.copy_scheduling == CopyScheduling::Global;
+    let mut worker_rate = 0_u128;
+    let mut worker_burst = 0_u128;
+    let mut worker_blocking = 0_u64;
     if budget.total_bytes > record.memory_budget_bytes {
         reasons.push(format!(
             "estimated memory exceeds budget by {} bytes",
@@ -111,6 +118,23 @@ pub fn analyze(settings: &Settings, duration_ns: u64) -> Result<(Plan, Vec<Sched
             copy_rate += source.frame_bytes as u128 * fps;
             copy_burst += source.frame_bytes as u128 * frames;
             max_copy = max_copy.max(source.frame_bytes as u64);
+            if global
+                && let Some((speed, margin)) = copy
+                    .assumed_min_bytes_per_sec
+                    .zip(copy.scheduling_margin_us)
+            {
+                let work =
+                    transfer_time(source.frame_bytes as u64, speed).saturating_add(margin * US);
+                worker_rate = worker_rate.saturating_add(fps.saturating_mul(u128::from(work)));
+                worker_burst = worker_burst.saturating_add(frames.saturating_mul(u128::from(work)));
+                worker_blocking = worker_blocking.max(work);
+                if settings.faults.copy_delay_us * US >= work && settings.faults.copy_delay_us > 0 {
+                    reasons.push(format!(
+                        "{}: injected copy delay exhausts the per-job copy bound",
+                        source.id
+                    ));
+                }
+            }
         }
         source_plans.push(SourcePlan {
             id: source.id.clone(),
@@ -224,6 +248,18 @@ pub fn analyze(settings: &Settings, duration_ns: u64) -> Result<(Plan, Vec<Sched
                     "copy demand {copy_rate} B/s must be below minimum copy rate {speed} B/s"
                 ));
                 return None;
+            }
+            if global {
+                schedule_margin?;
+                if worker_rate >= u128::from(NS) {
+                    reasons.push(format!(
+                        "conservative single Copy Worker demand {worker_rate} ns/s exhausts its service budget"
+                    ));
+                    return None;
+                }
+                let backlog = worker_burst.saturating_add(u128::from(worker_blocking));
+                return Some(saturating_u64(backlog.saturating_mul(u128::from(NS))
+                    .div_ceil(u128::from(NS) - worker_rate)));
             }
             // Non-preemptive blocking by one maximum-sized copy plus
             // competing bursts serviced from the residual copy bandwidth.
@@ -387,6 +423,11 @@ pub fn analyze(settings: &Settings, duration_ns: u64) -> Result<(Plan, Vec<Sched
             assumptions_missing: unknown,
             input_bytes_per_sec: input_rate,
             copy_input_bytes_per_sec: copy_rate,
+            copy_input_basis: "conservative upper bound assuming all eligible frames need CopyOut",
+            copy_worker_demand_ns_per_second: (global
+                && copy_speed.is_some()
+                && schedule_margin.is_some())
+            .then_some(saturating_u64(worker_rate)),
             storage_effective_bytes_per_sec: adjusted,
             storage_latency_ns: latency,
             backlog_bound_bytes: backlog,
@@ -526,5 +567,24 @@ mod tests {
                 .contains(&"source arrival envelope")
         );
         assert!(plan.assumptions_missing.contains(&"storage maximum stall"));
+    }
+
+    #[test]
+    fn m8_global_worker_load_and_missing_bounds_are_distinct() {
+        let mut cfg = settings();
+        cfg.record.copy_scheduling = CopyScheduling::Global;
+        cfg.copy_profile.scheduling_margin_us = Some(10_000);
+        let plan = analyze(&cfg, NS).unwrap().0;
+        assert_eq!(plan.verdict, Verdict::Rejected);
+        assert!(plan.copy_worker_demand_ns_per_second.unwrap() > NS);
+        assert!(
+            plan.reasons
+                .iter()
+                .any(|reason| reason.contains("Copy Worker"))
+        );
+        cfg.copy_profile.scheduling_margin_us = None;
+        let plan = analyze(&cfg, NS).unwrap().0;
+        assert_eq!(plan.verdict, Verdict::Unknown);
+        assert!(plan.copy_worker_demand_ns_per_second.is_none());
     }
 }

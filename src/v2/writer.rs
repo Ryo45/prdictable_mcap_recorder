@@ -9,7 +9,7 @@ use serde::Serialize;
 
 use self::group::Group;
 use super::adapter::Device;
-use super::config::{Faults, MS, Settings, US, WriterMode, transfer_time};
+use super::config::{CopyScheduling, Faults, MS, Settings, US, WriterMode, transfer_time};
 use super::integrity::{Layer, Ledger, Reason, Span};
 use super::layout::Layout;
 use super::metrics::{Progress, SourceProgress, Warning};
@@ -171,7 +171,7 @@ impl Writer<'_> {
                     let io_bound = self.settings.storage_profile.max_io_us.unwrap_or(1_000) * US;
                     if let Some(job) = self.queue.claim_write(may_borrow, false, |job| {
                         let device = &self.devices[usize::from(job.frame.id.source)];
-                        self.settings.record.policy.adaptive()
+                        let defer = self.settings.record.policy.adaptive()
                             && job
                                 .frame
                                 .borrowed()
@@ -181,7 +181,13 @@ impl Writer<'_> {
                                         <= now
                                             .saturating_add(io_bound)
                                             .saturating_add(device.source.return_delay_us * US)
-                                })
+                                });
+                        if defer && self.settings.record.copy_scheduling == CopyScheduling::Global {
+                            p.global_copy
+                                .borrow_admission_deferrals
+                                .fetch_add(1, Relaxed);
+                        }
+                        defer
                     }) {
                         let frame = job.frame;
                         let source = &self.sources[usize::from(frame.id.source)];

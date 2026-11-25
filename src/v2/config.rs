@@ -30,6 +30,8 @@ pub struct Settings {
 #[serde(default, deny_unknown_fields)]
 pub struct Record {
     pub policy: Policy,
+    #[serde(skip_serializing_if = "CopyScheduling::is_legacy")]
+    pub copy_scheduling: CopyScheduling,
     pub writer: WriterMode,
     pub queue_capacity: usize,
     pub memory_budget_bytes: u64,
@@ -48,6 +50,7 @@ impl Default for Record {
     fn default() -> Self {
         Self {
             policy: Policy::DeadlineAware,
+            copy_scheduling: CopyScheduling::Legacy,
             writer: WriterMode::Sync,
             queue_capacity: 128,
             memory_budget_bytes: 128 * MIB,
@@ -61,6 +64,20 @@ impl Default for Record {
             seed: 42,
             max_output_bytes: 256 * MIB,
         }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum CopyScheduling {
+    #[default]
+    Legacy,
+    Global,
+}
+
+impl CopyScheduling {
+    fn is_legacy(&self) -> bool {
+        *self == Self::Legacy
     }
 }
 
@@ -247,6 +264,10 @@ impl Settings {
 
     pub fn validate(&self) -> Result<Budget> {
         let record = &self.record;
+        ensure!(
+            record.copy_scheduling != CopyScheduling::Global || record.policy.adaptive(),
+            "global copy scheduling requires an adaptive policy"
+        );
         ensure!(
             (1..u16::MAX as usize).contains(&self.sources.len()),
             "expected 1 to 65534 sources"

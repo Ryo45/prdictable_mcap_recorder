@@ -2,6 +2,8 @@ use std::sync::{Condvar, Mutex};
 use std::time::Duration;
 
 use super::adapter::Frame;
+use super::arrival::Requirement;
+use super::copy_plan::{Plan, Task, plan};
 
 pub struct Job {
     pub frame: Frame,
@@ -64,6 +66,23 @@ pub struct CopySelection {
 pub struct CopyPriority {
     pub ready_ns: u64,
     pub deadline_ns: u64,
+}
+
+#[derive(Default)]
+pub struct CopyDemand {
+    pub pool: Option<Requirement>,
+    pub work_ns: u64,
+    pub return_ns: u64,
+    pool_remaining: usize,
+    pub pending_borrowed: u64,
+}
+
+impl CopyDemand {
+    pub fn set(&mut self, pool: Option<Requirement>, work_ns: u64, return_ns: u64) {
+        self.pool = pool;
+        self.work_ns = work_ns;
+        self.return_ns = return_ns;
+    }
 }
 
 impl Queue {
@@ -207,6 +226,94 @@ impl Queue {
             }
         });
         CopySelection { claim, next_ns }
+    }
+
+    pub fn claim_global_copy(
+        &self,
+        now: u64,
+        demands: &mut [CopyDemand],
+        tasks: &mut Vec<Task>,
+    ) -> (Option<CopyClaim>, Plan) {
+        let mut state = self.state.lock().unwrap();
+        debug_assert_eq!(state.copying, 0, "the caller owns the single copy worker");
+        debug_assert!(tasks.capacity() >= state.slots.len());
+        tasks.clear();
+        for demand in demands.iter_mut() {
+            demand.pending_borrowed = 0;
+            demand.pool_remaining = demand.pool.map_or(0, |pool| pool.count);
+        }
+        // A fixed return due by the pool deadline can also satisfy one unit
+        // of the pool's demand. Credit it only if the same plan copies it.
+        for slot in &state.slots {
+            let Some(job) = &slot.job else { continue };
+            let Some(lease) = job.frame.borrowed() else {
+                continue;
+            };
+            let demand = &mut demands[slot.stream];
+            demand.pending_borrowed += 1;
+            if let Some(pool) = demand.pool
+                && lease.deadline_ns.is_some_and(|due| due <= pool.deadline_ns)
+            {
+                demand.pool_remaining = demand.pool_remaining.saturating_sub(1);
+            }
+        }
+        for (stream, demand) in state.streams.iter().zip(demands.iter_mut()) {
+            let mut next = stream.head;
+            while let Some(index) = next {
+                let slot = &state.slots[index];
+                next = slot.next;
+                let Some(job) = &slot.job else { continue };
+                let Some(lease) = job.frame.borrowed() else {
+                    continue;
+                };
+                let mut due_ns = lease.deadline_ns.unwrap_or(u64::MAX);
+                if let Some(pool) = demand.pool
+                    && demand.pool_remaining != 0
+                    && pool.deadline_ns < due_ns
+                {
+                    demand.pool_remaining -= 1;
+                    due_ns = pool.deadline_ns;
+                }
+                if due_ns != u64::MAX || job.force_copy {
+                    tasks.push(Task {
+                        slot: index,
+                        queued_ns: job.frame.queued_ns,
+                        retry_ns: job.retry_copy_ns,
+                        due_ns,
+                        work_ns: demand.work_ns,
+                        return_ns: demand.return_ns,
+                        forced: job.force_copy,
+                    });
+                }
+            }
+        }
+        let mut decision = plan(tasks, now, now);
+        for demand in demands.iter() {
+            if let Some(pool) = demand.pool
+                && demand.pool_remaining > 0
+                && pool.deadline_ns <= now
+            {
+                decision.infeasible = true;
+                decision.earliest_due_ns = Some(
+                    decision
+                        .earliest_due_ns
+                        .map_or(pool.deadline_ns, |due| due.min(pool.deadline_ns)),
+                );
+            }
+        }
+        let claim = decision.next.map(|task| {
+            let slot = &mut state.slots[task.slot];
+            let job = slot.job.take().unwrap();
+            slot.copying = true;
+            state.copying += 1;
+            self.change(&mut state);
+            CopyClaim {
+                slot: task.slot,
+                job,
+                deadline_ns: task.due_ns,
+            }
+        });
+        (claim, decision)
     }
 
     pub fn finish_copy(&self, slot: usize, job: Option<Job>) {
@@ -394,5 +501,76 @@ mod copy_budget_tests {
         drop(queue.claim_write(true, true, |_| false));
         assert_eq!(huge.levels(u64::MAX).available, 2);
         assert_eq!(small.levels(u64::MAX).available, 1);
+    }
+}
+
+#[cfg(test)]
+mod global_tests {
+    use super::*;
+    use crate::v2::adapter::{FrameId, Payload};
+    use crate::v2::pool::{Pool, ReturnPolicy};
+    use std::time::Instant;
+
+    #[test]
+    fn m4_m9_pool_demand_is_counted_once_and_writer_owned_lease_is_excluded() {
+        let queue = Queue::new(5, 2);
+        let fixed = Pool::new(
+            0,
+            2,
+            0,
+            32,
+            Instant::now(),
+            ReturnPolicy {
+                deadline_ns: Some(10),
+                ..ReturnPolicy::default()
+            },
+        )
+        .unwrap();
+        let shared = Pool::new(1, 3, 0, 32, Instant::now(), ReturnPolicy::default()).unwrap();
+        for (stream, pool, count) in [(0, &fixed, 2), (1, &shared, 3)] {
+            for sequence in 0..count {
+                assert!(queue.push(Job {
+                    frame: Frame {
+                        id: FrameId {
+                            source: stream,
+                            session_epoch: 0,
+                            sequence
+                        },
+                        planned_ns: 0,
+                        captured_ns: 0,
+                        queued_ns: 0,
+                        size: 32,
+                        payload: Payload::Borrowed(pool.acquire(0).unwrap().0),
+                    },
+                    force_copy: false,
+                    retry_copy_ns: 0,
+                }));
+            }
+        }
+        let writer = queue.claim_write(true, false, |_| false).unwrap();
+        assert_eq!(writer.frame.id.source, 0);
+        let mut demands = [CopyDemand::default(), CopyDemand::default()];
+        for demand in &mut demands {
+            demand.set(
+                Some(Requirement {
+                    deadline_ns: 12,
+                    count: 2,
+                }),
+                2,
+                1,
+            );
+        }
+        let mut tasks = Vec::with_capacity(5);
+        let (claim, plan) = queue.claim_global_copy(6, &mut demands, &mut tasks);
+        let claim = claim.unwrap();
+        assert_eq!(plan.work_ns, 6); // one fixed + two shared, without double-crediting fixed
+        assert_eq!(claim.job.frame.id.sequence, 1);
+        assert_eq!(demands[0].pending_borrowed, 1);
+        assert_eq!(demands[1].pending_borrowed, 3);
+        queue.finish_copy(claim.slot, Some(claim.job));
+        drop(writer);
+        while queue.claim_write(true, true, |_| false).is_some() {}
+        assert_eq!(fixed.levels(u64::MAX).available, 2);
+        assert_eq!(shared.levels(u64::MAX).available, 3);
     }
 }

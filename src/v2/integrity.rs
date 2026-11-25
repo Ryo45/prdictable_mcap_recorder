@@ -190,6 +190,12 @@ impl<'a> Ledger<'a> {
             source.unknown.fetch_add(count, Relaxed);
         } else {
             source.confirmed_loss.fetch_add(count, Relaxed);
+            let stamp = now.saturating_add(1);
+            let _ = source
+                .first_loss_ns_plus_one
+                .fetch_update(Relaxed, Relaxed, |previous| {
+                    (previous == 0 || previous > stamp).then_some(stamp)
+                });
             self.progress.warn(Warning::LossDetected, now);
             if accepted {
                 source.after_accept_loss.fetch_add(count, Relaxed);

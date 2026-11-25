@@ -101,6 +101,7 @@ impl Capture<'_> {
                     device_starved,
                 }) => {
                     let (layer, reason) = if device_starved {
+                        source.pool_exhausted_losses.fetch_add(end - start, Relaxed);
                         (Layer::Acquisition, Reason::DmaPoolExhausted)
                     } else {
                         source.envelope_exceeded.fetch_add(end - start, Relaxed);

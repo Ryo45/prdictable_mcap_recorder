@@ -446,4 +446,47 @@ mod tests {
         assert_eq!(pool.levels(60).deadline_exceeded, 1);
         assert_eq!(pool.levels(60).max_empty_ns, 46);
     }
+
+    #[test]
+    fn m6_pre_registered_capacity_is_finite_and_return_ack_preserves_total() {
+        let pool = Pool::new(
+            0,
+            1,
+            2,
+            128,
+            super::super::Clock::default(),
+            ReturnPolicy {
+                delay_ns: 10,
+                replacement: ReplacementMode::PreRegisteredPool,
+                ..ReturnPolicy::default()
+            },
+        )
+        .unwrap();
+        let a = pool.acquire(0).unwrap().0;
+        assert!(pool.activate(a.id, 1));
+        let b = pool.acquire(1).unwrap().0;
+        assert!(pool.activate(b.id, 2));
+        let c = pool.acquire(2).unwrap().0;
+        assert!(!pool.activate(c.id, 3));
+        assert!(pool.acquire(3).is_none());
+        a.release(5);
+        assert_eq!(pool.scheduled_returns_by(14), 0);
+        assert_eq!(pool.scheduled_returns_by(15), 1);
+        assert!(pool.acquire(14).is_none());
+        let a_next = pool.acquire(15).unwrap().0;
+        assert_eq!(a_next.id.generation, 2);
+        for lease in [a_next, b, c] {
+            lease.release(16);
+        }
+        let levels = pool.levels(26);
+        assert_eq!(
+            (
+                levels.available,
+                levels.held,
+                levels.returning,
+                levels.reserve
+            ),
+            (3, 0, 0, 0)
+        );
+    }
 }

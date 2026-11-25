@@ -34,6 +34,7 @@ pub struct WarningReport {
 pub struct Progress {
     pub abort: AtomicBool,
     pub journal_failures: AtomicU64,
+    pub global_copy: GlobalCopyMetrics,
     pub written_bytes: AtomicU64,
     pub written_wire_bytes: AtomicU64,
     pub committed_bytes: AtomicU64,
@@ -69,6 +70,28 @@ pub struct Progress {
     pub sync_time: Mutex<Histogram>,
     pub accepted_to_committed: Mutex<Histogram>,
     warnings: [WarningCounter; 4],
+}
+
+pub struct GlobalCopyMetrics {
+    pub peak_work_ns: AtomicU64,
+    pub earliest_due_ns: AtomicU64,
+    pub infeasible_events: AtomicU64,
+    pub spill_size_class_rejections: AtomicU64,
+    pub borrow_admission_deferrals: AtomicU64,
+    pub queue_wait: Mutex<Histogram>,
+}
+
+impl Default for GlobalCopyMetrics {
+    fn default() -> Self {
+        Self {
+            peak_work_ns: AtomicU64::new(0),
+            earliest_due_ns: AtomicU64::new(u64::MAX),
+            infeasible_events: AtomicU64::new(0),
+            spill_size_class_rejections: AtomicU64::new(0),
+            borrow_admission_deferrals: AtomicU64::new(0),
+            queue_wait: Mutex::default(),
+        }
+    }
 }
 
 impl Progress {
@@ -127,6 +150,12 @@ impl Progress {
 #[derive(Default)]
 pub struct SourceProgress {
     pub generated: AtomicU64,
+    pub peak_pending_borrowed: AtomicU64,
+    pub copy_bytes: AtomicU64,
+    pub copy_count: AtomicU64,
+    pub fixed_copies: AtomicU64,
+    pub pool_copies: AtomicU64,
+    pub pool_exhausted_losses: AtomicU64,
     pub accepted: AtomicU64,
     pub submitted: AtomicU64,
     pub written: AtomicU64,
@@ -140,12 +169,19 @@ pub struct SourceProgress {
     pub last_slack_ns: AtomicI64,
     pub required_returns: AtomicU64,
     pub predicted_risk: AtomicU64,
+    pub first_risk_ns_plus_one: AtomicU64,
+    pub first_loss_ns_plus_one: AtomicU64,
     pub ready_displacements: AtomicU64,
     pub mitigations: AtomicU64,
     pub lateness: Mutex<Histogram>,
 }
 
 impl SourceProgress {
+    pub fn warning_lead_ns(&self) -> Option<i128> {
+        let first = |value: &AtomicU64| value.load(Relaxed).checked_sub(1).map(i128::from);
+        Some(first(&self.first_loss_ns_plus_one)? - first(&self.first_risk_ns_plus_one)?)
+    }
+
     pub fn report(&self) -> SourceCounts {
         SourceCounts {
             generated: self.generated.load(Relaxed),
