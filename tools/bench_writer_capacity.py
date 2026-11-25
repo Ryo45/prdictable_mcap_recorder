@@ -128,17 +128,20 @@ buffers = 40
     if bool(report["copy_bytes"]) != copy:
         raise ValueError("copy path was not exercised as intended")
     timings = report["timings_ns"]
+    sources = report["sources"]
     result = dict(layer=layer, fps=fps, writer=writer, copy_bytes=report["copy_bytes"],
-                  queue_peak=report["queue_peak"], io=timings["submit_to_complete"],
+                  queue_peak=report["queue_peak"], copy_count=report["copy_count"],
+                  planner_verdict=report["plan"]["verdict"], io=timings["submit_to_complete"],
                   sync=timings["sync"], generation=timings["generation"],
-                  queue_wait=timings["queue_wait"], submitted_bytes=None,
+                  queue_wait=timings["queue_wait"],
+                  submitted_bytes=sum(s["submitted"] for s in sources) * FRAME,
                   accepted_to_data_sync=timings.get("accepted_to_committed"),
                   completed_bytes=report["written_payload_bytes"],
-                  committed_bytes=report["committed_payload_bytes"],
+                  committed_bytes=report["committed_payload_bytes"] if writer != "null" else None,
                   durable_Bps=report["committed_payload_bytes_per_sec"],
                   generated_Bps=report["generated_bytes_per_sec"],
-                  offered_bytes=sum(s["generated"] for s in report["sources"]) * FRAME,
-                  accepted_bytes=sum(s["accepted"] for s in report["sources"]) * FRAME,
+                  offered_bytes=sum(s["generated"] for s in sources) * FRAME,
+                  accepted_bytes=sum(s["accepted"] for s in sources) * FRAME,
                   wall_ns=report["process"]["wall_ns"], cpu_ns=report["process"]["cpu_time_ns"],
                   peak_rss=report["process"]["peak_rss_bytes"],
                   inflight_peak=report["writing_peak_in_flight"],

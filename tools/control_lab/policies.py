@@ -39,7 +39,7 @@ def baseline_action(engine, mode="global"):
     work = 0
     latest = float("inf")
     for i in tasks:
-        duration = engine.duration(i, True)
+        duration = engine.duration(i, True, assumed=True)
         work = work + duration if mode == "global" else duration
         latest = min(latest, demand[i] - engine.frames[i].ack - work)
     return ("copy", tasks[0]) if latest <= engine.time else WAIT

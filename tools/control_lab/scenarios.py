@@ -26,9 +26,9 @@ def fixed(seed):
                                  Frame(1, MS, MIB, 4 * MS)], wakes=(2 * MS,)),
         fixture("M7-spill", [Frame(0, 0, 4 * MIB, 7 * MS), Frame(1, 0, hold=7 * MS)],
                 spill=((MIB, 1),)),
-        fixture("M8-slow-copy", common[:3], service=Service(MS, 3 * MS, MS, certified=False)),
+        fixture("M8-slow-copy", common[:3], service=Service(MS, 3 * MS, MS, certified=False, assumed_copy_ns_per_mib=2 * MS)),
         fixture("M9-held-writer", [Frame(0, 0, hold=5 * MS), Frame(1, 0, hold=6 * MS)],
-                stalls=((MS, 12 * MS),), service=Service(3 * MS, 2 * MS, MS, certified=False)),
+                stalls=((MS, 12 * MS),), public_arrivals=False, service=Service(3 * MS, 2 * MS, MS, certified=False)),
         fixture("sync-failure", [Frame(i % 2, i * MS) for i in range(6)],
                 sync_fail=1, stalls=(), service=Service(MS, MS, MS, certified=False)),
         fixture("horizon", [Frame(0, 0, hold=33 * MS), Frame(1, 0, hold=33 * MS)],
@@ -42,7 +42,7 @@ def fixed(seed):
                 spill=((MIB, 1), (4 * MIB, 1)), queue=4, stalls=((MS, 6 * MS),)),
         fixture("overlap", common[:3], stalls=((MS, 3 * MS),),
                 service=Service(MS, 2 * MS, MS, overlap_penalty_ns=1200_000)),
-        fixture("phase-jitter-8", phases, pools=(Pool(4),) * 8),
+        fixture("phase-jitter-8", phases, pools=(Pool(4),) * 8, public_arrivals=False),
         fixture("burst-aligned-8", [replace(frame, arrival=(i // 8) * 400_000)
                                      for i, frame in enumerate(phases)], pools=(Pool(4),) * 8),
     ]
@@ -50,8 +50,9 @@ def fixed(seed):
 
 def paced(gbps, service, stall_ms=0, seed=1):
     period = int(2 * MIB / gbps)
-    rng = random.Random(seed)
-    frames = [Frame(i % 2, i // 2 * period + rng.randrange(20_000),
+    phase = random.Random(seed).randrange(20_000)
+    # A configured phase offset is announced; stochastic per-frame jitter is not.
+    frames = [Frame(i % 2, i // 2 * period + (i % 2) * phase,
                     hold=8 * MS, ack=100_000) for i in range(24)]
     return fixture(f"paced-{gbps:g}-stall-{stall_ms}", frames, service=service, queue=12,
                    stalls=((2 * MS, (2 + stall_ms) * MS),) if stall_ms else (),

@@ -193,7 +193,7 @@
       "p99": 3490933,
       "p99_9": 3490933
     },
-    "submitted_bytes": null,
+    "submitted_bytes": 33554432,
     "accepted_to_data_sync": null,
     "completed_bytes": 33554432,
     "committed_bytes": 33554432,
@@ -208,7 +208,9 @@
     "drain_ns": 3151322,
     "sha256": "3146dd69105cce66587e4c104aeb6554634632e1032964dd18f7c35dd5d34f55",
     "trial": 1,
-    "phase2_profile_eligible": true
+    "phase2_profile_eligible": true,
+    "planner_verdict": "unknown",
+    "copy_count": 0
   },
   {
     "layer": "B4",
@@ -256,7 +258,7 @@
       "p99": 8919803,
       "p99_9": 8919803
     },
-    "submitted_bytes": null,
+    "submitted_bytes": 33554432,
     "accepted_to_data_sync": {
       "count": 32,
       "max": 19411866,
@@ -280,7 +282,9 @@
     "drain_ns": 2973731,
     "sha256": "037bc65583566ddb95be16c7ef47d3157b7355389e00a52ba55485aefbbfec36",
     "trial": 1,
-    "phase2_profile_eligible": false
+    "phase2_profile_eligible": false,
+    "planner_verdict": "unknown",
+    "copy_count": 4
   },
   {
     "layer": "B4",
@@ -328,7 +332,7 @@
       "p99": 15397586,
       "p99_9": 15397586
     },
-    "submitted_bytes": null,
+    "submitted_bytes": 33554432,
     "accepted_to_data_sync": {
       "count": 32,
       "max": 20773455,
@@ -352,7 +356,9 @@
     "drain_ns": 15842753,
     "sha256": "bd4d5598d133647f8658370ccf7364f5cbbab85a15a68694bbc18bc083de9eb5",
     "trial": 2,
-    "phase2_profile_eligible": false
+    "phase2_profile_eligible": false,
+    "planner_verdict": "unknown",
+    "copy_count": 30
   },
   {
     "layer": "B3",
@@ -400,7 +406,7 @@
       "p99": 6427813,
       "p99_9": 6427813
     },
-    "submitted_bytes": null,
+    "submitted_bytes": 33554432,
     "accepted_to_data_sync": null,
     "completed_bytes": 33554432,
     "committed_bytes": 33554432,
@@ -415,7 +421,9 @@
     "drain_ns": 6894777,
     "sha256": "58f35114fa1b6d328b242c1c0361041917e103302281274667ff595a08f6d90c",
     "trial": 2,
-    "phase2_profile_eligible": true
+    "phase2_profile_eligible": true,
+    "planner_verdict": "unknown",
+    "copy_count": 0
   },
   {
     "layer": "B2",
@@ -611,10 +619,10 @@
       "p99": 10702,
       "p99_9": 10702
     },
-    "submitted_bytes": null,
+    "submitted_bytes": 33554432,
     "accepted_to_data_sync": null,
     "completed_bytes": 33554432,
-    "committed_bytes": 33554432,
+    "committed_bytes": null,
     "durable_Bps": null,
     "generated_Bps": 1672681893.0902138,
     "offered_bytes": 33554432,
@@ -623,7 +631,9 @@
     "cpu_ns": 34855811,
     "peak_rss": 89325568,
     "inflight_peak": 1,
-    "drain_ns": 4697
+    "drain_ns": 4697,
+    "planner_verdict": "unknown",
+    "copy_count": 0
   },
   {
     "layer": "B3",

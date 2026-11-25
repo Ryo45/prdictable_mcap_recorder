@@ -7,7 +7,7 @@ Python 標準ライブラリだけで動作する。Rust の Writer と Schedule
 | Scenario | name、frames、pools、spill（バイト数と同時枠数の組）、queue（枠数）、service、stalls（開始・終了 ns の昇順非重複区間）、sync_fail（1始まりの同期番号）、public_arrivals、wakes（ns） |
 | Frame | source（0始まり）、arrival、hold（到着から ACK 期限まで、任意）、ack（返却から再利用まで）、ready（到着からフェンス解除まで）、size（bytes）、borrowed。時間は整数 ns |
 | Pool | slots、reserve、minimum。借用到着直前に available が minimum 以上であれば1枠を取得 |
-| Service | writer_ns_per_mib、copy_ns_per_mib、sync_ns、group（フレーム数）、certified、overlap_penalty_ns |
+| Service | writer_ns_per_mib、copy_ns_per_mib、sync_ns、group（フレーム数）、certified、overlap_penalty_ns、assumed_copy_ns_per_mib（実際のコピーと異なる契約を注入する場合） |
 | Trace event | ns、event、frame（配列 index、非フレームイベントは -1）。返却系イベントに [slot, generation]、writer_claim に borrowed、copy_claim に spill_class、fdatasync に count と success、loss に reason |
 
 同時刻の完了・ACKを到着より先に処理し、到着を入力順に処理してから次の制御判断を行う。Writer は同一ソース内 FIFO、ソース間 RR。フェンスまたは CopyOut で先頭が止まったソースはスキップする。Copy Worker は1本で非プリエンプティブ。コピー中はキューに残り、Spill は I/O 完了で解放する。借用は ACK で再利用可能になり、データ同期完了は別イベント。有限の登録済み予備は空きに一方向で移る。終端でコミット、既知欠損、Unknown を独立に照合し、全資源の回収を検査する。MCAP は Phase 0 の独立 Verifier で照合した。モデルは MCAP を生成しない。

@@ -1,0 +1,26 @@
+{
+  "base_sha": "3ce438cb3c61f563a531e75f63bfdef4838b80b8",
+  "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m tools.control_lab.compare --out target/control-baseline/phase2-final",
+  "records": 843,
+  "files": {
+    "H1-resume-model-bounded-mpc-trace.json": "ed8e4f792665d1ec73090c79b2998c9cf5fba4518667933cd06bedf9d61470a6",
+    "H1-resume-model-global-trace.json": "ea4c40e8353514464404260c2aa43cce4dda5d9eac1964c2daa72aa09d4be8a5",
+    "H1-resume-model-safe-dpp-trace.json": "8992b9270bdfdabea031077a200e792e674ce0bb4f5e2d26c7e81133ee8fd7bd",
+    "H1-resume-model-safe-greedy-trace.json": "ed8e4f792665d1ec73090c79b2998c9cf5fba4518667933cd06bedf9d61470a6",
+    "H1-resume-model-scenario.json": "93477791b2b6206a3aadf9e7e20c6dea22ab8776c359ed80c0e5ffda88393700",
+    "H4-queue-model-bounded-mpc-trace.json": "e3ec68c465c648ba8012e4103fd64981e4a7e9359f435671998a20ae2026544c",
+    "H4-queue-model-global-trace.json": "e5694edeac2fe6ab33954545c7ca3be40f5f172279386e1909af4394ee15b806",
+    "H4-queue-model-safe-dpp-trace.json": "e3ec68c465c648ba8012e4103fd64981e4a7e9359f435671998a20ae2026544c",
+    "H4-queue-model-safe-greedy-trace.json": "e3ec68c465c648ba8012e4103fd64981e4a7e9359f435671998a20ae2026544c",
+    "H4-queue-model-scenario.json": "21fc7907571cecef40146cf24b05a4e641fc9c8bbda24a1219c3901e79840a64",
+    "M1-common-3-bounded-mpc-trace.json": "75df78dbe303b4e5b4421c742f9c0db587e53526adb518f309192c1d2b8f1e22",
+    "M1-common-3-global-trace.json": "7a7c5826da6793bc177130627a0282cd0e21c1a442e82fbac20fed99ffe0dfdd",
+    "M1-common-3-safe-dpp-trace.json": "75df78dbe303b4e5b4421c742f9c0db587e53526adb518f309192c1d2b8f1e22",
+    "M1-common-3-safe-greedy-trace.json": "75df78dbe303b4e5b4421c742f9c0db587e53526adb518f309192c1d2b8f1e22",
+    "M1-common-3-scenario.json": "1f4286084c4d8b32676e49cf3fdab9ec2beb680fe187b9d77f5af4cd8c59097e",
+    "comparison.csv": "bee26a54454acfa3d3ec88498ae6a8f16d3ac833d6215b9f470509e931f185ae",
+    "comparison.json": "744e4b7fe84cfec71d81fa62fc359f008f543f8ef256f60a0cac643c05831621",
+    "scenarios.json": "f3889e80d07a5ae23226bbef91a5e7fc372fef8bf0d73728fb7cd3f17faf7562",
+    "tuning.json": "249d17a05bc328632cd914fb0feaa2db59ce95263d261c1d7001e58cf7a33e86"
+  }
+}

@@ -33,6 +33,7 @@ class Service:
     group: int = 4
     certified: bool = True
     overlap_penalty_ns: int = 0
+    assumed_copy_ns_per_mib: int | None = None
 
 
 @dataclass(frozen=True)
@@ -91,6 +92,7 @@ class Engine:
         self.headroom = []
         self.spill_failures = 0
         self.reserves = 0
+        self.contract_violations = 0
         self.trace = [] if trace else None
         for i, frame in enumerate(self.frames):
             self.push(frame.arrival, "arrival", i)
@@ -111,9 +113,11 @@ class Engine:
         if self.trace is not None:
             self.trace.append(dict(ns=self.time, event=kind, frame=i, **details))
 
-    def duration(self, i, copy):
+    def duration(self, i, copy, assumed=False):
         profile = self.scenario.service
         rate = profile.copy_ns_per_mib if copy else profile.writer_ns_per_mib
+        if copy and assumed and profile.assumed_copy_ns_per_mib is not None:
+            rate = profile.assumed_copy_ns_per_mib
         return max(1, (self.frames[i].size * rate + MIB - 1) // MIB)
 
     def due(self, i):
@@ -164,6 +168,10 @@ class Engine:
             elif kind == "copy_complete":
                 assert self.copying == i
                 self.copying = None
+                if self.scenario.service.assumed_copy_ns_per_mib is not None and (
+                        self.time - detail > self.duration(i, True, assumed=True)):
+                    self.contract_violations += 1
+                    self.log("contract_violation", i, service="copy")
                 phase, token = self.work.jobs[i]
                 assert phase == "copying"
                 self.work.jobs[i] = ("owned", None)
@@ -275,15 +283,15 @@ class Engine:
         for i in sorted(self.candidates(), key=lambda i: (self.due(i) is None, self.due(i) or 0)):
             due = self.due(i)
             if due is not None:
-                work += self.duration(i, True)
-                starts.extend((due - self.frames[i].ack - self.duration(i, True),
+                work += self.duration(i, True, assumed=True)
+                starts.extend((due - self.frames[i].ack - self.duration(i, True, assumed=True),
                                due - self.frames[i].ack - work))
         if self.scenario.public_arrivals:
             for i in self.candidates():
                 frame = self.frames[i]
                 for j, future in enumerate(self.frames):
                     if j not in self.status and future.borrowed and future.source == frame.source:
-                        starts.append(future.arrival - frame.ack - self.duration(i, True))
+                        starts.append(future.arrival - frame.ack - self.duration(i, True, assumed=True))
         return [stamp for stamp in starts if stamp > self.time]
 
     def step(self, action):
@@ -300,7 +308,7 @@ class Engine:
             self.per_source_copy[frame.source] += frame.size
             self.log("copy_claim", i, spill_class=size)
             penalty = self.scenario.service.overlap_penalty_ns if self.writer is not None else 0
-            self.push(self.time + self.duration(i, True) + penalty, "copy_complete", i)
+            self.push(self.time + self.duration(i, True) + penalty, "copy_complete", i, self.time)
         elif kind == "reserve":
             slot = next(slot for slot in self.work.slots[i] if slot.phase == "reserve")
             slot.phase = "available"
@@ -332,8 +340,11 @@ class Engine:
     def done(self):
         return not (self.work.jobs or self.events or self.unsynced)
 
-    def fork(self):
-        return deepcopy(self)
+    def fork(self, trace=False):
+        memo = {id(self.scenario): self.scenario, id(self.frames): self.frames}
+        if not trace and self.trace is not None:
+            memo[id(self.trace)] = None
+        return deepcopy(self, memo)
 
     def cost(self):
         return (len(self.loss), sum(x == "unknown" for x in self.status.values()),
