@@ -157,9 +157,9 @@ fn run(
     let mut summary = create_new(&outputs.summary)?;
     let files = MonitorFiles {
         loss: create_new(&outputs.losses)?,
-        commits: create_new(&commit_path)?,
         csv: create_new(&outputs.metrics)?,
     };
+    let commits = create_new(&commit_path)?;
     let file = if settings.record.writer == WriterMode::Null {
         None
     } else {
@@ -236,7 +236,7 @@ fn run(
         let writer = scope.spawn(move || match backend(settings, file) {
             Ok(backend) => {
                 let _ = ready.send(());
-                writer.run(writer_ledger, backend, layout, &preamble)
+                writer.run(writer_ledger, backend, layout, &preamble, commits)
             }
             Err(error) => {
                 progress.abort.store(true, Relaxed);
@@ -347,7 +347,7 @@ fn run(
         finalized: writer_report.finalized,
         final_sync: writer_report.final_sync,
         loss_log_synced: monitor_report.loss_synced,
-        commit_log_synced: monitor_report.commit_log_synced,
+        commit_log_synced: writer_report.durability.journal_synced,
         journal_failures,
         group_count: writer_report.groups,
         end_offset: writer_report.data_end_offset,
@@ -369,8 +369,10 @@ fn run(
             "reserve_displacements":source.ready_displacements.load(Relaxed)})
     }).collect();
     let mut result = serde_json::to_value(&core)?;
+    let mut monitor_metrics = serde_json::to_value(&monitor_report)?;
+    monitor_metrics["commit_log_synced"] = json!(writer_report.durability.journal_synced);
     let mut metrics = json!({
-        "plan":plan, "writer":writer_report, "monitor":monitor_report, "devices":device_metrics,
+        "plan":plan, "writer":writer_report, "monitor":monitor_metrics, "durability":writer_report.durability, "devices":device_metrics,
         "spill":spill_reports, "all_resources_returned":returned, "queue_peak":queue_status.peak,
         "capture_wall_ns":capture_end, "generated_bytes_per_sec":rate(generated_bytes,capture_end),
         "written_payload_bytes":progress.written_bytes.load(Relaxed),"committed_payload_bytes":committed_bytes,
@@ -398,7 +400,7 @@ fn run(
         "process":{"cpu_time_ns":cpu_ns(ClockId::ProcessCPUTime)-cpu_start,"rss_bytes":rss,"peak_rss_bytes":peak_rss,
             "wall_ns":ns(main_start.elapsed())},
         "uncertain_range_ledger":outputs.losses,
-        "sidecar_coverage_uncertain": journal_failures > 0 || !monitor_report.loss_synced || !monitor_report.commit_log_synced,
+        "sidecar_coverage_uncertain": journal_failures > 0 || !monitor_report.loss_synced || !writer_report.durability.journal_synced,
         "errors":errors,
     });
     if settings

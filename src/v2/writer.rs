@@ -1,15 +1,12 @@
-mod group;
-
-use std::io;
 use std::sync::atomic::Ordering::Relaxed;
 use std::time::{Duration, Instant};
 
 use anyhow::Result;
 use serde::Serialize;
 
-use self::group::Group;
 use super::adapter::Device;
 use super::config::{CopyScheduling, Faults, MS, Settings, US, WriterMode, transfer_time};
+use super::durability::{Coordinator, DurabilityReport, Submitted};
 use super::integrity::{Layer, Ledger, Reason, Span};
 use super::layout::Layout;
 use super::metrics::{Progress, SourceProgress, Warning};
@@ -24,6 +21,7 @@ const IDLE_POLL_NS: u64 = 1_000_000;
 #[derive(Default, Serialize)]
 pub struct WriterReport {
     pub groups: u64,
+    pub durability: DurabilityReport,
     pub finalized: bool,
     pub final_sync: bool,
     pub data_end_offset: u64,
@@ -50,9 +48,17 @@ impl Writer<'_> {
         mut backend: Backend,
         mut layout: Layout,
         preamble: &[u8],
+        commits: std::fs::File,
     ) -> WriterReport {
         let mut report = WriterReport::default();
-        let mut group = Group::new(self.settings);
+        let mut durability = Coordinator::new(
+            self.start,
+            self.settings,
+            self.progress,
+            self.sources,
+            commits,
+            layout.offset,
+        );
         let mut broken_ring = false;
         let mut next_stall = Stalls::new(&self.settings.faults);
         let mut next_submit_ns = 0;
@@ -90,7 +96,7 @@ impl Writer<'_> {
                             completion_high_water = completion_high_water.max(id);
                             report.peak_completion_reorder =
                                 report.peak_completion_reorder.max(order);
-                            self.completed(completion, &mut group, &mut report, &mut ledger);
+                            self.completed(completion, &mut durability, &mut report, &mut ledger);
                         }
                         Ok(None) => break,
                         Err(error) => {
@@ -121,8 +127,8 @@ impl Writer<'_> {
                     continue;
                 }
                 if queue.closed && queue.depth == 0 && (inflight == 0 || broken_ring) {
-                    group.unknown(&mut ledger, now, Reason::Unknown);
-                    if !group.is_empty() {
+                    durability.unknown(&mut ledger, now, Reason::Unknown);
+                    if !durability.is_empty() {
                         p.warn(Warning::DurabilityUnknown, now);
                     }
                     if report.error.is_none() {
@@ -131,36 +137,37 @@ impl Writer<'_> {
                     break;
                 }
             } else {
-                let barrier = group.due(now, layout.offset, self.settings);
+                let barrier = durability.due(now, layout.offset);
                 if queue.closed && queue.depth == 0 && inflight == 0 {
                     let tail = layout.finish();
                     if let Err(error) = backend.write_control(layout.offset, &tail) {
                         self.abort(&mut report, format!("MCAP footer: {error}"));
-                        group.unknown(&mut ledger, self.now(), Reason::Unknown);
+                        durability.unknown(&mut ledger, self.now(), Reason::Unknown);
                         p.warn(Warning::DurabilityUnknown, self.now());
                         break;
                     }
                     layout.offset += tail.len() as u64;
                     report.finalized = true;
-                    report.final_sync = self.sync(
+                    match durability.seal(
                         &backend,
-                        &mut group,
                         (layout.offset, layout.prefix_crc()),
                         true,
-                        &mut report,
                         &mut ledger,
-                    );
+                    ) {
+                        Ok(()) => (),
+                        Err(error) => self.abort(&mut report, format!("{error:#}")),
+                    }
                     break;
                 }
                 if barrier && inflight == 0 {
-                    self.sync(
+                    if let Err(error) = durability.seal(
                         &backend,
-                        &mut group,
                         (layout.offset, layout.prefix_crc()),
                         false,
-                        &mut report,
                         &mut ledger,
-                    );
+                    ) {
+                        self.abort(&mut report, format!("{error:#}"));
+                    }
                     continue;
                 }
                 let paced = !stopping && now < next_submit_ns;
@@ -207,10 +214,28 @@ impl Writer<'_> {
                             .lock()
                             .unwrap()
                             .record(now.saturating_sub(frame.queued_ns));
-                        let id = group.submit(frame.id, size, now, frame.queued_ns);
-                        debug_assert_eq!(id, submit_count);
+                        let id = submit_count;
                         let borrowed = frame.borrowed().is_some();
                         let request = layout.message(id, frame, now);
+                        if let Err(error) = durability.submitted(Submitted {
+                            request_id: id,
+                            frame_id: request.frame.id,
+                            offset: request.offset,
+                            size,
+                            wire_len: request.len() as u64,
+                            now,
+                            queued_ns: request.frame.queued_ns,
+                        }) {
+                            ledger.loss(
+                                Span::frame(request.frame.id),
+                                now,
+                                Layer::Writer,
+                                Reason::WriterNotSubmitted,
+                                true,
+                            );
+                            self.abort(&mut report, format!("{error:#}"));
+                            continue;
+                        }
                         source.submitted.fetch_add(1, Relaxed);
                         submit_count += 1;
                         bump(&p.in_flight, &p.peak_in_flight, 1);
@@ -241,7 +266,9 @@ impl Writer<'_> {
             self.queue
                 .wait_change(queue.version, Duration::from_nanos(poll));
         }
-        report.groups = group.id();
+        report.groups = durability.groups();
+        report.durability = durability.report();
+        report.final_sync = report.durability.final_data_synced;
         report.end_elapsed_ns = self.now();
         report.data_end_offset = layout.offset;
         report.bytes_accepted_by_storage = p.written_bytes.load(Relaxed);
@@ -251,7 +278,7 @@ impl Writer<'_> {
     fn completed(
         &self,
         completion: Completion,
-        group: &mut Group,
+        durability: &mut Coordinator<'_>,
         report: &mut WriterReport,
         ledger: &mut Ledger<'_>,
     ) {
@@ -279,6 +306,10 @@ impl Writer<'_> {
         }
         drop(frame);
         let p = self.progress;
+        if let Err(error) = durability.completed(request_id, id, completion.result.is_ok()) {
+            self.abort(report, format!("{error:#}"));
+            return;
+        }
         p.in_flight.fetch_sub(1, Relaxed);
         p.in_flight_bytes.fetch_sub(size, Relaxed);
         if borrowed {
@@ -294,7 +325,6 @@ impl Writer<'_> {
         {
             p.warn(Warning::ContractViolation, now);
         }
-        group.complete(request_id, id, completion.result.is_ok());
         match completion.result {
             Ok(()) => {
                 self.sources[usize::from(id.source)]
@@ -314,56 +344,6 @@ impl Writer<'_> {
                 );
                 p.warn(Warning::DurabilityUnknown, now);
                 self.abort(report, format!("write request {request_id}: {error}"));
-            }
-        }
-    }
-
-    fn sync(
-        &self,
-        backend: &Backend,
-        group: &mut Group,
-        boundary: (u64, Option<u32>),
-        final_group: bool,
-        report: &mut WriterReport,
-        ledger: &mut Ledger<'_>,
-    ) -> bool {
-        let timer = Instant::now();
-        self.progress.writer_blocked_until_ns.store(
-            self.now()
-                .saturating_add(self.settings.storage_profile.max_sync_ms.unwrap_or(0) * MS),
-            Relaxed,
-        );
-        let result: io::Result<()> = backend.sync(group.id());
-        let latency = ns(timer.elapsed());
-        let now = self.now();
-        self.progress.writer_blocked_until_ns.store(now, Relaxed);
-        self.progress.sync_time.lock().unwrap().record(latency);
-        if self
-            .settings
-            .storage_profile
-            .max_sync_ms
-            .is_some_and(|bound| latency > bound * MS)
-        {
-            self.progress.warn(Warning::ContractViolation, now);
-        }
-        match result {
-            Ok(()) => {
-                group.commit(
-                    boundary,
-                    final_group,
-                    now,
-                    self.progress,
-                    self.sources,
-                    ledger,
-                );
-                self.progress.last_sync_ns.store(now, Relaxed);
-                true
-            }
-            Err(error) => {
-                group.unknown(ledger, now, Reason::SyncFailure);
-                self.progress.warn(Warning::DurabilityUnknown, now);
-                self.abort(report, format!("sync group {}: {error}", group.id()));
-                false
             }
         }
     }

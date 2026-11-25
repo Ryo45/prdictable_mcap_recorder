@@ -11,6 +11,8 @@ use super::mock::{Kind, ros_schema};
 use super::storage::Request;
 use crate::source::{ENCODING, SCHEMA, SCHEMA_ENCODING, SCHEMA_NAME};
 
+pub const TAIL_BYTES: usize = 50;
+
 pub const MESSAGE_HEADER_BYTES: usize = 31;
 
 pub struct Layout {
@@ -143,8 +145,8 @@ impl Layout {
         self.recovery_crc.then(|| self.data_crc.clone().finalize())
     }
 
-    pub fn finish(&mut self) -> [u8; 50] {
-        let mut tail = [0; 50];
+    pub fn finish(&mut self) -> [u8; TAIL_BYTES] {
+        let mut tail = [0; TAIL_BYTES];
         tail[0] = op::DATA_END;
         tail[1..9].copy_from_slice(&4_u64.to_le_bytes());
         tail[9..13].copy_from_slice(&self.data_crc.clone().finalize().to_le_bytes());

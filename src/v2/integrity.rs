@@ -111,52 +111,8 @@ pub enum CommitLine {
     },
 }
 
-struct CommitJournal {
-    output: BufWriter<File>,
-    remaining: Option<u64>,
-}
-
-impl CommitJournal {
-    fn new(file: File) -> Self {
-        Self {
-            output: BufWriter::new(file),
-            remaining: None,
-        }
-    }
-
-    fn push(&mut self, event: CommitLine) -> Result<()> {
-        line(&mut self.output, &event)?;
-        match event {
-            CommitLine::Group {
-                prefix_crc32: Some(_),
-                message_count,
-                ..
-            } => {
-                self.remaining = Some(message_count);
-            }
-            CommitLine::Frames { span, .. } => {
-                if let Some(remaining) = &mut self.remaining {
-                    *remaining = remaining.saturating_sub(span.count());
-                }
-            }
-            _ => {}
-        }
-        if self.remaining == Some(0) {
-            self.sync()?;
-            self.remaining = None;
-        }
-        Ok(())
-    }
-
-    fn sync(&mut self) -> std::io::Result<()> {
-        self.output.flush()?;
-        self.output.get_ref().sync_data()
-    }
-}
-
 pub enum Event {
     Loss(Loss),
-    Commit(CommitLine),
 }
 
 pub struct Ledger<'a> {
@@ -226,10 +182,6 @@ impl<'a> Ledger<'a> {
         }
     }
 
-    pub fn commit(&self, entry: CommitLine) {
-        self.send(Event::Commit(entry));
-    }
-
     fn send(&self, event: Event) {
         if self.sender.try_send(event).is_err() {
             self.progress.journal_failures.fetch_add(1, Relaxed);
@@ -259,7 +211,6 @@ pub struct Monitor<'a> {
 
 pub struct MonitorFiles {
     pub loss: File,
-    pub commits: File,
     pub csv: File,
 }
 
@@ -268,7 +219,6 @@ pub struct MonitorReport {
     pub samples: u64,
     pub monitor_cpu_ns: u64,
     pub loss_synced: bool,
-    pub commit_log_synced: bool,
     pub csv_flushed: bool,
     pub error: Option<String>,
 }
@@ -285,7 +235,6 @@ impl Monitor<'_> {
     pub fn run(&self, stream: Receiver<Event>, files: MonitorFiles) -> MonitorReport {
         let cpu_start = cpu_ns(ClockId::ThreadCPUTime);
         let mut loss = BufWriter::new(files.loss);
-        let mut commits = CommitJournal::new(files.commits);
         let mut csv = BufWriter::new(files.csv);
         let mut report = MonitorReport::default();
         let interval = Duration::from_millis(self.settings.record.metrics_interval_ms);
@@ -307,7 +256,6 @@ impl Monitor<'_> {
                 Ok(event) if healthy => {
                     let result = match event {
                         Event::Loss(event) => line(&mut loss, &event),
-                        Event::Commit(event) => commits.push(event),
                     };
                     healthy = self.observe(result, &mut report);
                 }
@@ -322,17 +270,13 @@ impl Monitor<'_> {
             report.csv_flushed = self.observe(self.sample(&mut csv, &mut prev), &mut report);
             report.samples += u64::from(report.csv_flushed);
         }
-        // Sync both sidecars even if one fails. A partially written sidecar is
-        // never sufficient evidence of success.
         report.loss_synced = self.observe(
             loss.flush()
                 .and_then(|()| loss.get_ref().sync_data())
                 .map_err(Into::into),
             &mut report,
         );
-        report.commit_log_synced = self.observe(commits.sync().map_err(Into::into), &mut report);
         let _ = loss.into_parts();
-        let _ = commits.output.into_parts();
         let _ = csv.into_parts();
         report.monitor_cpu_ns = cpu_ns(ClockId::ThreadCPUTime) - cpu_start;
         report
