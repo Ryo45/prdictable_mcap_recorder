@@ -16,12 +16,16 @@ MIB = 1 << 20
 CAP = 6 * (1 << 30)
 
 
-def run_trial(out, binary, before_binary, label, trial, rate, disk, sensor):
+def run_trial(out, binary, before_binary, label, trial, rate, disk, sensor, *,
+              backend="sync", depth=4):
     case = out / f"{rate}-{trial}-{label}"
     case.mkdir()
     high = rate == "fast"
     sync = "small" if label.endswith("small") else "time" if label.endswith("time") else "current"
     cfg = preset("C0-fast" if high else "C0", sync)
+    if backend == "io-uring":
+        cfg = cfg.replace('writer = "sync"', f'writer = "io-uring"\nin_flight = {depth}\n'
+                          f'max_borrowed_in_flight = {depth}', 1)
     if label.startswith("overlap"):
         cfg += '\n[durability]\nmode = "overlap"\n'
     config = case / "config.toml"
@@ -31,7 +35,7 @@ def run_trial(out, binary, before_binary, label, trial, rate, disk, sensor):
     if not 0 < before["temperature_c"] < 65:
         raise RuntimeError("NVMe temperature exceeds test range")
     args = [str(binary), "record", "--config", str(config), "--output", str(data),
-            "--duration-sec", "0.09" if high else "0.18", "--allow-unverified"]
+            "--duration-sec", "0.008" if rate == "smoke" else "0.09" if high else "0.18", "--allow-unverified"]
     env = os.environ | {"RECORDER_COPY_TRACE": "0"}
     if invoke(args, case / "record.log", env):
         raise RuntimeError(f"record failed for {case}")
@@ -64,7 +68,7 @@ def run_trial(out, binary, before_binary, label, trial, rate, disk, sensor):
     writer_cpu = result["writer"].get("cpu_ns")
     durability = result.get("durability", {})
     # Pool return_latency is configured release→eligibility, hold is acquire→eligibility.
-    return dict(mode=label, rate=rate, trial=trial, command=args,
+    return dict(mode=label, backend=backend, rate=rate, trial=trial, command=args,
                 config=tomllib.loads(cfg),
                 input_Bps=result["generated_bytes_per_sec"],
                 durable_Bps=result["committed_payload_bytes_per_sec"],

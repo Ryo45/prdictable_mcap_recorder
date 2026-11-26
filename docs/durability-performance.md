@@ -49,3 +49,20 @@ PYTHONDONTWRITEBYTECODE=1 python3 tools/bench_durability.py \
 Without `--tune`, the runner only compares Before and Barrier. JSON includes the command, exact configuration, CPU affinity, binary SHA-256, filesystem and temperature. Recovery is run for files within its current size limit; larger trial files use the independent Verifier. Small-fixture recovery and SIGKILL are covered by Rust tests. The final recovery guard for a reported journal rollback failure runs off the recording path.
 
 [Step 4 CSV](durability-evidence/tuning.csv) · [Step 4 JSON](durability-evidence/tuning.json)
+
+## User-side io_uring verification
+
+The native Linux run used the `fd7a66f` implementation with io_uring depth 4, CPUs 0–7, and the same ext4/NVMe and 16 MiB / 16-message / 80 ms thresholds. Three rotated repetitions were run at each of two input rates across both durability modes and both I/O backends. The 8 MiB smoke also passed Recovery. All 25 runs passed the independent Verifier, with 4,316 total committed frames, zero loss, Unknown, duplicate frames, unreported missing frames, corruption, and lease deadline overruns.
+
+| High-paced mode | Durable GB/s median | Writer CPU s/GiB median | Recorder process CPU s/GiB median | Maximum Queue |
+|---|---:|---:|---:|---:|
+| Barrier + sync | 1.447 | 0.262 | 0.731 | 61 |
+| Barrier + io_uring | 1.430 | 0.097 | 0.777 | 63 |
+| Overlap + sync | 1.906 | 0.205 | 0.684 | 16 |
+| Overlap + io_uring | 1.919 | 0.044 | 0.735 | 3 |
+
+Overlap accounted for most of the bandwidth gain. Within Overlap, io_uring reduced Writer-thread CPU by about 79% and reduced peak Queue occupancy from 16 to 3. Recorder process CPU rose about 8%. Process CPU does not capture all CPU potentially consumed in the kernel. These results cover short buffered recording and drain, with no CopyOut. They leave sustained SSD performance and power-loss behavior unqualified.
+
+Run `./ur` from a clean checkout on the NVMe host. The wrapper builds the release binary, runs the smoke, and starts the full comparison only after smoke verification. Output is under a fresh `target/uring-*` path and capped at about 4.3 GiB. Commands in the published JSON use placeholders for local paths.
+
+[io_uring CSV](durability-evidence/io-uring.csv) · [Detailed JSON](durability-evidence/io-uring.json)

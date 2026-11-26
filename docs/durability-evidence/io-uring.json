@@ -1,0 +1,4839 @@
+{
+  "environment": {
+    "binary_sha256": "e5b6218fc941705b222eeb1d90aedfe91e054547197e28b27e2c9e64e296a297",
+    "kernel": "7.0.0-30-generic",
+    "cpus": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "depth": 4,
+    "planned_output_limit_bytes": 4596957184,
+    "free_bytes": 94537519104,
+    "nvme": "nvme1n1",
+    "firmware": "ELFA01.2",
+    "mount": "TARGET SOURCE         FSTYPE OPTIONS\n/      /dev/nvme1n1p2 ext4   rw,relatime\n"
+  },
+  "rows": [
+    {
+      "mode": "overlap-io-uring",
+      "backend": "io-uring",
+      "rate": "smoke",
+      "trial": 1,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/smoke-1-overlap-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/smoke-1-overlap-io-uring/run.mcap",
+        "--duration-sec",
+        "0.008",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 1040789980.256449,
+      "durable_Bps": 623177460.6185293,
+      "data_sync_only_Bps": 670018165.3775396,
+      "session_cpu_s_per_gib": 10.023052544,
+      "writer_cpu_s_per_gib": 0.234964992,
+      "committed_frames": 8,
+      "verified": true,
+      "recovery_verified": true,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 1,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 4,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 4,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 4,
+          "max": 1161767,
+          "mean": 1014728.5,
+          "min": 923138,
+          "p50": 983039,
+          "p95": 1161767,
+          "p99": 1161767,
+          "p99_9": 1161767
+        },
+        {
+          "count": 4,
+          "max": 1121145,
+          "mean": 1004514.75,
+          "min": 842500,
+          "p50": 950271,
+          "p95": 1121145,
+          "p99": 1121145,
+          "p99_9": 1121145
+        }
+      ],
+      "lease_drop_ns": 5468,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 1,
+        "max": 4437339,
+        "mean": 4437339.0,
+        "min": 4437339,
+        "p50": 4437339,
+        "p95": 4437339,
+        "p99": 4437339,
+        "p99_9": 4437339
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 0,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 1,
+        "final_data_synced": true,
+        "final_drain_ns": 5328613,
+        "group_confirmation": {
+          "count": 1,
+          "max": 5318646,
+          "mean": 5318646.0,
+          "min": 5318646,
+          "p50": 5318646,
+          "p95": 5318646,
+          "p99": 5318646,
+          "p99_9": 5318646
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 20960,
+          "rollback_failed": false,
+          "sync_ns": 839106,
+          "write_ns": 6067
+        },
+        "journal_groups_written": 1,
+        "journal_synced": true,
+        "journal_syncs": 1,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 8388856,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 628638,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 8388856,
+      "barrier_ns": 0,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 839106,
+      "ssd_before": {
+        "time_ns": 7624703256109766,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2141571208192,
+        "disk_io_busy_ms": 41166342
+      },
+      "ssd_after": {
+        "time_ns": 7624703508813273,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2141579801600,
+        "disk_io_busy_ms": 41166350
+      },
+      "disk_written_bytes": 8593408
+    },
+    {
+      "mode": "barrier-sync",
+      "backend": "sync",
+      "rate": "paced",
+      "trial": 1,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/paced-1-barrier-sync/config.toml",
+        "--output",
+        "$OUTPUT/paced-1-barrier-sync/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "sync",
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ]
+      },
+      "input_Bps": 1048263256.4811137,
+      "durable_Bps": 1015923671.3760167,
+      "data_sync_only_Bps": 1020300160.8976685,
+      "session_cpu_s_per_gib": 0.6382834062222222,
+      "writer_cpu_s_per_gib": 0.21739004017777777,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 13,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 12605789,
+          "mean": 2660087.511111111,
+          "min": 384557,
+          "p50": 1245183,
+          "p95": 7602175,
+          "p99": 12605789,
+          "p99_9": 12605789
+        },
+        {
+          "count": 90,
+          "max": 11765036,
+          "mean": 2222025.6333333333,
+          "min": 384977,
+          "p50": 720895,
+          "p95": 6815743,
+          "p99": 11765036,
+          "p99_9": 11765036
+        }
+      ],
+      "lease_drop_ns": 47927,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 12255493,
+        "mean": 6532844.166666667,
+        "min": 2180012,
+        "p50": 6553599,
+        "p95": 12255493,
+        "p99": 12255493,
+        "p99_9": 12255493
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 87892403,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 26,
+        "group_confirmation": {
+          "count": 12,
+          "max": 13051692,
+          "mean": 7323949.5,
+          "min": 2971132,
+          "p50": 7077887,
+          "p95": 13051692,
+          "p99": 13051692,
+          "p99_9": 13051692
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 33827,
+          "rollback_failed": false,
+          "sync_ns": 9433447,
+          "write_ns": 12182
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 9491109,
+        "max_uncertain_bytes": 16777712,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 0,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 16777712,
+      "barrier_ns": 87892403,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 9433447,
+      "ssd_before": {
+        "time_ns": 7624703527095651,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2141579801600,
+        "disk_io_busy_ms": 41166350
+      },
+      "ssd_after": {
+        "time_ns": 7624703893626657,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2141769282560,
+        "disk_io_busy_ms": 41166433
+      },
+      "disk_written_bytes": 189480960
+    },
+    {
+      "mode": "barrier-io-uring",
+      "backend": "io-uring",
+      "rate": "paced",
+      "trial": 1,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/paced-1-barrier-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/paced-1-barrier-io-uring/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ]
+      },
+      "input_Bps": 1048260531.8166194,
+      "durable_Bps": 1015353432.6141776,
+      "data_sync_only_Bps": 1019684221.9363565,
+      "session_cpu_s_per_gib": 0.6893251128888889,
+      "writer_cpu_s_per_gib": 0.07892174506666667,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 12,
+      "inflight_peak": 4,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 11691591,
+          "mean": 2703420.033333333,
+          "min": 414157,
+          "p50": 1245183,
+          "p95": 7077887,
+          "p99": 11691591,
+          "p99_9": 11691591
+        },
+        {
+          "count": 90,
+          "max": 10880632,
+          "mean": 2266627.211111111,
+          "min": 409535,
+          "p50": 917503,
+          "p95": 6291455,
+          "p99": 10880632,
+          "p99_9": 10880632
+        }
+      ],
+      "lease_drop_ns": 45490,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11197656,
+        "mean": 6393485.833333333,
+        "min": 2182235,
+        "p50": 6291455,
+        "p95": 11197656,
+        "p99": 11197656,
+        "p99_9": 11197656
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 86211656,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 32,
+        "group_confirmation": {
+          "count": 12,
+          "max": 11978236,
+          "mean": 7183848.0,
+          "min": 2965505,
+          "p50": 7077887,
+          "p95": 11978236,
+          "p99": 11978236,
+          "p99_9": 11978236
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 40250,
+          "rollback_failed": false,
+          "sync_ns": 9416739,
+          "write_ns": 12787
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 9482037,
+        "max_uncertain_bytes": 16777712,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 0,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 16777712,
+      "barrier_ns": 86211656,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 9416739,
+      "ssd_before": {
+        "time_ns": 7624703928520617,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2141769298944,
+        "disk_io_busy_ms": 41166433
+      },
+      "ssd_after": {
+        "time_ns": 7624704295079898,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2141958771712,
+        "disk_io_busy_ms": 41166519
+      },
+      "disk_written_bytes": 189472768
+    },
+    {
+      "mode": "overlap-sync",
+      "backend": "sync",
+      "rate": "paced",
+      "trial": 1,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/paced-1-overlap-sync/config.toml",
+        "--output",
+        "$OUTPUT/paced-1-overlap-sync/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "sync",
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 1048278818.7786474,
+      "durable_Bps": 1019835180.5791981,
+      "data_sync_only_Bps": 1024308776.413541,
+      "session_cpu_s_per_gib": 0.635676672,
+      "writer_cpu_s_per_gib": 0.18964775253333335,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 1,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 902598,
+          "mean": 415128.34444444446,
+          "min": 383222,
+          "p50": 393215,
+          "p95": 524287,
+          "p99": 902598,
+          "p99_9": 902598
+        },
+        {
+          "count": 90,
+          "max": 873041,
+          "mean": 410889.81111111114,
+          "min": 382347,
+          "p50": 393215,
+          "p95": 507903,
+          "p99": 873041,
+          "p99_9": 873041
+        }
+      ],
+      "lease_drop_ns": 50186,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 12099982,
+        "mean": 6703211.583333333,
+        "min": 2308842,
+        "p50": 6291455,
+        "p95": 12099982,
+        "p99": 12099982,
+        "p99_9": 12099982
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 0,
+        "completions_during_sync": 73,
+        "data_sync_overlap_ns": 9789975,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 4993239,
+        "group_confirmation": {
+          "count": 12,
+          "max": 12887510,
+          "mean": 7646385.916666667,
+          "min": 4990659,
+          "p50": 7077887,
+          "p95": 12887510,
+          "p99": 12887510,
+          "p99_9": 12887510
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 26480,
+          "rollback_failed": false,
+          "sync_ns": 9346521,
+          "write_ns": 7056
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 30409603,
+        "pending_peak": 2,
+        "sync_failures": 0,
+        "worker_cpu_ns": 5059283,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 30409603,
+      "barrier_ns": 0,
+      "pending_peak": 2,
+      "backpressure_ns": 0,
+      "overlap_ns": 9789975,
+      "journal_sync_ns": 9346521,
+      "ssd_before": {
+        "time_ns": 7624704330082750,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2141958792192,
+        "disk_io_busy_ms": 41166519
+      },
+      "ssd_after": {
+        "time_ns": 7624704696559856,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2142148248576,
+        "disk_io_busy_ms": 41166615
+      },
+      "disk_written_bytes": 189456384
+    },
+    {
+      "mode": "overlap-io-uring",
+      "backend": "io-uring",
+      "rate": "paced",
+      "trial": 1,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/paced-1-overlap-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/paced-1-overlap-io-uring/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 1048262243.4631733,
+      "durable_Bps": 1019069598.4184935,
+      "data_sync_only_Bps": 1023591390.8911113,
+      "session_cpu_s_per_gib": 0.6989204650666667,
+      "writer_cpu_s_per_gib": 0.04980008391111111,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 1,
+      "inflight_peak": 2,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 2255389,
+          "mean": 557412.1,
+          "min": 411089,
+          "p50": 589823,
+          "p95": 950271,
+          "p99": 2255389,
+          "p99_9": 2255389
+        },
+        {
+          "count": 90,
+          "max": 1597648,
+          "mean": 557134.1777777778,
+          "min": 411281,
+          "p50": 589823,
+          "p95": 950271,
+          "p99": 1597648,
+          "p99_9": 1597648
+        }
+      ],
+      "lease_drop_ns": 40443,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11640773,
+        "mean": 6281423.75,
+        "min": 2165071,
+        "p50": 6291455,
+        "p95": 11640773,
+        "p99": 11640773,
+        "p99_9": 11640773
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 0,
+        "completions_during_sync": 66,
+        "data_sync_overlap_ns": 89950,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 5123624,
+        "group_confirmation": {
+          "count": 12,
+          "max": 12459745,
+          "mean": 7259982.833333333,
+          "min": 5120476,
+          "p50": 7077887,
+          "p95": 12459745,
+          "p99": 12459745,
+          "p99_9": 12459745
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 28442,
+          "rollback_failed": false,
+          "sync_ns": 9492114,
+          "write_ns": 9942
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 29360996,
+        "pending_peak": 2,
+        "sync_failures": 0,
+        "worker_cpu_ns": 5692197,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 29360996,
+      "barrier_ns": 0,
+      "pending_peak": 2,
+      "backpressure_ns": 0,
+      "overlap_ns": 89950,
+      "journal_sync_ns": 9492114,
+      "ssd_before": {
+        "time_ns": 7624704731572650,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2142148277248,
+        "disk_io_busy_ms": 41166615
+      },
+      "ssd_after": {
+        "time_ns": 7624705098142852,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2142338040832,
+        "disk_io_busy_ms": 41166698
+      },
+      "disk_written_bytes": 189763584
+    },
+    {
+      "mode": "barrier-io-uring",
+      "backend": "io-uring",
+      "rate": "paced",
+      "trial": 2,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/paced-2-barrier-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/paced-2-barrier-io-uring/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ]
+      },
+      "input_Bps": 1048259594.4887325,
+      "durable_Bps": 1015878144.6222088,
+      "data_sync_only_Bps": 1020256248.5179437,
+      "session_cpu_s_per_gib": 0.7705081400888889,
+      "writer_cpu_s_per_gib": 0.07565238044444444,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 15,
+      "inflight_peak": 4,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 15630533,
+          "mean": 3499976.822222222,
+          "min": 413156,
+          "p50": 1966079,
+          "p95": 12058623,
+          "p99": 15630533,
+          "p99_9": 15630533
+        },
+        {
+          "count": 90,
+          "max": 15018753,
+          "mean": 3045387.4555555554,
+          "min": 411975,
+          "p50": 1114111,
+          "p95": 11010047,
+          "p99": 15018753,
+          "p99_9": 15018753
+        }
+      ],
+      "lease_drop_ns": 38058,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 14931012,
+        "mean": 6572802.416666667,
+        "min": 2197857,
+        "p50": 6291455,
+        "p95": 14931012,
+        "p99": 14931012,
+        "p99_9": 14931012
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 88419368,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 25,
+        "group_confirmation": {
+          "count": 12,
+          "max": 15774727,
+          "mean": 7367872.583333333,
+          "min": 2989505,
+          "p50": 7077887,
+          "p95": 15774727,
+          "p99": 15774727,
+          "p99_9": 15774727
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 39565,
+          "rollback_failed": false,
+          "sync_ns": 9474073,
+          "write_ns": 12181
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 9538115,
+        "max_uncertain_bytes": 16777712,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 0,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 16777712,
+      "barrier_ns": 88419368,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 9474073,
+      "ssd_before": {
+        "time_ns": 7624705133285709,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2142338073600,
+        "disk_io_busy_ms": 41166699
+      },
+      "ssd_after": {
+        "time_ns": 7624705499893544,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2142527431680,
+        "disk_io_busy_ms": 41166786
+      },
+      "disk_written_bytes": 189358080
+    },
+    {
+      "mode": "overlap-sync",
+      "backend": "sync",
+      "rate": "paced",
+      "trial": 2,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/paced-2-overlap-sync/config.toml",
+        "--output",
+        "$OUTPUT/paced-2-overlap-sync/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "sync",
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 1048260537.6385369,
+      "durable_Bps": 1019865742.4855275,
+      "data_sync_only_Bps": 1024323357.6328517,
+      "session_cpu_s_per_gib": 0.7092248120888889,
+      "writer_cpu_s_per_gib": 0.24514127644444447,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 4,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 3980590,
+          "mean": 499871.3777777778,
+          "min": 379148,
+          "p50": 409599,
+          "p95": 884735,
+          "p99": 3980590,
+          "p99_9": 3980590
+        },
+        {
+          "count": 90,
+          "max": 4887622,
+          "mean": 549381.1666666666,
+          "min": 381170,
+          "p50": 409599,
+          "p95": 1048575,
+          "p99": 4887622,
+          "p99_9": 4887622
+        }
+      ],
+      "lease_drop_ns": 50327,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11663896,
+        "mean": 6527070.833333333,
+        "min": 2199277,
+        "p50": 6029311,
+        "p95": 11663896,
+        "p99": 11663896,
+        "p99_9": 11663896
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 0,
+        "completions_during_sync": 68,
+        "data_sync_overlap_ns": 12127425,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 4980857,
+        "group_confirmation": {
+          "count": 12,
+          "max": 12448091,
+          "mean": 7492835.75,
+          "min": 4977769,
+          "p50": 6815743,
+          "p95": 12448091,
+          "p99": 12448091,
+          "p99_9": 12448091
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 27149,
+          "rollback_failed": false,
+          "sync_ns": 9501472,
+          "write_ns": 10076
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 29360996,
+        "pending_peak": 2,
+        "sync_failures": 0,
+        "worker_cpu_ns": 4916358,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 29360996,
+      "barrier_ns": 0,
+      "pending_peak": 2,
+      "backpressure_ns": 0,
+      "overlap_ns": 12127425,
+      "journal_sync_ns": 9501472,
+      "ssd_before": {
+        "time_ns": 7624705534949224,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2142527468544,
+        "disk_io_busy_ms": 41166787
+      },
+      "ssd_after": {
+        "time_ns": 7624705901519169,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2142716785664,
+        "disk_io_busy_ms": 41166876
+      },
+      "disk_written_bytes": 189317120
+    },
+    {
+      "mode": "overlap-io-uring",
+      "backend": "io-uring",
+      "rate": "paced",
+      "trial": 2,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/paced-2-overlap-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/paced-2-overlap-io-uring/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 1048260747.227613,
+      "durable_Bps": 1018861608.7243385,
+      "data_sync_only_Bps": 1023379121.1284759,
+      "session_cpu_s_per_gib": 0.7100969756444445,
+      "writer_cpu_s_per_gib": 0.04821566008888889,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 1,
+      "inflight_peak": 4,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 3287460,
+          "mean": 553735.5222222222,
+          "min": 411974,
+          "p50": 425983,
+          "p95": 1015807,
+          "p99": 3287460,
+          "p99_9": 3287460
+        },
+        {
+          "count": 90,
+          "max": 2439621,
+          "mean": 535288.2111111111,
+          "min": 413735,
+          "p50": 425983,
+          "p95": 1015807,
+          "p99": 2439621,
+          "p99_9": 2439621
+        }
+      ],
+      "lease_drop_ns": 36872,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11626957,
+        "mean": 6565891.0,
+        "min": 2163663,
+        "p50": 6291455,
+        "p95": 11626957,
+        "p99": 11626957,
+        "p99_9": 11626957
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 0,
+        "completions_during_sync": 70,
+        "data_sync_overlap_ns": 75489,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 5167833,
+        "group_confirmation": {
+          "count": 12,
+          "max": 12423026,
+          "mean": 7548072.166666667,
+          "min": 5164545,
+          "p50": 7077887,
+          "p95": 12423026,
+          "p99": 12423026,
+          "p99_9": 12423026
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 37586,
+          "rollback_failed": false,
+          "sync_ns": 9478180,
+          "write_ns": 11578
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 29360996,
+        "pending_peak": 2,
+        "sync_failures": 0,
+        "worker_cpu_ns": 5017418,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 29360996,
+      "barrier_ns": 0,
+      "pending_peak": 2,
+      "backpressure_ns": 0,
+      "overlap_ns": 75489,
+      "journal_sync_ns": 9478180,
+      "ssd_before": {
+        "time_ns": 7624705937199465,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2142716830720,
+        "disk_io_busy_ms": 41166878
+      },
+      "ssd_after": {
+        "time_ns": 7624706303727279,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2142906164224,
+        "disk_io_busy_ms": 41166967
+      },
+      "disk_written_bytes": 189333504
+    },
+    {
+      "mode": "barrier-sync",
+      "backend": "sync",
+      "rate": "paced",
+      "trial": 2,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/paced-2-barrier-sync/config.toml",
+        "--output",
+        "$OUTPUT/paced-2-barrier-sync/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "sync",
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ]
+      },
+      "input_Bps": 1048261509.89968,
+      "durable_Bps": 1017084969.9564325,
+      "data_sync_only_Bps": 1021473062.2932612,
+      "session_cpu_s_per_gib": 0.6912825400888889,
+      "writer_cpu_s_per_gib": 0.23972043093333334,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 14,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 13447162,
+          "mean": 2878820.4444444445,
+          "min": 381471,
+          "p50": 1638399,
+          "p95": 8912895,
+          "p99": 13447162,
+          "p99_9": 13447162
+        },
+        {
+          "count": 90,
+          "max": 12617960,
+          "mean": 2444111.4777777777,
+          "min": 381193,
+          "p50": 851967,
+          "p95": 7864319,
+          "p99": 12617960,
+          "p99_9": 12617960
+        }
+      ],
+      "lease_drop_ns": 45807,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 12495598,
+        "mean": 6576230.25,
+        "min": 2159241,
+        "p50": 6291455,
+        "p95": 12495598,
+        "p99": 12495598,
+        "p99_9": 12495598
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 88929687,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 25,
+        "group_confirmation": {
+          "count": 12,
+          "max": 13839321,
+          "mean": 7410442.916666667,
+          "min": 2952392,
+          "p50": 7077887,
+          "p95": 13839321,
+          "p99": 13839321,
+          "p99_9": 13839321
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 30204,
+          "rollback_failed": false,
+          "sync_ns": 9953860,
+          "write_ns": 14487
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 10008832,
+        "max_uncertain_bytes": 16777712,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 0,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 16777712,
+      "barrier_ns": 88929687,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 9953860,
+      "ssd_before": {
+        "time_ns": 7624706339128677,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2142906213376,
+        "disk_io_busy_ms": 41166967
+      },
+      "ssd_after": {
+        "time_ns": 7624706705591695,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2143095567360,
+        "disk_io_busy_ms": 41167056
+      },
+      "disk_written_bytes": 189353984
+    },
+    {
+      "mode": "overlap-sync",
+      "backend": "sync",
+      "rate": "paced",
+      "trial": 3,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/paced-3-overlap-sync/config.toml",
+        "--output",
+        "$OUTPUT/paced-3-overlap-sync/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "sync",
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 1048260188.3235967,
+      "durable_Bps": 991613886.1736877,
+      "data_sync_only_Bps": 995834518.1962522,
+      "session_cpu_s_per_gib": 0.6774618168888888,
+      "writer_cpu_s_per_gib": 0.21259933013333335,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 1,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 1257763,
+          "mean": 449219.36666666664,
+          "min": 375150,
+          "p50": 393215,
+          "p95": 851967,
+          "p99": 1257763,
+          "p99_9": 1257763
+        },
+        {
+          "count": 90,
+          "max": 1789502,
+          "mean": 424704.2444444444,
+          "min": 370354,
+          "p50": 393215,
+          "p95": 557055,
+          "p99": 1789502,
+          "p99_9": 1789502
+        }
+      ],
+      "lease_drop_ns": 51971,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11334692,
+        "mean": 6723211.333333333,
+        "min": 2177392,
+        "p50": 6291455,
+        "p95": 11334692,
+        "p99": 11334692,
+        "p99_9": 11334692
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 0,
+        "completions_during_sync": 68,
+        "data_sync_overlap_ns": 10416598,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 10253015,
+        "group_confirmation": {
+          "count": 12,
+          "max": 12115077,
+          "mean": 8119712.916666667,
+          "min": 6741746,
+          "p50": 7340031,
+          "p95": 12115077,
+          "p99": 12115077,
+          "p99_9": 12115077
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 25896,
+          "rollback_failed": false,
+          "sync_ns": 9385972,
+          "write_ns": 8671
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 29360996,
+        "pending_peak": 2,
+        "sync_failures": 0,
+        "worker_cpu_ns": 4826649,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 29360996,
+      "barrier_ns": 0,
+      "pending_peak": 2,
+      "backpressure_ns": 0,
+      "overlap_ns": 10416598,
+      "journal_sync_ns": 9385972,
+      "ssd_before": {
+        "time_ns": 7624706740810595,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2143095620608,
+        "disk_io_busy_ms": 41167056
+      },
+      "ssd_after": {
+        "time_ns": 7624707107305736,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2143284986880,
+        "disk_io_busy_ms": 41167140
+      },
+      "disk_written_bytes": 189366272
+    },
+    {
+      "mode": "overlap-io-uring",
+      "backend": "io-uring",
+      "rate": "paced",
+      "trial": 3,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/paced-3-overlap-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/paced-3-overlap-io-uring/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 1048258109.9045153,
+      "durable_Bps": 1018484496.4498273,
+      "data_sync_only_Bps": 1023110434.5629693,
+      "session_cpu_s_per_gib": 0.6981401088,
+      "writer_cpu_s_per_gib": 0.049124932266666664,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 1,
+      "inflight_peak": 2,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 2266341,
+          "mean": 518212.6,
+          "min": 411971,
+          "p50": 425983,
+          "p95": 950271,
+          "p99": 2266341,
+          "p99_9": 2266341
+        },
+        {
+          "count": 90,
+          "max": 1471363,
+          "mean": 496560.26666666666,
+          "min": 409855,
+          "p50": 425983,
+          "p95": 720895,
+          "p99": 1471363,
+          "p99_9": 1471363
+        }
+      ],
+      "lease_drop_ns": 41438,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 9594121,
+        "mean": 6168579.583333333,
+        "min": 2319899,
+        "p50": 6291455,
+        "p95": 9594121,
+        "p99": 9594121,
+        "p99_9": 9594121
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 0,
+        "completions_during_sync": 67,
+        "data_sync_overlap_ns": 65193,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 5231396,
+        "group_confirmation": {
+          "count": 12,
+          "max": 10411607,
+          "mean": 7153906.666666667,
+          "min": 5228247,
+          "p50": 7077887,
+          "p95": 10411607,
+          "p99": 10411607,
+          "p99_9": 10411607
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 27630,
+          "rollback_failed": false,
+          "sync_ns": 9644309,
+          "write_ns": 7731
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 27263782,
+        "pending_peak": 2,
+        "sync_failures": 0,
+        "worker_cpu_ns": 4854689,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 27263782,
+      "barrier_ns": 0,
+      "pending_peak": 2,
+      "backpressure_ns": 0,
+      "overlap_ns": 65193,
+      "journal_sync_ns": 9644309,
+      "ssd_before": {
+        "time_ns": 7624707142548056,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2143285048320,
+        "disk_io_busy_ms": 41167140
+      },
+      "ssd_after": {
+        "time_ns": 7624707509027349,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2143474422784,
+        "disk_io_busy_ms": 41167226
+      },
+      "disk_written_bytes": 189374464
+    },
+    {
+      "mode": "barrier-sync",
+      "backend": "sync",
+      "rate": "paced",
+      "trial": 3,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/paced-3-barrier-sync/config.toml",
+        "--output",
+        "$OUTPUT/paced-3-barrier-sync/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "sync",
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ]
+      },
+      "input_Bps": 1048263081.8227084,
+      "durable_Bps": 1017241826.5493356,
+      "data_sync_only_Bps": 1021619098.7322563,
+      "session_cpu_s_per_gib": 0.6726476458666666,
+      "writer_cpu_s_per_gib": 0.22753787448888887,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 12,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 12156117,
+          "mean": 2677117.3777777776,
+          "min": 374749,
+          "p50": 1310719,
+          "p95": 8126463,
+          "p99": 12156117,
+          "p99_9": 12156117
+        },
+        {
+          "count": 90,
+          "max": 11315185,
+          "mean": 2230284.8444444444,
+          "min": 373292,
+          "p50": 688127,
+          "p95": 7340031,
+          "p99": 11315185,
+          "p99_9": 11315185
+        }
+      ],
+      "lease_drop_ns": 46162,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11710256,
+        "mean": 6481325.916666667,
+        "min": 2144850,
+        "p50": 6029311,
+        "p95": 11710256,
+        "p99": 11710256,
+        "p99_9": 11710256
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 87221168,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 30,
+        "group_confirmation": {
+          "count": 12,
+          "max": 12497949,
+          "mean": 7268043.583333333,
+          "min": 2934221,
+          "p50": 6815743,
+          "p95": 12497949,
+          "p99": 12497949,
+          "p99_9": 12497949
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 32867,
+          "rollback_failed": false,
+          "sync_ns": 9382054,
+          "write_ns": 13580
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 9438521,
+        "max_uncertain_bytes": 16777712,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 0,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 16777712,
+      "barrier_ns": 87221168,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 9382054,
+      "ssd_before": {
+        "time_ns": 7624707544440358,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2143474488320,
+        "disk_io_busy_ms": 41167226
+      },
+      "ssd_after": {
+        "time_ns": 7624707910978057,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2143664063488,
+        "disk_io_busy_ms": 41167318
+      },
+      "disk_written_bytes": 189575168
+    },
+    {
+      "mode": "barrier-io-uring",
+      "backend": "io-uring",
+      "rate": "paced",
+      "trial": 3,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/paced-3-barrier-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/paced-3-barrier-io-uring/run.mcap",
+        "--duration-sec",
+        "0.18",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 500,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ]
+      },
+      "input_Bps": 1048258587.2997656,
+      "durable_Bps": 1015581566.0398256,
+      "data_sync_only_Bps": 1019855944.4011792,
+      "session_cpu_s_per_gib": 0.7210935751111112,
+      "writer_cpu_s_per_gib": 0.07718407964444444,
+      "committed_frames": 180,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 12,
+      "inflight_peak": 4,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 12458343,
+          "mean": 2880410.4444444445,
+          "min": 411158,
+          "p50": 1441791,
+          "p95": 8388607,
+          "p99": 12458343,
+          "p99_9": 12458343
+        },
+        {
+          "count": 90,
+          "max": 11646306,
+          "mean": 2431016.4444444445,
+          "min": 409888,
+          "p50": 753663,
+          "p95": 7864319,
+          "p99": 11646306,
+          "p99_9": 11646306
+        }
+      ],
+      "lease_drop_ns": 41211,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11967577,
+        "mean": 6496600.75,
+        "min": 2304652,
+        "p50": 6029311,
+        "p95": 11967577,
+        "p99": 11967577,
+        "p99_9": 11967577
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 87520382,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 25,
+        "group_confirmation": {
+          "count": 12,
+          "max": 12759634,
+          "mean": 7292923.666666667,
+          "min": 3077774,
+          "p50": 6815743,
+          "p95": 12759634,
+          "p99": 12759634,
+          "p99_9": 12759634
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 37498,
+          "rollback_failed": false,
+          "sync_ns": 9492123,
+          "write_ns": 13704
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 9553882,
+        "max_uncertain_bytes": 16777712,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 0,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 16777712,
+      "barrier_ns": 87520382,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 9492123,
+      "ssd_before": {
+        "time_ns": 7624707946432005,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2143664133120,
+        "disk_io_busy_ms": 41167318
+      },
+      "ssd_after": {
+        "time_ns": 7624708312952694,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2143853491200,
+        "disk_io_busy_ms": 41167416
+      },
+      "disk_written_bytes": 189358080
+    },
+    {
+      "mode": "barrier-io-uring",
+      "backend": "io-uring",
+      "rate": "fast",
+      "trial": 1,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/fast-1-barrier-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/fast-1-barrier-io-uring/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ]
+      },
+      "input_Bps": 2084200799.518949,
+      "durable_Bps": 1428702632.543466,
+      "data_sync_only_Bps": 1437178555.4716885,
+      "session_cpu_s_per_gib": 0.7768992350391062,
+      "writer_cpu_s_per_gib": 0.09696761135195531,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 63,
+      "inflight_peak": 4,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 40565003,
+          "mean": 21273029.233333334,
+          "min": 759522,
+          "p50": 19922943,
+          "p95": 37748735,
+          "p99": 40565003,
+          "p99_9": 40565003
+        },
+        {
+          "count": 89,
+          "max": 39775270,
+          "mean": 20331809.20224719,
+          "min": 505017,
+          "p50": 18874367,
+          "p95": 37748735,
+          "p99": 39775270,
+          "p99_9": 39775270
+        }
+      ],
+      "lease_drop_ns": 35504,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 13160544,
+        "mean": 6751792.916666667,
+        "min": 1817433,
+        "p50": 6291455,
+        "p95": 13160544,
+        "p99": 13160544,
+        "p99_9": 13160544
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 90521757,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 29,
+        "group_confirmation": {
+          "count": 12,
+          "max": 13956446,
+          "mean": 7542898.666666667,
+          "min": 2585591,
+          "p50": 7077887,
+          "p95": 13956446,
+          "p99": 13956446,
+          "p99_9": 13956446
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 50440,
+          "rollback_failed": false,
+          "sync_ns": 9400164,
+          "write_ns": 21613
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 9489945,
+        "max_uncertain_bytes": 16777712,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 0,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 16777712,
+      "barrier_ns": 90521757,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 9400164,
+      "ssd_before": {
+        "time_ns": 7624708348465373,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2143853564928,
+        "disk_io_busy_ms": 41167416
+      },
+      "ssd_after": {
+        "time_ns": 7624708665156487,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2144041952256,
+        "disk_io_busy_ms": 41167503
+      },
+      "disk_written_bytes": 188387328
+    },
+    {
+      "mode": "overlap-sync",
+      "backend": "sync",
+      "rate": "fast",
+      "trial": 1,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/fast-1-overlap-sync/config.toml",
+        "--output",
+        "$OUTPUT/fast-1-overlap-sync/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "sync",
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 2084239750.5003333,
+      "durable_Bps": 1858827785.0960371,
+      "data_sync_only_Bps": 1873601808.1437802,
+      "session_cpu_s_per_gib": 0.6769855299217877,
+      "writer_cpu_s_per_gib": 0.1993480180558659,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 2,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 1508594,
+          "mean": 590395.4777777778,
+          "min": 492316,
+          "p50": 557055,
+          "p95": 950271,
+          "p99": 1508594,
+          "p99_9": 1508594
+        },
+        {
+          "count": 89,
+          "max": 1151566,
+          "mean": 421997.80898876407,
+          "min": 364199,
+          "p50": 409599,
+          "p95": 655359,
+          "p99": 1151566,
+          "p99_9": 1151566
+        }
+      ],
+      "lease_drop_ns": 48399,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11205217,
+        "mean": 6369561.333333333,
+        "min": 426482,
+        "p50": 6029311,
+        "p95": 11205217,
+        "p99": 11205217,
+        "p99_9": 11205217
+      },
+      "durability": {
+        "backpressure_ns": 2227658,
+        "barrier_ns": 0,
+        "completions_during_sync": 131,
+        "data_sync_overlap_ns": 19211360,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 8665650,
+        "group_confirmation": {
+          "count": 12,
+          "max": 12318265,
+          "mean": 9217698.416666666,
+          "min": 5809012,
+          "p50": 8912895,
+          "p95": 12318265,
+          "p99": 12318265,
+          "p99_9": 12318265
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 23669,
+          "rollback_failed": false,
+          "sync_ns": 9422339,
+          "write_ns": 7108
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 42992887,
+        "pending_peak": 2,
+        "sync_failures": 0,
+        "worker_cpu_ns": 4988147,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 42992887,
+      "barrier_ns": 0,
+      "pending_peak": 2,
+      "backpressure_ns": 2227658,
+      "overlap_ns": 19211360,
+      "journal_sync_ns": 9422339,
+      "ssd_before": {
+        "time_ns": 7624708700959058,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2144042034176,
+        "disk_io_busy_ms": 41167503
+      },
+      "ssd_after": {
+        "time_ns": 7624709017554896,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2144230290432,
+        "disk_io_busy_ms": 41167594
+      },
+      "disk_written_bytes": 188256256
+    },
+    {
+      "mode": "overlap-io-uring",
+      "backend": "io-uring",
+      "rate": "fast",
+      "trial": 1,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/fast-1-overlap-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/fast-1-overlap-io-uring/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 2084248591.6269407,
+      "durable_Bps": 1919050046.8794134,
+      "data_sync_only_Bps": 1935048351.1813638,
+      "session_cpu_s_per_gib": 0.7195233022569832,
+      "writer_cpu_s_per_gib": 0.04370575588826815,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 2,
+      "inflight_peak": 4,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 3037709,
+          "mean": 760289.0555555555,
+          "min": 567229,
+          "p50": 589823,
+          "p95": 1769471,
+          "p99": 3037709,
+          "p99_9": 3037709
+        },
+        {
+          "count": 89,
+          "max": 3053280,
+          "mean": 575202.0898876404,
+          "min": 431377,
+          "p50": 475135,
+          "p95": 1310719,
+          "p99": 3053280,
+          "p99_9": 3053280
+        }
+      ],
+      "lease_drop_ns": 37860,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 9730834,
+        "mean": 5949128.75,
+        "min": 1814514,
+        "p50": 6029311,
+        "p95": 9730834,
+        "p99": 9730834,
+        "p99_9": 9730834
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 0,
+        "completions_during_sync": 127,
+        "data_sync_overlap_ns": 110065,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 7726724,
+        "group_confirmation": {
+          "count": 12,
+          "max": 10936962,
+          "mean": 7825866.166666667,
+          "min": 6026901,
+          "p50": 6815743,
+          "p95": 10936962,
+          "p99": 10936962,
+          "p99_9": 10936962
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 24587,
+          "rollback_failed": false,
+          "sync_ns": 9365130,
+          "write_ns": 8193
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 40895673,
+        "pending_peak": 2,
+        "sync_failures": 0,
+        "worker_cpu_ns": 5101718,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 40895673,
+      "barrier_ns": 0,
+      "pending_peak": 2,
+      "backpressure_ns": 0,
+      "overlap_ns": 110065,
+      "journal_sync_ns": 9365130,
+      "ssd_before": {
+        "time_ns": 7624709053738583,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2144230376448,
+        "disk_io_busy_ms": 41167594
+      },
+      "ssd_after": {
+        "time_ns": 7624709370446998,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2144418657280,
+        "disk_io_busy_ms": 41167678
+      },
+      "disk_written_bytes": 188280832
+    },
+    {
+      "mode": "barrier-sync",
+      "backend": "sync",
+      "rate": "fast",
+      "trial": 1,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/fast-1-barrier-sync/config.toml",
+        "--output",
+        "$OUTPUT/fast-1-barrier-sync/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "sync",
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ]
+      },
+      "input_Bps": 2084219730.9489741,
+      "durable_Bps": 1437746719.8852627,
+      "data_sync_only_Bps": 1446534152.1017544,
+      "session_cpu_s_per_gib": 0.7312514545698324,
+      "writer_cpu_s_per_gib": 0.26569728,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 61,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 39639047,
+          "mean": 23821544.611111112,
+          "min": 566335,
+          "p50": 25165823,
+          "p95": 37748735,
+          "p99": 39639047,
+          "p99_9": 39639047
+        },
+        {
+          "count": 89,
+          "max": 38853440,
+          "mean": 22946889.91011236,
+          "min": 412367,
+          "p50": 24117247,
+          "p95": 35651583,
+          "p99": 38853440,
+          "p99_9": 38853440
+        }
+      ],
+      "lease_drop_ns": 47644,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 16040734,
+        "mean": 6516038.75,
+        "min": 1853176,
+        "p50": 6291455,
+        "p95": 16040734,
+        "p99": 16040734,
+        "p99_9": 16040734
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 87729025,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 26,
+        "group_confirmation": {
+          "count": 12,
+          "max": 16866524,
+          "mean": 7310196.083333333,
+          "min": 2639367,
+          "p50": 7077887,
+          "p95": 16866524,
+          "p99": 16866524,
+          "p99_9": 16866524
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 43084,
+          "rollback_failed": false,
+          "sync_ns": 9446473,
+          "write_ns": 21271
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 9526460,
+        "max_uncertain_bytes": 16777712,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 0,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 16777712,
+      "barrier_ns": 87729025,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 9446473,
+      "ssd_before": {
+        "time_ns": 7624709406527007,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2144418657280,
+        "disk_io_busy_ms": 41167678
+      },
+      "ssd_after": {
+        "time_ns": 7624709723198326,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2144607110144,
+        "disk_io_busy_ms": 41167766
+      },
+      "disk_written_bytes": 188452864
+    },
+    {
+      "mode": "overlap-sync",
+      "backend": "sync",
+      "rate": "fast",
+      "trial": 2,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/fast-2-overlap-sync/config.toml",
+        "--output",
+        "$OUTPUT/fast-2-overlap-sync/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "sync",
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 2084247272.3964818,
+      "durable_Bps": 1926612343.8142033,
+      "data_sync_only_Bps": 1942559129.1560738,
+      "session_cpu_s_per_gib": 0.683536017877095,
+      "writer_cpu_s_per_gib": 0.2047587139217877,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 3,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 2025008,
+          "mean": 638443.8444444444,
+          "min": 499480,
+          "p50": 589823,
+          "p95": 1310719,
+          "p99": 2025008,
+          "p99_9": 2025008
+        },
+        {
+          "count": 89,
+          "max": 1225111,
+          "mean": 452006.55056179775,
+          "min": 370168,
+          "p50": 409599,
+          "p95": 884735,
+          "p99": 1225111,
+          "p99_9": 1225111
+        }
+      ],
+      "lease_drop_ns": 51392,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 12069643,
+        "mean": 6430864.583333333,
+        "min": 1864067,
+        "p50": 5767167,
+        "p95": 12069643,
+        "p99": 12069643,
+        "p99_9": 12069643
+      },
+      "durability": {
+        "backpressure_ns": 1769456,
+        "barrier_ns": 0,
+        "completions_during_sync": 145,
+        "data_sync_overlap_ns": 21709819,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 7341284,
+        "group_confirmation": {
+          "count": 12,
+          "max": 17476684,
+          "mean": 11394512.333333334,
+          "min": 5494662,
+          "p50": 11534335,
+          "p95": 17476684,
+          "p99": 17476684,
+          "p99_9": 17476684
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 27435,
+          "rollback_failed": false,
+          "sync_ns": 9396258,
+          "write_ns": 7870
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 50333136,
+        "pending_peak": 2,
+        "sync_failures": 0,
+        "worker_cpu_ns": 5064743,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 50333136,
+      "barrier_ns": 0,
+      "pending_peak": 2,
+      "backpressure_ns": 1769456,
+      "overlap_ns": 21709819,
+      "journal_sync_ns": 9396258,
+      "ssd_before": {
+        "time_ns": 7624709759290588,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2144607208448,
+        "disk_io_busy_ms": 41167766
+      },
+      "ssd_after": {
+        "time_ns": 7624710025688229,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2144795493376,
+        "disk_io_busy_ms": 41167856
+      },
+      "disk_written_bytes": 188284928
+    },
+    {
+      "mode": "overlap-io-uring",
+      "backend": "io-uring",
+      "rate": "fast",
+      "trial": 2,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/fast-2-overlap-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/fast-2-overlap-io-uring/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 2084247989.8724892,
+      "durable_Bps": 1937461748.4546483,
+      "data_sync_only_Bps": 1953601818.5853226,
+      "session_cpu_s_per_gib": 0.7353827568268156,
+      "writer_cpu_s_per_gib": 0.04386576875977653,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 2,
+      "inflight_peak": 4,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 3166654,
+          "mean": 800897.2333333333,
+          "min": 547789,
+          "p50": 720895,
+          "p95": 1835007,
+          "p99": 3166654,
+          "p99_9": 3166654
+        },
+        {
+          "count": 89,
+          "max": 2475873,
+          "mean": 562415.584269663,
+          "min": 418043,
+          "p50": 475135,
+          "p95": 1245183,
+          "p99": 2475873,
+          "p99_9": 2475873
+        }
+      ],
+      "lease_drop_ns": 37374,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11955409,
+        "mean": 6500943.333333333,
+        "min": 513216,
+        "p50": 6029311,
+        "p95": 11955409,
+        "p99": 11955409,
+        "p99_9": 11955409
+      },
+      "durability": {
+        "backpressure_ns": 1212481,
+        "barrier_ns": 0,
+        "completions_during_sync": 146,
+        "data_sync_overlap_ns": 124327,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 5564144,
+        "group_confirmation": {
+          "count": 12,
+          "max": 14253422,
+          "mean": 10721428.083333334,
+          "min": 5561852,
+          "p50": 11534335,
+          "p95": 14253422,
+          "p99": 14253422,
+          "p99_9": 14253422
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 25431,
+          "rollback_failed": false,
+          "sync_ns": 9380815,
+          "write_ns": 8229
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 47187315,
+        "pending_peak": 2,
+        "sync_failures": 0,
+        "worker_cpu_ns": 5296862,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 47187315,
+      "barrier_ns": 0,
+      "pending_peak": 2,
+      "backpressure_ns": 1212481,
+      "overlap_ns": 124327,
+      "journal_sync_ns": 9380815,
+      "ssd_before": {
+        "time_ns": 7624710061960008,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2144795599872,
+        "disk_io_busy_ms": 41167856
+      },
+      "ssd_after": {
+        "time_ns": 7624710378765758,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2144983880704,
+        "disk_io_busy_ms": 41167948
+      },
+      "disk_written_bytes": 188280832
+    },
+    {
+      "mode": "barrier-sync",
+      "backend": "sync",
+      "rate": "fast",
+      "trial": 2,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/fast-2-barrier-sync/config.toml",
+        "--output",
+        "$OUTPUT/fast-2-barrier-sync/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "sync",
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ]
+      },
+      "input_Bps": 2084242296.3667977,
+      "durable_Bps": 1447199760.0346048,
+      "data_sync_only_Bps": 1456154690.2693698,
+      "session_cpu_s_per_gib": 0.7281508741005587,
+      "writer_cpu_s_per_gib": 0.26039676424581004,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 51,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 38809592,
+          "mean": 18956782.777777776,
+          "min": 588373,
+          "p50": 18874367,
+          "p95": 37748735,
+          "p99": 38809592,
+          "p99_9": 38809592
+        },
+        {
+          "count": 89,
+          "max": 38016087,
+          "mean": 18030503.280898876,
+          "min": 411298,
+          "p50": 17825791,
+          "p95": 35651583,
+          "p99": 38016087,
+          "p99_9": 38016087
+        }
+      ],
+      "lease_drop_ns": 45996,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11860039,
+        "mean": 6510110.583333333,
+        "min": 1853538,
+        "p50": 6291455,
+        "p95": 11860039,
+        "p99": 11860039,
+        "p99_9": 11860039
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 87654387,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 27,
+        "group_confirmation": {
+          "count": 12,
+          "max": 12649443,
+          "mean": 7303995.583333333,
+          "min": 2643846,
+          "p50": 7077887,
+          "p95": 12649443,
+          "p99": 12649443,
+          "p99_9": 12649443
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 39486,
+          "rollback_failed": false,
+          "sync_ns": 9447777,
+          "write_ns": 20034
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 9524278,
+        "max_uncertain_bytes": 16777712,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 0,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 16777712,
+      "barrier_ns": 87654387,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 9447777,
+      "ssd_before": {
+        "time_ns": 7624710416669812,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2144983991296,
+        "disk_io_busy_ms": 41167950
+      },
+      "ssd_after": {
+        "time_ns": 7624710767746295,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2145172317184,
+        "disk_io_busy_ms": 41168036
+      },
+      "disk_written_bytes": 188325888
+    },
+    {
+      "mode": "barrier-io-uring",
+      "backend": "io-uring",
+      "rate": "fast",
+      "trial": 2,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/fast-2-barrier-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/fast-2-barrier-io-uring/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ]
+      },
+      "input_Bps": 2084238685.8671105,
+      "durable_Bps": 1430331708.900503,
+      "data_sync_only_Bps": 1438994060.9471664,
+      "session_cpu_s_per_gib": 0.7895130787039105,
+      "writer_cpu_s_per_gib": 0.09858992482681564,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 51,
+      "inflight_peak": 4,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 40370318,
+          "mean": 19543283.68888889,
+          "min": 626531,
+          "p50": 20971519,
+          "p95": 31457279,
+          "p99": 40370318,
+          "p99_9": 40370318
+        },
+        {
+          "count": 89,
+          "max": 39552564,
+          "mean": 18604058.460674156,
+          "min": 540153,
+          "p50": 19922943,
+          "p95": 30408703,
+          "p99": 39552564,
+          "p99_9": 39552564
+        }
+      ],
+      "lease_drop_ns": 42123,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11774654,
+        "mean": 6576120.333333333,
+        "min": 1874649,
+        "p50": 6029311,
+        "p95": 11774654,
+        "p99": 11774654,
+        "p99_9": 11774654
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 88470588,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 25,
+        "group_confirmation": {
+          "count": 12,
+          "max": 12546241,
+          "mean": 7372083.416666667,
+          "min": 2658238,
+          "p50": 6815743,
+          "p95": 12546241,
+          "p99": 12546241,
+          "p99_9": 12546241
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 39294,
+          "rollback_failed": false,
+          "sync_ns": 9479211,
+          "write_ns": 16842
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 9549247,
+        "max_uncertain_bytes": 16777712,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 0,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 16777712,
+      "barrier_ns": 88470588,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 9479211,
+      "ssd_before": {
+        "time_ns": 7624710803706933,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2145172431872,
+        "disk_io_busy_ms": 41168036
+      },
+      "ssd_after": {
+        "time_ns": 7624711120195074,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2145360749568,
+        "disk_io_busy_ms": 41168125
+      },
+      "disk_written_bytes": 188317696
+    },
+    {
+      "mode": "overlap-io-uring",
+      "backend": "io-uring",
+      "rate": "fast",
+      "trial": 3,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/fast-3-overlap-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/fast-3-overlap-io-uring/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 2084245328.2704284,
+      "durable_Bps": 1916026816.6227634,
+      "data_sync_only_Bps": 1932046912.6814303,
+      "session_cpu_s_per_gib": 0.7421764819664805,
+      "writer_cpu_s_per_gib": 0.04446882467039106,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 3,
+      "inflight_peak": 4,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 3579053,
+          "mean": 793148.5222222222,
+          "min": 570741,
+          "p50": 589823,
+          "p95": 1703935,
+          "p99": 3579053,
+          "p99_9": 3579053
+        },
+        {
+          "count": 89,
+          "max": 3209197,
+          "mean": 614167.3483146067,
+          "min": 415906,
+          "p50": 475135,
+          "p95": 1638399,
+          "p99": 3209197,
+          "p99_9": 3209197
+        }
+      ],
+      "lease_drop_ns": 38042,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 12617979,
+        "mean": 6197750.416666667,
+        "min": 1851165,
+        "p50": 6029311,
+        "p95": 12617979,
+        "p99": 12617979,
+        "p99_9": 12617979
+      },
+      "durability": {
+        "backpressure_ns": 1554573,
+        "barrier_ns": 0,
+        "completions_during_sync": 140,
+        "data_sync_overlap_ns": 121972,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 7879709,
+        "group_confirmation": {
+          "count": 12,
+          "max": 16600931,
+          "mean": 10571854.666666666,
+          "min": 5004297,
+          "p50": 8126463,
+          "p95": 16600931,
+          "p99": 16600931,
+          "p99_9": 16600931
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 29327,
+          "rollback_failed": false,
+          "sync_ns": 9261010,
+          "write_ns": 10049
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 50333136,
+        "pending_peak": 2,
+        "sync_failures": 0,
+        "worker_cpu_ns": 5006400,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 50333136,
+      "barrier_ns": 0,
+      "pending_peak": 2,
+      "backpressure_ns": 1554573,
+      "overlap_ns": 121972,
+      "journal_sync_ns": 9261010,
+      "ssd_before": {
+        "time_ns": 7624711156544137,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2145360872448,
+        "disk_io_busy_ms": 41168125
+      },
+      "ssd_after": {
+        "time_ns": 7624711473268929,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2145549149184,
+        "disk_io_busy_ms": 41168208
+      },
+      "disk_written_bytes": 188276736
+    },
+    {
+      "mode": "barrier-sync",
+      "backend": "sync",
+      "rate": "fast",
+      "trial": 3,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/fast-3-barrier-sync/config.toml",
+        "--output",
+        "$OUTPUT/fast-3-barrier-sync/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "sync",
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ]
+      },
+      "input_Bps": 2084240514.2596195,
+      "durable_Bps": 1502840915.823917,
+      "data_sync_only_Bps": 1512462272.8725233,
+      "session_cpu_s_per_gib": 0.7355342458994414,
+      "writer_cpu_s_per_gib": 0.2624088155530726,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 51,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 34007060,
+          "mean": 17690660.955555554,
+          "min": 592017,
+          "p50": 18874367,
+          "p95": 31457279,
+          "p99": 34007060,
+          "p99_9": 34007060
+        },
+        {
+          "count": 89,
+          "max": 33211388,
+          "mean": 16805750.95505618,
+          "min": 392708,
+          "p50": 18874367,
+          "p95": 30408703,
+          "p99": 33211388,
+          "p99_9": 33211388
+        }
+      ],
+      "lease_drop_ns": 46709,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11257872,
+        "mean": 6119520.5,
+        "min": 1863798,
+        "p50": 6029311,
+        "p95": 11257872,
+        "p99": 11257872,
+        "p99_9": 11257872
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 82777034,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 45,
+        "group_confirmation": {
+          "count": 12,
+          "max": 12003848,
+          "mean": 6897629.166666667,
+          "min": 2651398,
+          "p50": 6815743,
+          "p95": 12003848,
+          "p99": 12003848,
+          "p99_9": 12003848
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 42236,
+          "rollback_failed": false,
+          "sync_ns": 9260581,
+          "write_ns": 18819
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 9333874,
+        "max_uncertain_bytes": 16777712,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 0,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 16777712,
+      "barrier_ns": 82777034,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 9260581,
+      "ssd_before": {
+        "time_ns": 7624711509861589,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2145549149184,
+        "disk_io_busy_ms": 41168208
+      },
+      "ssd_after": {
+        "time_ns": 7624711862221846,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2145738322944,
+        "disk_io_busy_ms": 41168317
+      },
+      "disk_written_bytes": 189173760
+    },
+    {
+      "mode": "barrier-io-uring",
+      "backend": "io-uring",
+      "rate": "fast",
+      "trial": 3,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/fast-3-barrier-io-uring/config.toml",
+        "--output",
+        "$OUTPUT/fast-3-barrier-io-uring/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "io-uring",
+          "in_flight": 4,
+          "max_borrowed_in_flight": 4,
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ]
+      },
+      "input_Bps": 2085289985.189722,
+      "durable_Bps": 1443226938.4619663,
+      "data_sync_only_Bps": 1452027256.987694,
+      "session_cpu_s_per_gib": 0.7766814891620112,
+      "writer_cpu_s_per_gib": 0.09504496840223463,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 61,
+      "inflight_peak": 4,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 39260614,
+          "mean": 21579112.588888887,
+          "min": 804022,
+          "p50": 25165823,
+          "p95": 37748735,
+          "p99": 39260614,
+          "p99_9": 39260614
+        },
+        {
+          "count": 89,
+          "max": 38445047,
+          "mean": 20666851.078651685,
+          "min": 525802,
+          "p50": 24117247,
+          "p95": 35651583,
+          "p99": 38445047,
+          "p99_9": 38445047
+        }
+      ],
+      "lease_drop_ns": 37211,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 12413952,
+        "mean": 6577625.416666667,
+        "min": 1858157,
+        "p50": 6291455,
+        "p95": 12413952,
+        "p99": 12413952,
+        "p99_9": 12413952
+      },
+      "durability": {
+        "backpressure_ns": 0,
+        "barrier_ns": 88401072,
+        "completions_during_sync": 0,
+        "data_sync_overlap_ns": 0,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 28,
+        "group_confirmation": {
+          "count": 12,
+          "max": 13208993,
+          "mean": 7366273.333333333,
+          "min": 2639487,
+          "p50": 7077887,
+          "p95": 13208993,
+          "p99": 13208993,
+          "p99_9": 13208993
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 41448,
+          "rollback_failed": false,
+          "sync_ns": 9390297,
+          "write_ns": 15842
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 9461493,
+        "max_uncertain_bytes": 16777712,
+        "pending_peak": 1,
+        "sync_failures": 0,
+        "worker_cpu_ns": 0,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 16777712,
+      "barrier_ns": 88401072,
+      "pending_peak": 1,
+      "backpressure_ns": 0,
+      "overlap_ns": 0,
+      "journal_sync_ns": 9390297,
+      "ssd_before": {
+        "time_ns": 7624711899086688,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2145738454016,
+        "disk_io_busy_ms": 41168317
+      },
+      "ssd_after": {
+        "time_ns": 7624712215575469,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2145926775808,
+        "disk_io_busy_ms": 41168406
+      },
+      "disk_written_bytes": 188321792
+    },
+    {
+      "mode": "overlap-sync",
+      "backend": "sync",
+      "rate": "fast",
+      "trial": 3,
+      "command": [
+        "$RECORDER",
+        "record",
+        "--config",
+        "$OUTPUT/fast-3-overlap-sync/config.toml",
+        "--output",
+        "$OUTPUT/fast-3-overlap-sync/run.mcap",
+        "--duration-sec",
+        "0.09",
+        "--allow-unverified"
+      ],
+      "config": {
+        "record": {
+          "policy": "deadline-aware",
+          "copy_scheduling": "global",
+          "writer": "sync",
+          "queue_capacity": 64,
+          "memory_budget_bytes": 268435456,
+          "max_output_bytes": 209715200,
+          "commit_interval_ms": 80,
+          "commit_bytes": 16777216,
+          "commit_messages": 16,
+          "metrics_interval_ms": 5,
+          "seed": 101
+        },
+        "sources": [
+          {
+            "id": "camera_0",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 0,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          },
+          {
+            "id": "camera_1",
+            "kind": "mock_v4l2",
+            "model": "fixed-deadline",
+            "frame_bytes": 1048576,
+            "fps": 1000,
+            "phase_us": 1000,
+            "dma_buffers": 64,
+            "max_hold_ms": 100,
+            "return_delay_us": 200
+          }
+        ],
+        "spill": [
+          {
+            "frame_bytes": 1048576,
+            "buffers": 32
+          }
+        ],
+        "durability": {
+          "mode": "overlap"
+        }
+      },
+      "input_Bps": 2084212810.985405,
+      "durable_Bps": 1906276976.2493834,
+      "data_sync_only_Bps": 1921897495.78518,
+      "session_cpu_s_per_gib": 0.6874654605586592,
+      "writer_cpu_s_per_gib": 0.20475482958659216,
+      "committed_frames": 179,
+      "verified": true,
+      "recovery_verified": null,
+      "legacy_verified": null,
+      "loss": 0,
+      "unknown": 0,
+      "corrupt": 0,
+      "copy_bytes": 0,
+      "queue_peak": 16,
+      "inflight_peak": 1,
+      "deadlines": 0,
+      "ack_delay": [
+        {
+          "count": 90,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        },
+        {
+          "count": 89,
+          "max": 200000,
+          "mean": 200000.0,
+          "min": 200000,
+          "p50": 200000,
+          "p95": 200000,
+          "p99": 200000,
+          "p99_9": 200000
+        }
+      ],
+      "acquire_to_ack": [
+        {
+          "count": 90,
+          "max": 8349715,
+          "mean": 1193806.5333333334,
+          "min": 501421,
+          "p50": 557055,
+          "p95": 6029311,
+          "p99": 8349715,
+          "p99_9": 8349715
+        },
+        {
+          "count": 89,
+          "max": 8189055,
+          "mean": 1029935.8539325843,
+          "min": 370332,
+          "p50": 409599,
+          "p95": 5767167,
+          "p99": 8189055,
+          "p99_9": 8189055
+        }
+      ],
+      "lease_drop_ns": 49105,
+      "finalized": true,
+      "journal_synced": true,
+      "loss_synced": true,
+      "data_sync": {
+        "count": 12,
+        "max": 11275410,
+        "mean": 6224072.833333333,
+        "min": 424666,
+        "p50": 6029311,
+        "p95": 11275410,
+        "p99": 11275410,
+        "p99_9": 11275410
+      },
+      "durability": {
+        "backpressure_ns": 1819039,
+        "barrier_ns": 0,
+        "completions_during_sync": 134,
+        "data_sync_overlap_ns": 27675602,
+        "data_syncs": 12,
+        "final_data_synced": true,
+        "final_drain_ns": 6556188,
+        "group_confirmation": {
+          "count": 12,
+          "max": 12071956,
+          "mean": 8393332.833333334,
+          "min": 5955475,
+          "p50": 7864319,
+          "p95": 12071956,
+          "p99": 12071956,
+          "p99_9": 12071956
+        },
+        "journal": {
+          "failures": 0,
+          "flush_ns": 26000,
+          "rollback_failed": false,
+          "sync_ns": 9403054,
+          "write_ns": 9002
+        },
+        "journal_groups_written": 12,
+        "journal_synced": true,
+        "journal_syncs": 12,
+        "journal_wait_ns": 0,
+        "max_uncertain_bytes": 40895673,
+        "pending_peak": 2,
+        "sync_failures": 0,
+        "worker_cpu_ns": 5208688,
+        "worker_failures": 0
+      },
+      "max_uncertain_bytes": 40895673,
+      "barrier_ns": 0,
+      "pending_peak": 2,
+      "backpressure_ns": 1819039,
+      "overlap_ns": 27675602,
+      "journal_sync_ns": 9403054,
+      "ssd_before": {
+        "time_ns": 7624712252013922,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2145926915072,
+        "disk_io_busy_ms": 41168406
+      },
+      "ssd_after": {
+        "time_ns": 7624712518395879,
+        "temperature_c": 25.85,
+        "disk_written_bytes": 2146115175424,
+        "disk_io_busy_ms": 41168489
+      },
+      "disk_written_bytes": 188260352
+    }
+  ]
+}
