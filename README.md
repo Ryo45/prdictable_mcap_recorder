@@ -150,3 +150,10 @@ df -h target
 python3 tools/bench.py --suite ssd --out target/bench-v1-sustained \
   --high-seconds 5 --disk-baseline-mib 8192 --allow-large-output
 ```
+
+### Live UDP・ROS 2・SocketCAN
+
+`record-live` は静的に設定した実入力を1つの非チャンク MCAP に記録します。ROS 2 は実行時の raw subscription bridge を使うため、SDKなしで Rust をビルドできます。
+
+- [実行手順と検証結果](docs/real-source-e2e.md)
+- [Ingress・Transform・Codec の仕様](docs/real-source-architecture.md)

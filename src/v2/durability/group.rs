@@ -33,7 +33,7 @@ pub(super) struct Group {
 }
 
 impl Group {
-    pub(super) fn new(settings: &Settings, first_offset: u64) -> Self {
+    pub(super) fn new(settings: &Settings, first_offset: u64, streams: usize) -> Self {
         Self {
             id: 0,
             first_request: 0,
@@ -42,7 +42,7 @@ impl Group {
             next_offset: first_offset,
             first_message_offset: first_offset,
             entries: Vec::with_capacity(settings.record.commit_messages),
-            spans: vec![None; settings.sources.len()],
+            spans: vec![None; streams],
         }
     }
 
@@ -238,7 +238,7 @@ mod tests {
     fn contiguous_boundary_requires_every_unique_completion() {
         let settings =
             toml::from_str::<Settings>(include_str!("../../../configs/v2-smoke.toml")).unwrap();
-        let mut group = Group::new(&settings, 100);
+        let mut group = Group::new(&settings, 100, settings.sources.len());
         let mut ids = Vec::new();
         for request_id in 0..3 {
             let frame_id = FrameId {

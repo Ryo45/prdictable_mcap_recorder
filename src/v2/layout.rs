@@ -21,6 +21,7 @@ pub struct Layout {
     data_crc: Hasher,
     pub offset: u64,
     recovery_crc: bool,
+    absolute_publish_time: bool,
 }
 
 pub fn topic(source: &Source) -> String {
@@ -110,11 +111,42 @@ impl Layout {
                 channels,
                 data_crc,
                 offset: preamble.len() as u64,
+                absolute_publish_time: false,
                 recovery_crc: settings.record.writer != WriterMode::Null
                     && settings
                         .sources
                         .iter()
                         .any(|source| !source.kind.is_synthetic()),
+            },
+            preamble,
+        ))
+    }
+
+    pub fn live(
+        registrations: &[super::live::Registration],
+        epoch: u64,
+    ) -> Result<(Self, Vec<u8>)> {
+        let mut writer = mcap::WriteOptions::new()
+            .use_chunks(false)
+            .compression(None)
+            .profile("predictable-recorder-live-v1")
+            .create(Cursor::new(Vec::new()))?;
+        let mut channels = Vec::with_capacity(registrations.len());
+        for reg in registrations {
+            let id = writer.add_schema(&reg.schema_name, &reg.schema_encoding, &reg.schema)?;
+            channels.push(writer.add_channel(id, &reg.topic, &reg.encoding, &reg.metadata)?);
+        }
+        let preamble = writer.into_inner().into_inner();
+        let mut data_crc = Hasher::new();
+        data_crc.update(&preamble);
+        Ok((
+            Self {
+                epoch,
+                channels,
+                data_crc,
+                offset: preamble.len() as u64,
+                recovery_crc: true,
+                absolute_publish_time: true,
             },
             preamble,
         ))
@@ -127,7 +159,12 @@ impl Layout {
         header[9..11].copy_from_slice(&self.channels[usize::from(frame.id.source)].to_le_bytes());
         header[11..15].copy_from_slice(&(frame.id.sequence as u32).to_le_bytes());
         header[15..23].copy_from_slice(&(self.epoch + frame.captured_ns).to_le_bytes());
-        header[23..31].copy_from_slice(&(self.epoch + frame.planned_ns).to_le_bytes());
+        let publish_time = if self.absolute_publish_time {
+            frame.planned_ns
+        } else {
+            self.epoch + frame.planned_ns
+        };
+        header[23..31].copy_from_slice(&publish_time.to_le_bytes());
         self.data_crc.update(&header);
         self.data_crc.update(frame.bytes());
         let offset = self.offset;

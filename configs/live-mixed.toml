@@ -1,0 +1,48 @@
+[record]
+writer = "sync"
+in_flight = 4
+queue_capacity = 128
+memory_budget_bytes = 268435456
+max_output_bytes = 67108864
+
+[durability]
+mode = "overlap"
+commit_bytes = 16777216
+commit_messages = 256
+commit_interval_ms = 80
+max_pending_bytes = 134217728
+max_pending_groups = 2
+
+[[sources]]
+id = "udp-lidar"
+kind = "udp"
+bind = "127.0.0.1:2368"
+max_payload_bytes = 65535
+transform = "zstd"
+
+[[sources]]
+id = "ros-text"
+kind = "ros2"
+topic = "/chatter"
+message_type = "std_msgs/msg/String"
+qos = "reliable"
+max_payload_bytes = 65536
+transform = "identity"
+
+[[sources]]
+id = "ros-image"
+kind = "ros2"
+topic = "/camera/image_raw"
+message_type = "sensor_msgs/msg/Image"
+qos = "sensor-data"
+max_payload_bytes = 4194304
+buffers = 8
+transform = "identity"
+
+[[sources]]
+id = "vehicle-can"
+kind = "socketcan"
+interface = "vcan0"
+enable_fd = true
+error_frames = false
+transform = "identity"

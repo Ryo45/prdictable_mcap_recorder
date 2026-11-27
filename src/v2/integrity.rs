@@ -30,6 +30,10 @@ pub enum Layer {
 pub enum Reason {
     SourceDeadlineMiss,
     SourceReportedDrop,
+    DatagramTruncated,
+    SourcePayloadTooLarge,
+    OutputLimit,
+    TransformFailure,
     DmaPoolExhausted,
     QueueFull,
     SpillPoolExhausted,
@@ -43,9 +47,12 @@ pub enum Reason {
 impl Reason {
     pub fn valid(self, layer: Layer, accepted: bool) -> bool {
         match self {
-            Self::SourceDeadlineMiss | Self::SourceReportedDrop => {
-                layer == Layer::Source && !accepted
-            }
+            Self::SourceDeadlineMiss
+            | Self::SourceReportedDrop
+            | Self::DatagramTruncated
+            | Self::SourcePayloadTooLarge
+            | Self::TransformFailure
+            | Self::OutputLimit => layer == Layer::Source && !accepted,
             Self::DmaPoolExhausted | Self::QueueFull => layer == Layer::Acquisition && !accepted,
             Self::SpillPoolExhausted | Self::CopyError => layer == Layer::Scheduler && accepted,
             Self::WriterNotSubmitted | Self::WriterError => layer == Layer::Writer && accepted,
@@ -203,6 +210,7 @@ pub struct Monitor<'a> {
     pub start: Instant,
     pub settings: &'a Settings,
     pub devices: &'a [Device],
+    pub live_pools: &'a [(&'a str, &'a Pool)],
     pub spill: &'a [Pool],
     pub sources: &'a [SourceProgress],
     pub progress: &'a Progress,
@@ -349,13 +357,18 @@ impl Monitor<'_> {
             .iter()
             .map(|pool| pool.levels(now).held * pool.size())
             .sum();
-        for (source, device) in self.sources.iter().zip(self.devices) {
+        for (stream, source) in self.sources.iter().enumerate() {
+            let (source_id, pool) = if let Some(device) = self.devices.get(stream) {
+                (device.source.id.as_str(), &device.pool)
+            } else {
+                self.live_pools[stream]
+            };
             let counters = source.report();
-            let pool = device.pool.levels(now);
+            let pool = pool.levels(now);
             writeln!(
                 csv,
                 "{now},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{spill_held_bytes},{},{},{},{},{},{},{write_rate:.0},{commit_rate:.0},{},{},{},{},{},{}",
-                device.source.id,
+                source_id,
                 counters.generated,
                 counters.accepted,
                 counters.written,

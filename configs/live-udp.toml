@@ -1,0 +1,24 @@
+[record]
+writer = "sync"
+queue_capacity = 128
+max_output_bytes = 67108864
+
+[durability]
+mode = "barrier"
+commit_messages = 32
+
+[[sources]]
+id = "udp-identity"
+kind = "udp"
+bind = "127.0.0.1:2368"
+max_payload_bytes = 65535
+buffers = 16
+transform = "identity"
+
+[[sources]]
+id = "udp-zstd"
+kind = "udp"
+bind = "127.0.0.1:2369"
+max_payload_bytes = 65535
+buffers = 16
+transform = "zstd"

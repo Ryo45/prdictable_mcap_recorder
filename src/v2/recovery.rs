@@ -58,6 +58,7 @@ struct Scan<'a> {
     messages: Vec<Message<'a>>,
     scanned: usize,
     finalized: bool,
+    live: bool,
     duplicate_identical: usize,
     duplicate_conflicting: usize,
 }
@@ -105,8 +106,9 @@ impl<'a> Scan<'a> {
             );
             match mcap::parse_record(prefix[0], body)? {
                 Record::Header(header) if start == mcap::MAGIC.len() => {
+                    self.live = header.profile == "predictable-recorder-live-v1";
                     ensure!(
-                        header.profile == "predictable-recorder-v2",
+                        self.live || header.profile == "predictable-recorder-v2",
                         "unsupported recovery profile"
                     );
                     header_seen = true;
@@ -151,32 +153,50 @@ impl<'a> Scan<'a> {
                         .get("session_epoch")
                         .context("missing epoch")?
                         .parse()?;
-                    let seed = channel
-                        .metadata
-                        .get("seed")
-                        .context("missing seed")?
-                        .parse()?;
-                    let size: usize = channel
-                        .metadata
-                        .get("frame_bytes")
-                        .context("missing frame size")?
-                        .parse()?;
-                    let kind = if channel.message_encoding == "cdr" {
-                        super::mock::Kind::MockRos2
+                    let sequence = if self.live {
+                        let max: usize = channel
+                            .metadata
+                            .get("max_payload_bytes")
+                            .context("missing payload bound")?
+                            .parse()?;
+                        ensure!(
+                            max <= 16 * 1024 * 1024
+                                && (channel.message_encoding == "cdr"
+                                    || header.log_time == header.publish_time)
+                                && header.log_time >= epoch,
+                            "invalid live channel limits or timestamp"
+                        );
+                        super::live::validate_message(&channel.message_encoding, data, max)?;
+                        u64::from(header.sequence)
                     } else {
-                        super::mock::Kind::Synthetic
+                        let seed = channel
+                            .metadata
+                            .get("seed")
+                            .context("missing seed")?
+                            .parse()?;
+                        let size: usize = channel
+                            .metadata
+                            .get("frame_bytes")
+                            .context("missing frame size")?
+                            .parse()?;
+                        let kind = if channel.message_encoding == "cdr" {
+                            super::mock::Kind::MockRos2
+                        } else {
+                            super::mock::Kind::Synthetic
+                        };
+                        let (sequence, payload_stream) =
+                            kind.sequence(data, stream).context("invalid fixture")?;
+                        ensure!(
+                            data.len() == size
+                                && payload_stream == stream
+                                && header.sequence == sequence as u32
+                                && header.log_time >= header.publish_time
+                                && header.publish_time >= epoch
+                                && kind.matches(data, seed, sequence, stream),
+                            "corrupt message at offset {start}"
+                        );
+                        sequence
                     };
-                    let (sequence, payload_stream) =
-                        kind.sequence(data, stream).context("invalid fixture")?;
-                    ensure!(
-                        data.len() == size
-                            && payload_stream == stream
-                            && header.sequence == sequence as u32
-                            && header.log_time >= header.publish_time
-                            && header.publish_time >= epoch
-                            && kind.matches(data, seed, sequence, stream),
-                        "corrupt message at offset {start}"
-                    );
                     ensure!(
                         self.messages.len() < MAX_MESSAGES,
                         "recovery message limit reached"
@@ -464,5 +484,145 @@ pub fn run(args: Args) -> Result<()> {
         .sync_all()?;
     }
     println!("{}", serde_json::to_string_pretty(&report)?);
+    Ok(())
+}
+
+pub(super) fn verify_live(input: &Path) -> Result<()> {
+    let outputs = crate::report::Outputs::new(input)?;
+    let bytes = read_bounded(input)?;
+    let mut scan = Scan::default();
+    scan.read(&bytes)?;
+    ensure!(
+        scan.live && scan.finalized,
+        "expected finalized live recording"
+    );
+    ensure!(
+        scan.duplicate_identical == 0 && scan.duplicate_conflicting == 0,
+        "duplicate live sequence"
+    );
+    let mut committed = 0;
+    scan.verify_journal(
+        &bytes,
+        &read_bounded(&super::record::commit_path(input)?)?,
+        &mut committed,
+    )?;
+    ensure!(
+        committed == scan.messages.len(),
+        "missing committed messages"
+    );
+    let report: serde_json::Value = serde_json::from_slice(&read_bounded(&outputs.summary)?)?;
+    ensure!(
+        report["live_version"] == 1
+            && report["ok"] == true
+            && report["loss_log_synced"] == true
+            && report["writer"]["final_sync"] == true
+            && report["durability"]["journal_synced"] == true,
+        "live summary does not certify clean shutdown"
+    );
+    let sources = report["sources"]
+        .as_array()
+        .context("missing live source list")?;
+    ensure!(
+        sources.len() == scan.channels.len() && sources.len() <= 32,
+        "live channel count mismatch"
+    );
+    let epoch = report["session_epoch"]
+        .as_u64()
+        .context("missing session epoch")?;
+    let mut seen = std::collections::HashSet::new();
+    for channel in scan.channels.values() {
+        let stream: usize = channel
+            .metadata
+            .get("stream_id")
+            .context("missing stream")?
+            .parse()?;
+        let expected = sources.get(stream).context("bad channel stream")?;
+        ensure!(
+            seen.insert(stream)
+                && expected["id"].as_str() == channel.metadata.get("source_id").map(String::as_str)
+                && expected["source_kind"].as_str()
+                    == channel.metadata.get("source_kind").map(String::as_str),
+            "live channel mismatch"
+        );
+        ensure!(
+            channel.metadata.get("session_epoch") == Some(&epoch.to_string()),
+            "session mismatch"
+        );
+    }
+    let mut intervals = vec![Vec::new(); sources.len()];
+    let mut written = vec![0_u64; sources.len()];
+    let mut previous = vec![None; sources.len()];
+    for message in &scan.messages {
+        let stream = usize::from(message.stream);
+        let slot = previous
+            .get_mut(stream)
+            .context("message stream out of range")?;
+        ensure!(
+            slot.is_none_or(
+                |(sequence, time)| message.sequence > sequence && message.header.log_time >= time
+            ),
+            "live per-source sequence/timestamp order mismatch"
+        );
+        *slot = Some((message.sequence, message.header.log_time));
+        intervals[stream].push((message.sequence, message.sequence + 1));
+        written[stream] += 1;
+    }
+    let mut before = vec![0_u64; sources.len()];
+    let mut after = before.clone();
+    for line in read_bounded(&outputs.losses)?.split_inclusive(|b| *b == b'\n') {
+        ensure!(
+            line.ends_with(b"\n") && line.len() <= 512,
+            "incomplete loss record"
+        );
+        let loss: super::integrity::Loss = serde_json::from_slice(line)?;
+        ensure!(
+            loss.span.start < loss.span.end
+                && loss.span.end <= u64::from(u32::MAX) + 1
+                && loss.reason.valid(loss.layer, loss.accepted)
+                && !loss.reason.uncertain(),
+            "invalid live loss"
+        );
+        let stream = usize::from(loss.span.stream);
+        intervals
+            .get_mut(stream)
+            .context("loss stream out of range")?
+            .push((loss.span.start, loss.span.end));
+        let count = if loss.accepted {
+            &mut after
+        } else {
+            &mut before
+        };
+        count[stream] = count[stream]
+            .checked_add(loss.span.count())
+            .context("loss count overflow")?;
+    }
+    for (i, ranges) in intervals.iter_mut().enumerate() {
+        ranges.sort_unstable();
+        let mut end = 0;
+        for &(start, next) in ranges.iter() {
+            ensure!(
+                start == end,
+                "overlap or gap in live sequence coverage on stream {i}"
+            );
+            end = next;
+        }
+        let counts: super::metrics::SourceCounts =
+            serde_json::from_value(sources[i]["counts"].clone())?;
+        ensure!(
+            counts.generated == end
+                && counts.committed == written[i]
+                && counts.written == written[i]
+                && counts.unknown == 0
+                && counts.before_accept_loss == before[i]
+                && counts.after_accept_loss == after[i]
+                && counts.accepted == written[i] + after[i],
+            "live counters do not reconcile"
+        );
+    }
+    println!(
+        "{}",
+        serde_json::json!({"ok":true,"committed":committed,"known_loss":before.iter().chain(&after).sum::<u64>(),
+        "source_count":sources.len()})
+    );
     Ok(())
 }

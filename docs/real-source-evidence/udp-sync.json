@@ -1,0 +1,19 @@
+{
+  "mode": "udp",
+  "writer": "sync",
+  "verified": {
+    "committed": 200,
+    "known_loss": 2,
+    "ok": true,
+    "source_count": 2
+  },
+  "queue_peak": 2,
+  "cpu_ns": 32943231,
+  "peak_rss_bytes": 6017024,
+  "mcap_bytes": 25678,
+  "sources": {
+    "/udp/udp-identity": 100,
+    "/udp/udp-zstd": 100
+  },
+  "wall_seconds": 3.038602912798524
+}

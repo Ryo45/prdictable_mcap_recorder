@@ -7,6 +7,7 @@ mod copy_trace;
 mod durability;
 mod integrity;
 mod layout;
+pub mod live;
 mod metrics;
 mod mock;
 mod planner;

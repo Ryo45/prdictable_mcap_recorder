@@ -197,6 +197,7 @@ fn run(
         progress: &progress,
     };
     let monitor = Monitor {
+        live_pools: &[],
         start,
         settings: &settings,
         devices: &devices,
@@ -217,6 +218,7 @@ fn run(
     };
     let writer = Writer {
         trace: trace.as_ref(),
+        max_wire_frame: settings.max_wire_frame(),
         start,
         settings: &settings,
         devices: &devices,

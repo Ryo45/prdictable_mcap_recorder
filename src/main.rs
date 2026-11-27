@@ -22,6 +22,9 @@ fn main() -> Result<()> {
     match Cli::parse().command {
         Command::Record(config) if config.config.is_some() => v2::record::run_cli(&config),
         Command::Record(config) => record::run(config),
+        Command::RecordLive(args) => v2::live::run(args),
+        Command::VerifyLive(args) => v2::live::verify(args),
+        Command::PlanLive(args) => v2::live::plan(args),
         Command::Verify(args) => v2::verify::dispatch(args),
         Command::Plan(args) => v2::plan(args),
         Command::Benchmark(args) => v2::benchmark(args),

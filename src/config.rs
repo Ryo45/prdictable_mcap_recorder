@@ -24,6 +24,12 @@ pub struct Cli {
 pub enum Command {
     /// Record one synthetic stream and write its sidecars.
     Record(Config),
+    /// Record statically configured live sources.
+    RecordLive(crate::v2::live::Args),
+    /// Verify a live recording independently.
+    VerifyLive(crate::v2::live::VerifyArgs),
+    /// Show live resource bounds.
+    PlanLive(crate::v2::live::PlanArgs),
     /// Read an MCAP and independently reconcile it against the sidecars.
     Verify(VerifyCli),
     /// Analyze a V2 recording configuration against its supplied resource bounds.

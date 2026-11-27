@@ -40,6 +40,7 @@ pub struct Writer<'a> {
     pub devices: &'a [Device],
     pub sources: &'a [SourceProgress],
     pub progress: &'a Progress,
+    pub max_wire_frame: u64,
     pub queue: &'a Queue,
 }
 
@@ -61,7 +62,7 @@ impl Writer<'_> {
             self.progress,
             self.sources,
             commits,
-            layout.offset,
+            (layout.offset, self.max_wire_frame),
             &backend,
         ) {
             Ok(coordinator) => coordinator,
@@ -192,7 +193,6 @@ impl Writer<'_> {
                         < self.settings.record.max_borrowed_in_flight as u64;
                     let io_bound = self.settings.storage_profile.max_io_us.unwrap_or(1_000) * US;
                     if let Some(job) = self.queue.claim_write(may_borrow, false, |job| {
-                        let device = &self.devices[usize::from(job.frame.id.source)];
                         let defer = self.settings.record.policy.adaptive()
                             && job
                                 .frame
@@ -200,9 +200,12 @@ impl Writer<'_> {
                                 .and_then(|lease| lease.deadline_ns)
                                 .is_some_and(|deadline| {
                                     deadline
-                                        <= now
-                                            .saturating_add(io_bound)
-                                            .saturating_add(device.source.return_delay_us * US)
+                                        <= now.saturating_add(io_bound).saturating_add(
+                                            self.devices[usize::from(job.frame.id.source)]
+                                                .source
+                                                .return_delay_us
+                                                * US,
+                                        )
                                 });
                         if defer && self.settings.record.copy_scheduling == CopyScheduling::Global {
                             p.global_copy

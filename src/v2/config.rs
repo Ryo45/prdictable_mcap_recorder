@@ -297,16 +297,20 @@ impl Settings {
             settings.storage_profile = override_profile.storage_profile;
             settings.copy_profile = override_profile.copy_profile;
         }
-        let policy = &settings.durability;
-        settings.record.commit_bytes = policy.commit_bytes.unwrap_or(settings.record.commit_bytes);
-        settings.record.commit_messages = policy
-            .commit_messages
-            .unwrap_or(settings.record.commit_messages);
-        settings.record.commit_interval_ms = policy
-            .commit_interval_ms
-            .unwrap_or(settings.record.commit_interval_ms);
+        settings.apply_durability();
         settings.validate()?;
         Ok(settings)
+    }
+
+    pub(super) fn apply_durability(&mut self) {
+        let policy = &self.durability;
+        self.record.commit_bytes = policy.commit_bytes.unwrap_or(self.record.commit_bytes);
+        self.record.commit_messages = policy
+            .commit_messages
+            .unwrap_or(self.record.commit_messages);
+        self.record.commit_interval_ms = policy
+            .commit_interval_ms
+            .unwrap_or(self.record.commit_interval_ms);
     }
 
     pub fn depth(&self) -> usize {

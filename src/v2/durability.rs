@@ -76,7 +76,7 @@ impl<'a> Coordinator<'a> {
         progress: &'a Progress,
         sources: &'a [SourceProgress],
         commits: File,
-        first_offset: u64,
+        layout: (u64, u64),
         backend: &Backend,
     ) -> Result<Self> {
         let mut journal = Some(Journal::new(commits));
@@ -97,12 +97,12 @@ impl<'a> Coordinator<'a> {
             settings,
             progress,
             sources,
-            group: Group::new(settings, first_offset),
+            group: Group::new(settings, layout.0, sources.len()),
             journal,
             worker,
             pending: VecDeque::with_capacity(limit),
             pending_bytes: 0,
-            max_wire_frame: settings.max_wire_frame(),
+            max_wire_frame: layout.1,
             spares: Vec::with_capacity(limit),
             confirmed_groups: 0,
             confirmation: crate::metrics::Histogram::default(),
@@ -270,7 +270,7 @@ impl<'a> Coordinator<'a> {
         let mut next = self
             .spares
             .pop()
-            .unwrap_or_else(|| Group::new(self.settings, boundary.0));
+            .unwrap_or_else(|| Group::new(self.settings, boundary.0, self.sources.len()));
         next.reset(self.group.id() + 1, self.group.next_request(), boundary.0);
         let sealed = Arc::new(Mutex::new(std::mem::replace(&mut self.group, next)));
         let job = worker::Job {

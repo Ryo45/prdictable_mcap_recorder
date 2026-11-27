@@ -1,0 +1,19 @@
+{
+  "mode": "udp",
+  "writer": "io-uring",
+  "verified": {
+    "committed": 200,
+    "known_loss": 2,
+    "ok": true,
+    "source_count": 2
+  },
+  "queue_peak": 2,
+  "cpu_ns": 36857905,
+  "peak_rss_bytes": 6012928,
+  "mcap_bytes": 25678,
+  "sources": {
+    "/udp/udp-identity": 100,
+    "/udp/udp-zstd": 100
+  },
+  "wall_seconds": 3.0345977302640676
+}
